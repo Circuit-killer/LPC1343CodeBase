@@ -70,12 +70,34 @@
 static uint8_t msg[CFG_INTERFACE_MAXMSGSIZE];
 static uint8_t *msg_ptr;
 
+#define CMD_MODE_NORMAL 0
+#define CMD_MODE_BUFFER 1
+
+static uint8_t mode = 0;
+static uint16_t bytesRead = 0;
+static uint16_t bytesToRead = 0;
+static uint8_t *buffer;
+
 /**************************************************************************/
 /*! 
     @brief  Polls the relevant incoming message queue to see if anything
             is waiting to be processed.
 */
 /**************************************************************************/
+void cmdBufferModeStart(uint8_t *buf, uint16_t length) {
+    mode = CMD_MODE_BUFFER;
+    bytesToRead = length;
+    bytesRead = 0;
+    buffer = buf;
+}
+
+void cmdBufferModeStop() {
+    mode = CMD_MODE_NORMAL;
+    if(NULL != bufferHandler) {
+        bufferHandler(buffer, bytesRead);
+    }
+}
+
 void cmdPoll()
 {
   #if defined CFG_PRINTF_UART
@@ -90,16 +112,29 @@ void cmdPoll()
     int  numBytesToRead, numBytesRead, numAvailByte;
   
     CDC_OutBufAvailChar (&numAvailByte);
-    if (numAvailByte > 0) 
-    {
-      numBytesToRead = numAvailByte > 32 ? 32 : numAvailByte; 
-      numBytesRead = CDC_RdOutBuf (&usbcdcBuf[0], &numBytesToRead);
-      int i;
-      for (i = 0; i < numBytesRead; i++) 
-      {  
-        cmdRx(usbcdcBuf[i]);   
-      }
+    
+    if (numAvailByte > 0) {
+        if(CMD_MODE_NORMAL == mode){
+                numBytesToRead = numAvailByte > 32 ? 32 : numAvailByte; 
+                numBytesRead = CDC_RdOutBuf (&usbcdcBuf[0], &numBytesToRead);
+                int i;
+                for (i = 0; i < numBytesRead; i++) {  
+                    cmdRx(usbcdcBuf[i]);   
+                }
+        } else if(CMD_MODE_BUFFER == mode) {
+            numBytesToRead = ((bytesRead + numAvailByte) <= bytesToRead) ? 
+                                numAvailByte : 
+                                (bytesToRead - bytesRead); 
+            printf("Reading buffer - %d read of %d%s", bytesRead, bytesToRead, CFG_PRINTF_NEWLINE);
+            uint16_t readFromCDC = CDC_RdOutBuf ((char *) &buffer[bytesRead], &numBytesToRead);
+            bytesRead += readFromCDC;
+            if(bytesRead >= bytesToRead) {
+                cmdBufferModeStop();
+            }
+        }
+    
     }
+    
   #endif
 }
 
@@ -139,12 +174,7 @@ void cmdRx(uint8_t c)
         #if CFG_INTERFACE_SILENTMODE == 0
         printf("%c",c);
         #endif
-        if (msg_ptr == msg)
-        {
-            // Send bell alert and space (to maintain position)
-            printf("\a ");
-        }
-        else if (msg_ptr > msg)
+        if (msg_ptr > msg)
         {
             msg_ptr--;
         }

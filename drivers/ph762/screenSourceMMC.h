@@ -1,13 +1,13 @@
 /**************************************************************************/
 /*! 
-    @file     main.c
-    @author   K. Townsend (microBuilder.eu)
+    @file     screenSourceMMC.h
+    @author   Albertas Mickėnas (mic@wemakethings.net)
 
     @section LICENSE
 
     Software License Agreement (BSD License)
 
-    Copyright (c) 2011, microBuilder SARL
+    Copyright (c) 2010, microBuilder SARL
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -33,50 +33,15 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /**************************************************************************/
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#ifndef __SCREEN_SOURCE_MMC_H__
+#define __SCREEN_SOURCE_MMC_H__
 
 #include "projectconfig.h"
-#include "sysinit.h"
+#include "ph762.h"
 
-#include "core/gpio/gpio.h"
-#include "core/systick/systick.h"
-#include "core/timer32/timer32.h"
-#include "drivers/ph762/ph762.h"
-#include "drivers/fatfs/diskio.h"
-#include "drivers/fatfs/ff.h"
+void initScreenSource();
+BOOL isNewScreenAvailable();
+void loadScreen(uint8_t screen[SCR_HEIGHT][SCR_WIDTH]);
+void freeScreenSource();
 
-
-#ifdef CFG_INTERFACE
-  #include "core/cmd/cmd.h"
 #endif
-
-
-
-/**************************************************************************/
-/*! 
-    Main program entry point.  After reset, normal code execution will
-    begin here.
-*/
-/**************************************************************************/
-int main(void)
-{
-    // Configure cpu and mandatory peripherals
-    systemInit();
-
-    ph762Init();
-    ph762StartDisplay();
-    
-    while (1) {
-        if(ph762IsTimeToChangeScreen()){
-            ph762ChangeScreen();
-        } 
-        
-    #ifdef CFG_INTERFACE 
-      cmdPoll(); 
-    #endif
-  }
-
-  return 0;
-}

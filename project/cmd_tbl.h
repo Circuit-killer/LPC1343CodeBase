@@ -95,6 +95,14 @@ void cmd_sd_dir(uint8_t argc, char **argv);
 
 void cmd_pwm(uint8_t argc, char **argv);
 
+void cmd_ledtest(uint8_t argc, char **argv);
+void cmd_send(uint8_t argc, char **argv);
+void cmd_ledScreenPos(uint8_t argc, char **argv);
+void cmd_setSpeed(uint8_t argc, char **argv);
+void cmd_stopScreen(uint8_t argc, char **argv);
+void cmd_startScreen(uint8_t argc, char **argv);
+
+
 #define CMD_NOPARAMS "This command has no parameters"
 
 /**************************************************************************/
@@ -156,6 +164,14 @@ cmd_t cmd_tbl[] =
   { "d",    0,  1,  0,  cmd_sd_dir           , "Dir (SD Card)"                  , "'d [<path>]'" },
   #endif
   { "pwm", 0, 2, 0, cmd_pwm, "PWM Control", "'pwm [<duty_cycle>] [<frequency>]'" },
+  
+  { "led", 3, 3, 0, cmd_ledtest, "Set byte in led matrix memory", "led <col> <row> <byte>"},
+  { "send", 2, 2, 0, cmd_send, "Device enters buffered accept mode until specified length bytes is transfered", "send <length>"},
+  { "pos", 2, 2, 0, cmd_ledScreenPos, "Set screen position for leds", "pos <position> <shift> position is -64 to 64"},
+  { "setSpeed", 1, 1, 0, cmd_setSpeed, "Sets scrolling speed, smaller number, the faster", "setSpeed <1 .. 255> "},
+  { "stopScreen", 0, 0, 0, cmd_stopScreen, "Stop and blank screen", "stopScreen"},
+  { "startScreen", 0, 0, 0, cmd_startScreen, "Start screen", "startScreen"},
+
 };
 
 #endif

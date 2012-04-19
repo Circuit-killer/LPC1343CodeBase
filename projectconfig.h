@@ -551,8 +551,8 @@
     DEPENDENCIES:             SDCARD requires the use of SSP0.
     -----------------------------------------------------------------------*/
     #ifdef CFG_BRD_LPC1343_REFDESIGN
-      // #define CFG_SDCARD
-      #define CFG_SDCARD_READONLY         (1)   // Must be 0 or 1
+      #define CFG_SDCARD
+      #define CFG_SDCARD_READONLY         (0)   // Must be 0 or 1
       #define CFG_SDCARD_CDPORT           (3)
       #define CFG_SDCARD_CDPIN            (0)
     #endif
