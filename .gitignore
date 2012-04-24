@@ -6,3 +6,5 @@ build/
 *.hex
 *.elf
 *.bin
+*.ld
+lpcrc
