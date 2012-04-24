@@ -78,7 +78,8 @@ BYTE openMemoryFile() {
             return res;
         }
         return res;
-    }                            
+    }           
+    return STA_NOINIT;
 }
 /**************************************************************************/
 /* Public Methods                                                         */
