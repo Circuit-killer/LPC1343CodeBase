@@ -64,21 +64,6 @@ void blankScreen() {
         }
     }
     screen[0][SCR_WIDTH-1] = 0b01111111;
-//    screen[1][SCR_WIDTH-1] = 0b10111111;
-//    screen[2][SCR_WIDTH-1] = 0b11011111;
-//    screen[3][SCR_WIDTH-1] = 0b11101111;
-//    screen[4][SCR_WIDTH-1] = 0b11110111;
-//    screen[5][SCR_WIDTH-1] = 0b11111011;
-//    screen[6][SCR_WIDTH-1] = 0b11111101;
-//    screen[7][SCR_WIDTH-1] = 0b11111110;
-//    screen[8][SCR_WIDTH-1] = 0b00111111;
-//    screen[9][SCR_WIDTH-1] = 0b11001111;
-//    screen[10][SCR_WIDTH-1] =0b11110011;
-//    screen[11][SCR_WIDTH-1] =0b11111100;
-//    screen[12][SCR_WIDTH-1] =0b10111111;
-//    screen[13][SCR_WIDTH-1] =0b11101111;
-//    screen[14][SCR_WIDTH-1] =0b11111011;
-//    screen[15][SCR_WIDTH-1] =0b11111110;
 }
 
 inline void bitBangByte(uint8_t b) {
@@ -92,8 +77,8 @@ inline void bitBangByte(uint8_t b) {
         (b & 0b00000001) == 1 ? *gpiodata |= (1 << PH762_G_PIN) : (*gpiodata &= ~(1 << PH762_G_PIN));
         b = b >> 1;
         *gpiodata |= (1 << PH762_CLK_PIN);
-        *gpiodata &= ~(1 << PH762_CLK_PIN);
         //        gpioSetValue(PH762_CLK_PORT, PH762_CLK_PIN, 1);        
+        *gpiodata &= ~(1 << PH762_CLK_PIN);
         //        gpioSetValue(PH762_CLK_PORT, PH762_CLK_PIN, 0);
     }
 }
@@ -109,9 +94,8 @@ inline void bitBangLine(uint8_t *buffer, uint16_t length, uint8_t lineNo) {
         buffer++;
     }
     *gpiodata |= (1 << PH762_STB_PIN);
-    *gpiodata &= ~(1 << PH762_STB_PIN);
-    
     //    gpioSetValue(PH762_STB_PORT, PH762_STB_PIN, 1);
+    *gpiodata &= ~(1 << PH762_STB_PIN);
     //    gpioSetValue(PH762_STB_PORT, PH762_STB_PIN, 0);
     
     (lineNo & 0b00000001) == 1 ? *gpiodata |= (1 << PH762_A_PIN) : (*gpiodata &= ~(1 << PH762_A_PIN));
@@ -134,6 +118,8 @@ void ph762SetScreen(uint8_t *newScreen) {
 }
 
 void sendNextLine() {
+    gpioSetValue(PH762_STB_PORT, PH762_EN_PIN, 1);
+
     bitBangLine(screen[currLine], SCR_WIDTH, currLine);
     currLine+=2;
     
@@ -144,6 +130,7 @@ void sendNextLine() {
             currLine = 1;
         }
     }
+    gpioSetValue(PH762_STB_PORT, PH762_EN_PIN, 0);
 }
 
 inline BOOL isFrameComplete() {
@@ -225,7 +212,7 @@ void ph762Init(void) {
     timer32Init(0, scanLineTimeout);
     timer32SetIntHandler(onTimerTick);
     initScreenSource();
-    loadScreen(screenBuffer);
+ //   loadScreen(screenBuffer);
 }
 
 void ph762StartDisplay() {
@@ -236,7 +223,6 @@ void ph762StartDisplay() {
     initScreenSource();
     loadScreen(screenBuffer);
     timer32Enable(0);
-    gpioSetValue(PH762_STB_PORT, PH762_EN_PIN, 0);
 }
 
 void ph762StopDisplay() {
@@ -296,6 +282,5 @@ void ph762SetAnimationSpeed(uint8_t s) {
 }
 
 BOOL ph762IsTimeToChangeScreen() {
-    //return FALSE;
     return timer32GetCount(0) >= frameTimeout;
 }
