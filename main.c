@@ -64,10 +64,19 @@ int main(void)
 {
     // Configure cpu and mandatory peripherals
     systemInit();
+    
+    uint32_t currentSecond, lastSecond;
+    currentSecond = lastSecond = systickGetSecondsActive();
+    
+    while(currentSecond < lastSecond + 5) {
+        currentSecond = systickGetSecondsActive();
+        gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, currentSecond % 2);
+    }
+    gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, 1);
 
     ph762Init();
     ph762StartDisplay();
-    
+
     while (1) {
         if(ph762IsTimeToChangeScreen()){
             ph762ChangeScreen();
