@@ -45,6 +45,9 @@
 #include "core/timer32/timer32.h"
 #include "screenSourceMMC.h"
 
+#define ANIM_POS_START (-64)
+#define ANIM_POS_END (64)
+
 volatile uint32_t scanLineTimeout = 0;
 volatile uint32_t frameTimeout = 0; 
 volatile uint8_t ph762Speed;
@@ -121,14 +124,15 @@ void sendNextLine() {
     gpioSetValue(PH762_STB_PORT, PH762_EN_PIN, 1);
 
     bitBangLine(screen[currLine], SCR_WIDTH, currLine);
-    currLine+=2;
+    currLine+=1;
     
     if(currLine >= SCR_HEIGHT) {
-        if(currLine % 2 == 1) {
-            currLine = 0;
-        } else {
-            currLine = 1;
-        }
+//        if(currLine % 2 == 1) {
+//            currLine = 0;
+//        } else {
+//            currLine = 1;
+//        }
+        currLine = 0;
     }
     gpioSetValue(PH762_STB_PORT, PH762_EN_PIN, 0);
 }
@@ -157,15 +161,12 @@ void onTimerTick() {
 */
 /**************************************************************************/
 
-#define ANIM_POS_START (-16)
-#define ANIM_POS_END (16)
-
 void ph762Init(void) {
     //TODO load from eeprom
-    ph762Speed = 10;
+    ph762Speed = 1;
 
     currLine = 0;
-    scanLineTimeout = TIMER32_CCLK_100US * 6;
+    scanLineTimeout = TIMER32_CCLK_100US * 12;
     frameTimeout = 16 * ph762Speed; //taimeris nupieses eilute, patiksi viena karta. taigi, keiciam kadra po 10 pilnu kadru
     animationPosition = ANIM_POS_START;
     shift = 0;
@@ -236,18 +237,14 @@ void ph762SetMemory(uint8_t col, uint8_t row, uint8_t val) {
     screen[row][col] = val;
 }
 
-
-/**
- * Positive amount for upcomming screen
- * negative amount for disappearing screen
- **/
-
 void animateScreen() {
     int j;
-    for(j = 0; j < SCR_HEIGHT; j++) {
-        int i;
-        for(i = 0; i < SCR_WIDTH; i++) {
-            if((i < animationPosition) || (i < -1 * animationPosition)) {
+    int i;
+    screenBuffer[0][0] = 3;
+
+    for(i = 0; i < SCR_WIDTH; i++) {
+        for(j = 0; j < SCR_HEIGHT; j++) {
+            if((i - animationPosition) > SCR_WIDTH || (i - animationPosition) < 2) {
                 screen[j][i]=0xFF;
             } else {
                 screen[j][i] = screenBuffer[j][i - animationPosition] << shift | (screenBuffer[j][i - animationPosition - 1] & 0b11111111) >> (8 - shift);
@@ -255,22 +252,22 @@ void animateScreen() {
         }
     }
     
-    
     shift +=2;
     if(shift >= 8) {
         animationPosition ++;
         shift = 0;
     }
+    
     if(animationPosition > ANIM_POS_END) {
         animationPosition = ANIM_POS_START;
         shift = 0;
-        
         loadScreen(screenBuffer);
     }
 }
 
+
 void ph762ChangeScreen() {
-    //waitFrameComplete();
+    waitFrameComplete();
     //loadScreen(screenBuffer);
     animateScreen();
     timer32ResetCounter(0);
