@@ -76,7 +76,7 @@ static uint8_t *msg_ptr;
 static uint8_t mode = 0;
 static uint16_t bytesRead = 0;
 static uint16_t bytesToRead = 0;
-static uint8_t *buffer;
+static uint8_t* buffer;
 
 /**************************************************************************/
 /*! 
@@ -84,7 +84,7 @@ static uint8_t *buffer;
             is waiting to be processed.
 */
 /**************************************************************************/
-void cmdBufferModeStart(uint8_t *buf, uint16_t length) {
+void cmdBufferModeStart(uint8_t* buf, uint16_t length) {
     mode = CMD_MODE_BUFFER;
     bytesToRead = length;
     bytesRead = 0;
@@ -94,7 +94,7 @@ void cmdBufferModeStart(uint8_t *buf, uint16_t length) {
 void cmdBufferModeStop() {
     mode = CMD_MODE_NORMAL;
     if(NULL != bufferHandler) {
-        bufferHandler(buffer, bytesRead);
+        bufferHandler(bytesRead);
     }
 }
 
@@ -107,12 +107,11 @@ void cmdPoll()
     cmdRx(c);
   }
   #endif
-
+    
   #if defined CFG_PRINTF_USBCDC
     int  numBytesToRead, numBytesRead, numAvailByte;
   
     CDC_OutBufAvailChar (&numAvailByte);
-    
     if (numAvailByte > 0) {
         if(CMD_MODE_NORMAL == mode){
                 numBytesToRead = numAvailByte > 32 ? 32 : numAvailByte; 
@@ -125,11 +124,15 @@ void cmdPoll()
             numBytesToRead = ((bytesRead + numAvailByte) <= bytesToRead) ? 
                                 numAvailByte : 
                                 (bytesToRead - bytesRead); 
-            printf("Reading buffer - %d read of %d%s", bytesRead, bytesToRead, CFG_PRINTF_NEWLINE);
             uint16_t readFromCDC = CDC_RdOutBuf ((char *) &buffer[bytesRead], &numBytesToRead);
             bytesRead += readFromCDC;
+
+            //printf("%d/%d%s", bytesRead, bytesToRead, CFG_PRINTF_NEWLINE);
+            
             if(bytesRead >= bytesToRead) {
                 cmdBufferModeStop();
+            } else {
+                printf("OK%s", CFG_PRINTF_NEWLINE);
             }
         }
     
@@ -172,7 +175,7 @@ void cmdRx(uint8_t c)
     
     case '\b':
         #if CFG_INTERFACE_SILENTMODE == 0
-        printf("%c",c);
+//        printf("%c",c);
         #endif
         if (msg_ptr > msg)
         {
@@ -182,7 +185,7 @@ void cmdRx(uint8_t c)
 
     default:
         #if CFG_INTERFACE_SILENTMODE == 0
-        printf("%c",c);
+//        printf("%c",c);
         #endif
         *msg_ptr++ = c;
         break;
@@ -198,8 +201,8 @@ void cmdRx(uint8_t c)
 static void cmdMenu()
 {
   #if CFG_INTERFACE_SILENTMODE == 0
-  printf(CFG_PRINTF_NEWLINE);
-  printf(CFG_INTERFACE_PROMPT);
+//  printf(CFG_PRINTF_NEWLINE);
+//  printf(CFG_INTERFACE_PROMPT);
   #endif
   #if CFG_INTERFACE_CONFIRMREADY == 1
   printf("%s%s", CFG_INTERFACE_CONFIRMREADY_TEXT, CFG_PRINTF_NEWLINE);

@@ -621,9 +621,9 @@
     #ifdef CFG_BRD_LPC1343_REFDESIGN
       // #define CFG_USBHID
       #define CFG_USBCDC
-      #define CFG_USBCDC_BAUDRATE         (115200)
+      #define CFG_USBCDC_BAUDRATE         (57600)
       #define CFG_USBCDC_INITTIMEOUT      (5000)
-      #define CFG_USBCDC_BUFFERSIZE       (256)
+      #define CFG_USBCDC_BUFFERSIZE       (128)
     #endif
 
     #ifdef CFG_BRD_LPC1343_REFDESIGN_MINIMAL
@@ -798,8 +798,8 @@
     #ifdef CFG_BRD_LPC1343_REFDESIGN
       #define CFG_INTERFACE
       #define CFG_INTERFACE_MAXMSGSIZE    (256)
-      #define CFG_INTERFACE_PROMPT        "LPC1343 >> "
-      #define CFG_INTERFACE_SILENTMODE    (0)
+      #define CFG_INTERFACE_PROMPT        ""
+      #define CFG_INTERFACE_SILENTMODE    (1)
       #define CFG_INTERFACE_DROPCR        (0)
       #define CFG_INTERFACE_ENABLEIRQ     (0)
       #define CFG_INTERFACE_IRQPORT       (0)
@@ -807,6 +807,7 @@
       #define CFG_INTERFACE_SHORTERRORS   (0)
       #define CFG_INTERFACE_CONFIRMREADY  (0)
       #define CFG_INTERFACE_LONGSYSINFO   (0)
+      #define CFG_INTERFACE_CONFIRMREADY_TEXT  "."
     #endif
 
     #ifdef CFG_BRD_LPC1343_REFDESIGN_MINIMAL
@@ -1310,9 +1311,9 @@
   #if !defined CFG_PRINTF_UART && !defined CFG_PRINTF_USBCDC
     #error "CFG_PRINTF_UART or CFG_PRINTF_USBCDC must be defined for for CFG_INTERFACE Input/Output"
   #endif
-  #if defined CFG_PRINTF_USBCDC && CFG_INTERFACE_SILENTMODE == 1
-    #error "CFG_INTERFACE_SILENTMODE typically isn't enabled with CFG_PRINTF_USBCDC"
-  #endif
+//  #if defined CFG_PRINTF_USBCDC && CFG_INTERFACE_SILENTMODE == 1
+//    #error "CFG_INTERFACE_SILENTMODE typically isn't enabled with CFG_PRINTF_USBCDC"
+//  #endif
 #endif
 
 #ifdef CFG_CHIBI

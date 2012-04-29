@@ -57,7 +57,7 @@ void cmdRx(uint8_t c);
 void cmdParse(char *cmd);
 void cmdInit();
 
-void (*bufferHandler)(uint8_t*, uint16_t);
+void (*bufferHandler)(uint16_t);
 void cmdBufferModeStart(uint8_t *buf, uint16_t length);
 
 #endif

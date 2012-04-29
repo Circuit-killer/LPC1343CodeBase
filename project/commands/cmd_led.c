@@ -65,32 +65,30 @@ void cmd_ledtest(uint8_t argc, char **argv) {
     ph762SetMemory(col, row, val);
 }
 
-uint8_t acceptBuffer[1026];
 int32_t bank;
 
-void onBufferReceived(uint8_t *buf, uint16_t length) {
-    buf[length] = 0;
-    printf("Buffer received: %d%s", length, CFG_PRINTF_NEWLINE);
-    ph762StopDisplay();
+void onBufferReceived(uint16_t length) {
+//    printf("Buffer received: %d%s", length, CFG_PRINTF_NEWLINE);
     
     FIL fp;
-    BYTE res = f_open(&fp, "ledmem.bin", FA_WRITE);
+    BYTE res = f_open(&fp, "ledmem2.bin", FA_WRITE | FA_CREATE_ALWAYS);
     if(FR_OK == res) {
-        printf("Writing bank %d to file ledmem.bin%s", (int) bank, CFG_PRINTF_NEWLINE);
+//        printf("Writing bank %d to file ledmem.bin%s", (int) bank, CFG_PRINTF_NEWLINE);
         UINT bw;
         f_lseek(&fp, bank * 1024);
-        res = f_write(&fp, &acceptBuffer, length, &bw);
+        res = f_write(&fp, ph762GetScreen(), length, &bw);
         if(FR_OK != res) {
             printf("Error while writing to file: %d%s", res, CFG_PRINTF_NEWLINE);
             return;
         }
         f_close(&fp);
-        ph762SetScreen(acceptBuffer);
+        ph762SetScreen(ph762GetScreen());
     } else {
         printf("error while opening file: %d%s", res, CFG_PRINTF_NEWLINE);
     }
-
-    ph762StartDisplay();
+    ph762StartScroll();
+    printf("OK");
+    printf(CFG_PRINTF_NEWLINE);
 }
 
 void cmd_send(uint8_t argc, char **argv) {
@@ -99,8 +97,12 @@ void cmd_send(uint8_t argc, char **argv) {
     getNumber(argv[1], &bank);
     
     bufferHandler = onBufferReceived;
-    printf("Waiting for %d bytes...%s", (int) length, CFG_PRINTF_NEWLINE);
-    cmdBufferModeStart(acceptBuffer, length);
+    ph762StopScroll();
+    cmdBufferModeStart(ph762GetScreen(), length);
+
+//    printf("Waiting for %d bytes...%s", (int) length, CFG_PRINTF_NEWLINE);
+    printf("OK");
+    printf(CFG_PRINTF_NEWLINE);
 }
 
 void cmd_ledScreenPos(uint8_t argc, char **argv) {
