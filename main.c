@@ -68,19 +68,26 @@ int main(void)
     uint32_t currentSecond, lastSecond;
     currentSecond = lastSecond = systickGetSecondsActive();
     
-    while(currentSecond < lastSecond + 5) {
-        currentSecond = systickGetSecondsActive();
-        gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, currentSecond % 2);
-    }
-    gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, 1);
+//    while(currentSecond < lastSecond + 5) {
+//        currentSecond = systickGetSecondsActive();
+//        gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, currentSecond % 2);
+//    }
+//    gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, 1);
 
     ph762Init();
     ph762StartDisplay();
+    ph762StartScroll();
 
     while (1) {
         if(ph762IsTimeToChangeScreen()){
             ph762ChangeScreen();
         } 
+        if(currentSecond != lastSecond) {
+            gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, currentSecond % 2);            
+            lastSecond = currentSecond;
+        }
+        
+        currentSecond = systickGetSecondsActive();
         
     #ifdef CFG_INTERFACE 
       cmdPoll(); 
