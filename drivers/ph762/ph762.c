@@ -55,6 +55,8 @@ volatile uint8_t ph762Speed;
 volatile uint8_t currLine;
 uint8_t screen[SCR_HEIGHT][SCR_WIDTH];
 uint8_t screenBuffer[SCR_HEIGHT][SCR_WIDTH];
+BOOL scroll = TRUE;
+
 
 /**************************************************************************/
 /* Private Methods                                                        */
@@ -64,6 +66,7 @@ void blankScreen() {
     for(i = 0; i < SCR_HEIGHT; i++) {
         for(j = 0; j < SCR_WIDTH; j++) {
             screen[i][j] = 0xff;
+            screenBuffer[i][j] = 0xff;
         }
     }
     screen[0][SCR_WIDTH-1] = 0b01111111;
@@ -213,25 +216,29 @@ void ph762Init(void) {
     timer32Init(0, scanLineTimeout);
     timer32SetIntHandler(onTimerTick);
     initScreenSource();
- //   loadScreen(screenBuffer);
 }
 
 void ph762StartDisplay() {
-    blankScreen();
-    animationPosition = ANIM_POS_START;
-    shift = 0;
-
-    initScreenSource();
-    loadScreen(screenBuffer);
     timer32Enable(0);
 }
 
 void ph762StopDisplay() {
     timer32Disable(0);
-    freeScreenSource();
     gpioSetValue(PH762_STB_PORT, PH762_EN_PIN, 1);
 }
 
+void ph762StopScroll() {
+    freeScreenSource();
+    scroll = FALSE;
+}
+
+void ph762StartScroll() {
+    blankScreen();
+    initScreenSource();
+    animationPosition = ANIM_POS_START;
+    shift = 0;
+    scroll = TRUE;
+}
 
 void ph762SetMemory(uint8_t col, uint8_t row, uint8_t val) {
     screen[row][col] = val;
@@ -240,7 +247,7 @@ void ph762SetMemory(uint8_t col, uint8_t row, uint8_t val) {
 void animateScreen() {
     int j;
     int i;
-    screenBuffer[0][0] = 3;
+//    screenBuffer[0][0] = 3;
 
     for(i = 0; i < SCR_WIDTH; i++) {
         for(j = 0; j < SCR_HEIGHT; j++) {
@@ -265,12 +272,16 @@ void animateScreen() {
     }
 }
 
+uint8_t* ph762GetScreen() {
+    return screen;
+}
 
 void ph762ChangeScreen() {
-    waitFrameComplete();
-    //loadScreen(screenBuffer);
-    animateScreen();
-    timer32ResetCounter(0);
+    if(scroll) {
+        waitFrameComplete();
+        animateScreen();
+    }
+    timer32ResetCounter(0);        
 }
 
 void ph762SetAnimationSpeed(uint8_t s) {

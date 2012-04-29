@@ -72,7 +72,7 @@ BYTE openMemoryFile() {
             return res;
         }
         
-        res = f_open(&fp, "ledmem.bin", FA_READ);
+        res = f_open(&fp, "ledmem2.bin", FA_READ);
         if(FR_OK != res) {
             printf("could not open file for reading: %d%s", res, CFG_PRINTF_NEWLINE);
             return res;
