@@ -216,6 +216,7 @@ void ph762Init(void) {
     timer32Init(0, scanLineTimeout);
     timer32SetIntHandler(onTimerTick);
     initScreenSource();
+    loadScreen(screenBuffer);
 }
 
 void ph762StartDisplay() {
@@ -235,6 +236,7 @@ void ph762StopScroll() {
 void ph762StartScroll() {
     blankScreen();
     initScreenSource();
+    loadScreen(screenBuffer);
     animationPosition = ANIM_POS_START;
     shift = 0;
     scroll = TRUE;
