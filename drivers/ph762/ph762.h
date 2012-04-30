@@ -73,7 +73,7 @@ void ph762StopDisplay();
 BOOL ph762IsTimeToChangeScreen();
 void ph762ChangeScreen();
 void ph762SetScreen(uint8_t *newScreen);
-void ph762SetAnimationSpeed(uint8_t);
+void ph762SetAnimationSpeed(uint8_t, uint8_t);
 uint8_t* ph762GetScreen();
 void ph762StopScroll();
 void ph762StartScroll();

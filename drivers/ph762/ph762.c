@@ -43,10 +43,13 @@
 #include "ph762.h"
 #include "core/gpio/gpio.h"
 #include "core/timer32/timer32.h"
+#include "drivers/storage/eeprom/eeprom.h"
 #include "screenSourceMMC.h"
 
 #define ANIM_POS_START (-64)
 #define ANIM_POS_END (64)
+#define SPEED_ADDRESS 256
+
 
 volatile uint32_t scanLineTimeout = 0;
 volatile uint32_t frameTimeout = 0; 
@@ -73,9 +76,9 @@ void blankScreen() {
 }
 
 inline void bitBangByte(uint8_t b) {
-    uint8_t i = 4;
+    uint8_t i;
     REG32 *gpiodata = &GPIO_GPIO2DATA;
-    while(i-- > 0) {
+    for(i = 0; i < 4; i++){
         //      gpioSetValue(PH762_R_PORT, PH762_R_PIN, (b & 0b00000001));
         (b & 0b00000001) == 1 ? *gpiodata |= (1 << PH762_R_PIN) : (*gpiodata &= ~(1 << PH762_R_PIN));
         b = b >> 1;
@@ -124,20 +127,15 @@ void ph762SetScreen(uint8_t *newScreen) {
 }
 
 void sendNextLine() {
-    gpioSetValue(PH762_STB_PORT, PH762_EN_PIN, 1);
+    gpioSetValue(PH762_EN_PORT, PH762_EN_PIN, 1);
 
     bitBangLine(screen[currLine], SCR_WIDTH, currLine);
     currLine+=1;
     
     if(currLine >= SCR_HEIGHT) {
-//        if(currLine % 2 == 1) {
-//            currLine = 0;
-//        } else {
-//            currLine = 1;
-//        }
         currLine = 0;
     }
-    gpioSetValue(PH762_STB_PORT, PH762_EN_PIN, 0);
+    gpioSetValue(PH762_EN_PORT, PH762_EN_PIN, 0);
 }
 
 inline BOOL isFrameComplete() {
@@ -166,11 +164,15 @@ void onTimerTick() {
 
 void ph762Init(void) {
     //TODO load from eeprom
-    ph762Speed = 1;
+    
+    ph762Speed = eepromReadU8(SPEED_ADDRESS);
+    if(ph762Speed < 3 || ph762Speed > 16) {
+        ph762Speed = 12;
+    }
 
     currLine = 0;
-    scanLineTimeout = TIMER32_CCLK_100US * 12;
-    frameTimeout = 16 * ph762Speed; //taimeris nupieses eilute, patiksi viena karta. taigi, keiciam kadra po 10 pilnu kadru
+    scanLineTimeout = TIMER32_CCLK_100US * ph762Speed;
+    frameTimeout = 16; //taimeris nupieses eilute, patiksi viena karta. taigi, keiciam kadra po 1 pilno kadro
     animationPosition = ANIM_POS_START;
     shift = 0;
 
@@ -251,18 +253,20 @@ void animateScreen() {
     int i;
 //    screenBuffer[0][0] = 0b11111110;
 //    screenBuffer[SCR_HEIGHT - 1][SCR_WIDTH-1] = 0b00111111;
-    
+//    printf("pos: %d %d%s", animationPosition, shift, CFG_PRINTF_NEWLINE);
     for(i = 0; i < SCR_WIDTH; i++) {
         for(j = 0; j < SCR_HEIGHT; j++) {
-            if((i - animationPosition) > SCR_WIDTH || (i - animationPosition) < 0) {
+            int pos = i - animationPosition;
+            
+            if(pos > SCR_WIDTH || pos < 0) {
                 screen[j][i]=0xFF;
             } else {
-                if((i - animationPosition - 1) < 0){
-                    screen[j][i] = screenBuffer[j][i - animationPosition] << shift | (0b11111111) >> (8 - shift);
-                } else if ((i - animationPosition) == SCR_WIDTH){
-                    screen[j][i] = 0xFF << shift | (screenBuffer[j][i - animationPosition - 1] >> (8 - shift));
+                if((pos - 1) < 0){
+                    screen[j][i] = screenBuffer[j][pos] << shift | (0b11111111) >> (8 - shift);
+                } else if ((pos) == SCR_WIDTH){
+                    screen[j][i] = 0xFF << shift | (screenBuffer[j][pos - 1] >> (8 - shift));
                 } else {
-                    screen[j][i] = screenBuffer[j][i - animationPosition] << shift | (screenBuffer[j][i - animationPosition - 1]) >> (8 - shift);
+                    screen[j][i] = screenBuffer[j][pos] << shift | (screenBuffer[j][pos - 1]) >> (8 - shift);
                 }
             }
         }
@@ -279,6 +283,7 @@ void animateScreen() {
         shift = 0;
         loadScreen(screenBuffer);
     }
+    currLine = 0;
 }
 
 uint8_t* ph762GetScreen() {
@@ -288,14 +293,28 @@ uint8_t* ph762GetScreen() {
 void ph762ChangeScreen() {
     if(scroll) {
         waitFrameComplete();
+        timer32Disable(0);
         animateScreen();
     }
     timer32ResetCounter(0);        
+    timer32Enable(0);
 }
 
-void ph762SetAnimationSpeed(uint8_t s) {
-    ph762Speed = s;
-    frameTimeout = 16 * ph762Speed;
+void ph762SetAnimationSpeed(uint8_t lineTime, uint8_t redrawTimes) {
+    printf("setting speed: %d, %d%s", lineTime, redrawTimes, CFG_PRINTF_NEWLINE);
+    ph762StopScroll();
+    waitFrameComplete();
+    timer32Disable(0);
+    timer32ResetCounter(0);        
+    ph762Speed = lineTime;
+    scanLineTimeout = TIMER32_CCLK_100US * ph762Speed;
+    frameTimeout = 16 * redrawTimes;
+    
+    eepromWriteU8(SPEED_ADDRESS, ph762Speed);
+    
+    timer32Init(0, scanLineTimeout);
+    ph762StartScroll();
+    timer32Enable(0);
 }
 
 BOOL ph762IsTimeToChangeScreen() {
