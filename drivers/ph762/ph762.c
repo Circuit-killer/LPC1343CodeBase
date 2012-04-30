@@ -249,14 +249,21 @@ void ph762SetMemory(uint8_t col, uint8_t row, uint8_t val) {
 void animateScreen() {
     int j;
     int i;
-//    screenBuffer[0][0] = 3;
-
+    screenBuffer[0][0] = 0b11111110;
+    screenBuffer[SCR_HEIGHT - 1][SCR_WIDTH-1] = 0b00111111;
+    
     for(i = 0; i < SCR_WIDTH; i++) {
         for(j = 0; j < SCR_HEIGHT; j++) {
-            if((i - animationPosition) > SCR_WIDTH || (i - animationPosition) < 2) {
+            if((i - animationPosition) > SCR_WIDTH || (i - animationPosition) < 0) {
                 screen[j][i]=0xFF;
             } else {
-                screen[j][i] = screenBuffer[j][i - animationPosition] << shift | (screenBuffer[j][i - animationPosition - 1] & 0b11111111) >> (8 - shift);
+                if((i - animationPosition - 1) < 0){
+                    screen[j][i] = screenBuffer[j][i - animationPosition] << shift | (0b11111111) >> (8 - shift);
+                } else if ((i - animationPosition) == SCR_WIDTH){
+                    screen[j][i] = 0xFF << shift | (screenBuffer[j][i - animationPosition - 1] >> (8 - shift));
+                } else {
+                    screen[j][i] = screenBuffer[j][i - animationPosition] << shift | (screenBuffer[j][i - animationPosition - 1]) >> (8 - shift);
+                }
             }
         }
     }
