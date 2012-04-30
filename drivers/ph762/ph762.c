@@ -249,8 +249,8 @@ void ph762SetMemory(uint8_t col, uint8_t row, uint8_t val) {
 void animateScreen() {
     int j;
     int i;
-    screenBuffer[0][0] = 0b11111110;
-    screenBuffer[SCR_HEIGHT - 1][SCR_WIDTH-1] = 0b00111111;
+//    screenBuffer[0][0] = 0b11111110;
+//    screenBuffer[SCR_HEIGHT - 1][SCR_WIDTH-1] = 0b00111111;
     
     for(i = 0; i < SCR_WIDTH; i++) {
         for(j = 0; j < SCR_HEIGHT; j++) {
