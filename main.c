@@ -98,18 +98,13 @@ void heaterSetup() {
 }
 
 uint16_t getTemperature() {
-    uint32_t adcOversampled = 0;
-    uint16_t adc0Value;
-    uint16_t j;
-    for(j = 0; j < 4096; j++){
-        adc0Value = adcReadSingle(0);
-        adcOversampled += adc0Value;
-    }
-    adcOversampled = adcOversampled >> 6;
-    double voltage = (double)(((double)adcOversampled / 65535.0F) * 3300.0F);
+    uint32_t ambientValue = adcReadOversampled(1, 6);    
+    uint32_t thermocoupleValue = adcReadOversampled(0, 6);
     
-    return (uint16_t)(voltage / 3.0);
+    double ambientVoltage = (double) ambientValue / 65535.0F * 3300.0F;
+    double thermocoupleVoltage = (double)(((double)thermocoupleValue / 65535.0F) * 3300.0F);
     
+    return (uint16_t) (ambientVoltage / 10.0) + (uint16_t)(thermocoupleVoltage / 3.0);
 }
 
 void recordTemp(uint16_t t) {
@@ -133,8 +128,6 @@ int main(void)
 {
   // Configure cpu and mandatory peripherals
     systemInit();
-    gpioSetDir(2, 9, gpioDirection_Input);
-    gpioSetPullup(&IOCON_PIO2_9, gpioPullupMode_PullUp);
     
     heaterSetup();
     timer32Init(0, TIMER32_CCLK_1S);
@@ -145,16 +138,19 @@ int main(void)
     pid.dGain = (double) 400 / 1000.0;
     
     pid.iState = 0;
-    pid.iMax = 5.0 / pid.iGain;
-    pid.iMin = 5.0 / pid.iGain * -1;
+    pid.iMax = 6.0 / pid.iGain;
+    pid.iMin = 6.0 / pid.iGain * -1;
     
     
     uint32_t currentSecond, lastSecond;
     currentSecond = lastSecond = 0;
-
+    
     setPoint = 0;
     temp = getTemperature();
     recordTemp(temp);
+
+    gpioSetDir(2, 9, gpioDirection_Input);
+    gpioSetPullup(&IOCON_PIO2_9, gpioPullupMode_PullUp);
 
     if(gpioGetValue(2, 9)) {
         setupPrimary();
@@ -168,35 +164,27 @@ int main(void)
     error = setPoint - temp;
     controlValue = updatePID(&pid, error, temp);
 
-  while (1)
-  {
-//    currentSecond = systickGetSecondsActive();
-//    if (currentSecond != lastSecond)
-//    {
-//      lastSecond = currentSecond;
-//      gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, lastSecond % 2);
-//
-//    }
-      
-      if(controlLoopDone) {
-          timer32ResetCounter(0);
-          temp = getTemperature();
-          recordTemp(temp);
 
-          processPidProgramStep(getAverageTemp());
+    while (1){
+        if(controlLoopDone) {
+            timer32ResetCounter(0);
+            temp = getTemperature();
+            recordTemp(temp);
 
-          printf("%d, ", getAverageTemp());
-          error = setPoint - temp;
-          controlValue = updatePID(&pid, error, temp);
-          controlLoopDone = FALSE;
+            processPidProgramStep(getAverageTemp());
+
+            printf("%d, ", getAverageTemp());
+            error = setPoint - temp;
+            controlValue = updatePID(&pid, error, temp);
+            controlLoopDone = FALSE;
+
+            timer32Enable(0);
+        }
           
-          timer32Enable(0);
-      }
-      
-    #ifdef CFG_INTERFACE 
-      cmdPoll(); 
-    #endif
-  }
+        #ifdef CFG_INTERFACE 
+          cmdPoll(); 
+        #endif
+    }
 
   return 0;
 }
@@ -232,7 +220,7 @@ void setupPrimary() {
     pidProgram[290] = (Command){COMMAND_TYPE_HOLD, 830, 900};
     pidProgram[300] = (Command){COMMAND_TYPE_RISE, 900, 0};
     pidProgram[310] = (Command){COMMAND_TYPE_HOLD, 900, 900};
-    pidProgram[320] = (Command){COMMAND_TYPE_RISE, 960, 0};
+    pidProgram[320] = (Command){COMMAND_TYPE_RISE, 940, 0};
     pidProgram[330] = (Command){COMMAND_TYPE_RISE, 600, 0};
     pidProgram[340] = (Command){COMMAND_TYPE_HOLD, 600, 3600};
     pidProgram[350] = (Command){COMMAND_TYPE_RISE, 0, 0};
@@ -247,10 +235,10 @@ void setupSecondary() {
     pidProgram[60] = (Command){COMMAND_TYPE_HOLD, 600, 900};
     pidProgram[70] = (Command){COMMAND_TYPE_RISE, 800, 0};
     pidProgram[80] = (Command){COMMAND_TYPE_HOLD, 800, 900};
-    pidProgram[90] = (Command){COMMAND_TYPE_RISE, 960, 0};
-    pidProgram[100] = (Command){COMMAND_TYPE_HOLD, 960, 900};
-    pidProgram[110] = (Command){COMMAND_TYPE_RISE, 990, 0};
-    pidProgram[120] = (Command){COMMAND_TYPE_HOLD, 990, 300};
+    pidProgram[90] = (Command){COMMAND_TYPE_RISE, 940, 0};
+    pidProgram[100] = (Command){COMMAND_TYPE_HOLD, 940, 900};
+    pidProgram[110] = (Command){COMMAND_TYPE_RISE, 1015, 0};
+    pidProgram[120] = (Command){COMMAND_TYPE_HOLD, 1015, 300};
     pidProgram[130] = (Command){COMMAND_TYPE_RISE, 600, 0};
     pidProgram[140] = (Command){COMMAND_TYPE_HOLD, 600, 7200};
     pidProgram[150] = (Command){COMMAND_TYPE_RISE, 0, 0};
