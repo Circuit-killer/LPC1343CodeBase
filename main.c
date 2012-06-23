@@ -49,6 +49,96 @@
 
 void setupPrimary();
 void setupSecondary();
+void setupLCD();
+void lcdLatch();
+
+#define RS 2,1
+#define RW 2,2
+#define E 2,3
+#define DB4 2,4
+#define DB5 2,5
+#define DB6 2,6
+#define DB7 2,7
+
+void lcdLatch() {
+    gpioSetValue(E, 1);
+    systickDelay(40);
+    gpioSetValue(E, 0);
+    systickDelay(40);
+    systickDelay(2000);
+
+}
+
+
+void setupLCD() {
+    systickInit(1);
+    systickDelay(2000);
+    
+    gpioSetDir(RS, gpioDirection_Output);
+    gpioSetDir(RW, gpioDirection_Output);
+    gpioSetDir(E, gpioDirection_Output);
+    gpioSetDir(DB4, gpioDirection_Output);
+    gpioSetDir(DB5, gpioDirection_Output);
+    gpioSetDir(DB6, gpioDirection_Output);
+    gpioSetDir(DB7, gpioDirection_Output);
+    
+    gpioSetValue(RS, 0);
+    gpioSetValue(RW, 0);
+    gpioSetValue(E, 0);
+    gpioSetValue(DB4, 0);
+    gpioSetValue(DB5, 0);
+    gpioSetValue(DB6, 0);
+    gpioSetValue(DB7, 0);
+    
+    //Function set
+    gpioSetValue(DB5, 1);
+    gpioSetValue(DB4, 1);
+    lcdLatch();
+    gpioSetValue(DB5, 1);
+    gpioSetValue(DB4, 1);
+    lcdLatch();    
+    gpioSetValue(DB4, 1);
+    gpioSetValue(DB5, 1);
+//    gpioSetValue(DB7, 1);
+    lcdLatch();
+
+    gpioSetValue(DB4, 0);
+    gpioSetValue(DB5, 0);
+    gpioSetValue(DB6, 0);
+    gpioSetValue(DB7, 0);
+    
+    
+    //Display on off control
+    gpioSetValue(DB5, 0);
+    gpioSetValue(DB7, 0);
+    lcdLatch();
+    
+    gpioSetValue(DB7, 1);
+    gpioSetValue(DB6, 1); //display on
+    gpioSetValue(DB5, 1); //cursor on
+    gpioSetValue(DB4, 0); //blink off
+    lcdLatch();
+
+    //Display clear
+    gpioSetValue(DB7, 0);
+    gpioSetValue(DB6, 0);
+    gpioSetValue(DB5, 0);
+    gpioSetValue(DB4, 0);
+    lcdLatch();
+    
+    gpioSetValue(DB4, 1);
+    lcdLatch();
+    
+    //Entry mode set
+    gpioSetValue(DB4, 0);
+    lcdLatch();
+    
+    gpioSetValue(DB6, 1);
+    gpioSetValue(DB5, 0); //no increment
+    gpioSetValue(DB4, 0); //no shift
+    lcdLatch();
+}
+
 
 uint16_t controlLoopTotal = 10; //sekundziu trunka sildytuvo veikimo ciklas
 int16_t controlValue = 0;
