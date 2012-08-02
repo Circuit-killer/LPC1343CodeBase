@@ -129,7 +129,7 @@ void timer32Delay(uint8_t timerNum, uint32_t delay)
     @brief Interrupt handler for 32-bit timer 0
 */
 /**************************************************************************/
-void TIMER32_0_IRQHandler(void)
+void TIMER32_0_IRQHandler_XXX(void)
 {  
     /* Call the callback function if required */
     if(NULL != interruptHandler0) 
