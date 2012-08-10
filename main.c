@@ -46,6 +46,22 @@
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
 #endif
+int val = 0;
+void PIOINT3_IRQHandler(void)
+{
+    uint32_t regVal;
+    
+    regVal = gpioIntStatus(3, 0);
+    if ( regVal ) {
+        if(1 == gpioGetValue(3, 2)) {
+            val--;
+        } else {
+            val++;
+        }
+        gpioIntClear(3, 0);
+    }		
+    return;
+}
 
 /**************************************************************************/
 /*! 
@@ -60,15 +76,25 @@ int main(void)
 
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
+    
+    gpioInit();
+    gpioSetDir(3, 0, gpioDirection_Input);
+    gpioSetDir(3, 1, gpioDirection_Output);
+    gpioSetDir(3, 2, gpioDirection_Input);
+    
+    gpioSetValue(3, 1, 0);
+    gpioSetPullup(&IOCON_PIO3_0, gpioPullupMode_PullUp);
+    gpioSetPullup(&IOCON_PIO3_2, gpioPullupMode_PullUp);
+    
+    gpioSetInterrupt(3, 0, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveHigh);
+    gpioIntEnable(3, 0);
   
+    int oldVal = val;
   while (1)
   {
-    // Toggle LED once per second
-    currentSecond = systickGetSecondsActive();
-    if (currentSecond != lastSecond)
-    {
-      lastSecond = currentSecond;
-      gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, lastSecond % 2);
+    if(val != oldVal){
+        printf("%d%s", val, CFG_PRINTF_NEWLINE);
+        oldVal = val;
     }
 
     // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
