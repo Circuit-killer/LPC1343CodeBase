@@ -93,7 +93,7 @@ OBJS += DejaVuSansMono10_AA2.o DejaVuSansMono13_AA2.o DejaVuSansMono14_AA2.o
 # LCD Driver (Only one can be included at a time!)
 # OBJS += hx8340b.o
 # OBJS += hx8347d.o
-OBJS += ILI9328.o
+# OBJS += ILI9328.o
 # OBJS += ILI9325.o
 # OBJS += ssd1331.o
 # OBJS += ssd1351.o
@@ -110,6 +110,9 @@ OBJS += smallfonts.o sharpmem.o st7565.o ssd1306.o
 #Character Displays (VFD text displays, etc.)
 VPATH += drivers/displays/character/samsung_20T202DA2JA
 OBJS += samsung_20T202DA2JA.o
+VPATH += drivers/displays/character/16101_serial
+OBJS += 16101_serial.o
+
 
 # ChaN FatFS and SD card support
 VPATH += drivers/fatfs

@@ -43,9 +43,30 @@
 #include "core/gpio/gpio.h"
 #include "core/systick/systick.h"
 
+#include "drivers/displays/character/16101_serial/16101_serial.h"
+
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
 #endif
+
+uint8_t count = 0;
+
+void PIOINT2_IRQHandler(void)
+{
+    uint32_t regVal;
+    
+    regVal = gpioIntStatus(2, 9);
+    if ( regVal )
+    {
+        gpioIntClear(2, 9);
+        char msg[10];
+        sprintf(msg, "zalgo %d", count);
+        LCDWrite(msg, strlen(msg));
+        count++;
+    }		
+    return;
+}
+
 
 /**************************************************************************/
 /*! 
@@ -61,6 +82,13 @@ int main(void)
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
   
+    LCDInit();
+    
+    gpioInit();
+    gpioSetDir(2, 9, gpioDirection_Input);
+    gpioSetPullup (&IOCON_PIO2_9, gpioPullupMode_Inactive);
+    gpioSetInterrupt(2, 9, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveHigh);
+//    gpioIntEnable(2,9);
   while (1)
   {
     // Toggle LED once per second
