@@ -42,6 +42,7 @@
 
 #include "core/gpio/gpio.h"
 #include "core/systick/systick.h"
+#include "core/timer16/timer16.h"
 
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
@@ -53,11 +54,16 @@ void PIOINT3_IRQHandler(void)
     
     regVal = gpioIntStatus(3, 0);
     if ( regVal ) {
+        gpioIntDisable(3, 0);
+
         if(1 == gpioGetValue(3, 2)) {
             val--;
         } else {
             val++;
         }
+        
+        timer16DelayTicks(0, 15);
+        gpioIntEnable(3, 0);
         gpioIntClear(3, 0);
     }		
     return;
@@ -76,6 +82,8 @@ int main(void)
 
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
+    timer16Init(0, TIMER16_CCLK_1MS);
+    timer16Enable(0);
     
     gpioInit();
     gpioSetDir(3, 0, gpioDirection_Input);
