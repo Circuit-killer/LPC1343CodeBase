@@ -73,7 +73,6 @@ int LCDWrite(void *buffer, int len) {
 /* 4-bit 2 line                                     */
 int LCDInit() {
     sspInit(0, sspClockPolarity_High, sspClockPhase_FallingEdge);
-    //puts("-- LCD init is here");
         
 //    spiTransfer(0);
 //    systickDelay(1000);
@@ -84,35 +83,35 @@ int LCDInit() {
 //    spiTransfer(0);
 //    systickDelay(1000);
         
-        CLR_RS;
-        //digitalWrite(chipSelectPin, LOW);
+    CLR_RS;
+    //digitalWrite(chipSelectPin, LOW);
+    
+    LCDpins =  0b00100000; 
+    SPI_Latch();
+    SPI_Latch();
+    LCDpins =  0b11000000;  
+    SPI_Latch();//function set
+
+    systickDelay(1);
+    
+    LCDpins =  0b00000000;  
+    SPI_Latch();
+    LCDpins =  0b11000000;  
+    SPI_Latch();//display on/off ctrl
+
+    systickDelay(1);
+
+    LCDpins =  0b00000000;  
+    SPI_Latch();
+    LCDpins =  0b00010000;
+    SPI_Latch();//display clear
+
+    systickDelay(2);
+
+    LCDpins =  0b00000000;
+    SPI_Latch();
+    LCDpins =  0b01100000;
+    SPI_Latch();//entry mode
         
-        LCDpins =  0b00100000; 
-        SPI_Latch();
-        SPI_Latch();
-        
-        LCDpins =  0b11000000;  
-        SPI_Latch();
-        
-        LCDpins =  0b00000000;  
-        SPI_Latch();
-        
-        LCDpins =  0b11110000;  
-        SPI_Latch();
-        
-        LCDpins =  0b00000000;  
-        SPI_Latch();
-        
-        LCDpins =  0b00010000;
-        SPI_Latch();
-        
-        LCDpins =  0b00000000;
-        SPI_Latch();
-        
-        LCDpins =  0b01100000;
-        SPI_Latch();
-        
-//    }
-    //puts("done LCD init sequence");
     return 0;
 }

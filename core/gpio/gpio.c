@@ -296,18 +296,20 @@ void gpioSetInterrupt (uint32_t portNum, uint32_t bitPos, gpioInterruptSense_t s
       break;
   }
 
-  if (sense == gpioInterruptSense_Edge)
-  {
-    *gpiois &= ~(0x1<<bitPos);
-    edge == gpioInterruptEdge_Single ? (*gpioibe &= ~(0x1<<bitPos)) : (*gpioibe |= (0x1<<bitPos));
-  }
-  else
-  {
+  if (sense == gpioInterruptSense_Edge) {
+      *gpiois &= ~(0x1<<bitPos);
+      
+      if(edge == gpioInterruptEdge_Single) {
+          *gpioibe &= ~(0x1<<bitPos);
+      } else {
+          *gpioibe |= (0x1<<bitPos);
+      }
+  } else {
     *gpiois |= (0x1<<bitPos);
   }
 
-  event == gpioInterruptEvent_ActiveHigh ? (*gpioiev &= ~(0x1<<bitPos)) : (*gpioiev |= (0x1<<bitPos));
-
+  event == gpioInterruptEvent_ActiveLow ? (*gpioiev &= ~(0x1<<bitPos)) : (*gpioiev |= (0x1<<bitPos));
+    
   return;
 }
 
