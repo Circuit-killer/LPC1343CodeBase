@@ -42,6 +42,7 @@
 
 #include "core/gpio/gpio.h"
 #include "core/systick/systick.h"
+#include "core/ssp/ssp.h"
 
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
@@ -57,6 +58,10 @@ int main(void)
 {
   // Configure cpu and mandatory peripherals
   systemInit();
+    
+    gpioInit();
+    sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
+    
 
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
@@ -75,6 +80,16 @@ int main(void)
     #ifdef CFG_INTERFACE 
       cmdPoll(); 
     #endif
+      uint8_t buff[4] = {0,0,0,0};
+      uint16_t ret = 0;
+      while ( (SSP_SSP0SR & (SSP_SSP0SR_BSY_BUSY|SSP_SSP0SR_RNE_NOTEMPTY)) != SSP_SSP0SR_RNE_NOTEMPTY){
+          //
+      }
+
+      while(SSP_SSP0SR & SSP_SSP0SR_RNE_NOTEMPTY) {
+          ret = SSP_SSP0DR;
+          printf("%d%s", ret, CFG_PRINTF_NEWLINE);
+      }
   }
 
   return 0;
