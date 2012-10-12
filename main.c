@@ -165,10 +165,8 @@ void controlAction() {
     if(timer32GetCount(0) < controlLoopTotal) {
         if((controlValue > 0) && timer32GetCount(0) <= controlValue) {
             heaterOn();
-//            printf("Heater ON%s", CFG_PRINTF_NEWLINE);
         } else {
             heaterOff();
-//            printf("Heater OFF%s", CFG_PRINTF_NEWLINE);
         }
     } else {
         if(waitasec) {
@@ -214,10 +212,15 @@ uint16_t getAverageTemp() {
     return sum / RING_BUFFER_SIZE;
 }
 
+
+#define PROGRAM_PRIMARY 0
+#define PROGRAM_SECONDARY 0xFF
+
 int main(void)
 {
   // Configure cpu and mandatory peripherals
     systemInit();
+    gpioInit();
     
     heaterSetup();
     timer32Init(0, TIMER32_CCLK_1S);
@@ -239,16 +242,15 @@ int main(void)
     temp = getTemperature();
     recordTemp(temp);
 
+    gpioSetDir(2, 8, gpioDirection_Output);
+    
     gpioSetDir(2, 9, gpioDirection_Input);
     gpioSetPullup(&IOCON_PIO2_9, gpioPullupMode_PullUp);
 
-    if(gpioGetValue(2, 9)) {
-        setupPrimary();
-        gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, 1);
-    } else {
-        setupSecondary();
-        gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, 0);
-    }
+    uint8_t currProgram = PROGRAM_PRIMARY;
+
+    gpioSetValue(2, 8, 0);
+    setupPrimary();
     startPidProgram(0);
 
     error = setPoint - temp;
@@ -270,7 +272,35 @@ int main(void)
 
             timer32Enable(0);
         }
-          
+        
+        if(gpioGetValue(2, 9) == 0) {
+            printf("button?");
+            
+            systickDelay(100);
+            if(gpioGetValue(2, 9) == 0) {
+                printf("click!%s", CFG_PRINTF_NEWLINE);
+                if(PROGRAM_SECONDARY == currProgram) {
+                    printf("Starting PRIMARY program%s", CFG_PRINTF_NEWLINE);
+                    setupPrimary();
+                    currProgram = PROGRAM_PRIMARY;
+                    gpioSetValue(2, 8, 0);
+                } else {
+                    printf("Starting SECONDARY program%s", CFG_PRINTF_NEWLINE);
+                    currProgram = PROGRAM_SECONDARY;
+                    setupSecondary();
+                    gpioSetValue(2, 8, 1);
+                }
+                
+                startPidProgram(0);
+                
+                while(gpioGetValue(2, 9) == 0) {
+                    systickDelay(100);
+                }
+            } else {
+                printf("no...");
+            }
+        }
+                  
         #ifdef CFG_INTERFACE 
           cmdPoll(); 
         #endif
