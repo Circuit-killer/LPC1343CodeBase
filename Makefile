@@ -13,7 +13,7 @@ SRAM = 8K
 SRAM_USB = 384
 
 VPATH = 
-OBJS = main.o
+OBJS = main.o encoder.o
 
 ##########################################################################
 # Debug settings

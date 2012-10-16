@@ -42,35 +42,86 @@
 
 #include "core/gpio/gpio.h"
 #include "core/systick/systick.h"
+#include "core/timer32/timer32.h"
+#include "encoder.h"
 
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
 #endif
 
-/**************************************************************************/
-/*! 
-    Main program entry point.  After reset, normal code execution will
-    begin here.
-*/
-/**************************************************************************/
-int main(void)
-{
-  // Configure cpu and mandatory peripherals
+encoder_t *encoder1;
+
+uint32_t encoder1Timeout = 1000000;
+uint16_t goThreshold = 50;
+
+
+inline void setupEncoderHardware(encoder_t *encoder) {
+  gpioSetDir(encoder->port, encoder->pinU1, gpioDirection_Input);
+  gpioSetDir(encoder->port, encoder->pinU2, gpioDirection_Input);
+  ///######!!!!!!!!!!!!!!!!!!!!!###########
+  ///######!!!!!           !!!!!###########
+  ///######!!!!  B Y B Y S  !!!!###########
+  ///######!!!!!           !!!!!###########
+  ///######!!!!!!!!!!!!!!!!!!!!!###########
+  gpioSetPullup(&IOCON_PIO2_0, gpioPullupMode_PullUp); 
+  gpioSetPullup(&IOCON_PIO2_1, gpioPullupMode_PullUp); 
+  ///######!!!!!!!!!!!!!!!!!!!!!###########
+  ///######!!!!!!!!!!!!!!!!!!!!!###########
+  ///######!!!!!!!!!!!!!!!!!!!!!###########
+  ///######!!!!!!!!!!!!!!!!!!!!!###########
+  gpioSetInterrupt(encoder->port, encoder->pinU1, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveLow);
+  gpioIntEnable(encoder->port, encoder->pinU1);  
+}
+
+
+void PIOINT2_IRQHandler(void) {
+  if (isEncoderInterrupt(encoder1)) {
+    setEncoderInterrupt(encoder1);
+    gpioIntClear(encoder1->port, encoder1->pinU1);    
+    asm("nop");
+    asm("nop");
+  }		
+}
+
+int main(void) {
   systemInit();
+  gpioInit();
+  encoder_t e;
+  encoder1 = &e;
 
-  uint32_t currentSecond, lastSecond;
-  currentSecond = lastSecond = 0;
-  
-  while (1)
-  {
-    // Toggle LED once per second
-    currentSecond = systickGetSecondsActive();
-    if (currentSecond != lastSecond)
-    {
-      lastSecond = currentSecond;
-      gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, lastSecond % 2);
+  encoder1->port = 2;
+  encoder1->pinU1 = 0;
+  encoder1->pinU2 = 1;
+  encoder1->debounceDelayUs = 190;
+
+  NVIC_SetIRQPriority(EINT2_IRQn, 7);
+  NVIC_SetIRQPriority(TIMER_32_0_IRQn, 0);
+
+  setupEncoderHardware(encoder1);
+    
+  timer32Init(0, TIMER32_CCLK_1US);
+  timer32Enable(0);
+
+  int32_t lastencoder1StepCount = 0;  
+
+  while (1) {
+    if(isEncoderTimeout(encoder1, encoder1Timeout)) {
+      encoderReset(encoder1);
     }
-
+    
+    if(encoder1->interrupt) {
+      onEncoderInterrupt(encoder1);
+    }
+    
+    if(encoder1->stepCount > goThreshold) {
+      encoder1->status = STATUS_RUNNING;
+    }
+    
+    if(lastencoder1StepCount != encoder1->stepCount && STATUS_RUNNING == encoder1->status) {
+      printf("count: %d dir: %d%s", encoder1->stepCount, encoder1->direction, CFG_PRINTF_NEWLINE);
+      lastencoder1StepCount = encoder1->stepCount;
+    }
+    
     // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
     #ifdef CFG_INTERFACE 
       cmdPoll(); 
