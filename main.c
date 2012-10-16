@@ -45,6 +45,8 @@
 #include "core/timer32/timer32.h"
 #include "encoder.h"
 
+#include "core/uart/uart.h"
+
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
 #endif
@@ -82,6 +84,7 @@ void PIOINT2_IRQHandler(void) {
     asm("nop");
   }		
 }
+uint8_t t=42;
 
 int main(void) {
   systemInit();
@@ -104,23 +107,46 @@ int main(void) {
 
   int32_t lastencoder1StepCount = 0;  
 
+  uartInit(4800);
+  UART_U0RS485CTRL |= UART_U0RS485CTRL_DCTRL_Enabled | UART_U0RS485CTRL_OINV_Inverted;
+  IOCON_PIO1_5 |= IOCON_PIO1_5_FUNC_RTS | IOCON_PIO1_5_MODE_PULLDOWN;
+//  UART_U0RS485DLY = 127;
+  uart_pcb_t *pcb = uartGetPCB();
+
+  while(!pcb->initialised) {
+    printf("waiting UART to initialize...%s", CFG_PRINTF_NEWLINE);
+    systickDelay(500);
+  }
+  
   while (1) {
-    if(isEncoderTimeout(encoder1, encoder1Timeout)) {
-      encoderReset(encoder1);
+//    if(isEncoderTimeout(encoder1, encoder1Timeout)) {
+//      encoderReset(encoder1);
+//    }
+//    
+//    if(encoder1->interrupt) {
+//      onEncoderInterrupt(encoder1);
+//    }
+//    
+//    if(encoder1->stepCount > goThreshold) {
+//      encoder1->status = STATUS_RUNNING;
+//    }
+//    
+//    if(lastencoder1StepCount != encoder1->stepCount && STATUS_RUNNING == encoder1->status) {
+//      printf("count: %d dir: %d%s", encoder1->stepCount, encoder1->direction, CFG_PRINTF_NEWLINE);
+//      lastencoder1StepCount = encoder1->stepCount;
+//    }
+// TODO pamėgint paenablint histerize
+
+    uint8_t uartBuffer[8]={'k','l','i','u','r','k','t', 42};
+    uartBuffer[7] = t++;
+    uartSend(uartBuffer, 8);
+    while(uartRxBufferDataPending()) {
+      uint8_t c = uartRxBufferRead();
+      printf("%c", c);
     }
+    printf("%s", CFG_PRINTF_NEWLINE);
     
-    if(encoder1->interrupt) {
-      onEncoderInterrupt(encoder1);
-    }
-    
-    if(encoder1->stepCount > goThreshold) {
-      encoder1->status = STATUS_RUNNING;
-    }
-    
-    if(lastencoder1StepCount != encoder1->stepCount && STATUS_RUNNING == encoder1->status) {
-      printf("count: %d dir: %d%s", encoder1->stepCount, encoder1->direction, CFG_PRINTF_NEWLINE);
-      lastencoder1StepCount = encoder1->stepCount;
-    }
+    systickDelay(500);
     
     // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
     #ifdef CFG_INTERFACE 
