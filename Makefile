@@ -13,7 +13,7 @@ SRAM = 8K
 SRAM_USB = 384
 
 VPATH = 
-OBJS = main.o encoder.o
+OBJS = main.o encoder.o motor.o pid.o cmd_pid.o
 
 ##########################################################################
 # Debug settings
@@ -37,63 +37,64 @@ VPATH += project
 OBJS += commands.o
 
 VPATH += project/commands
-OBJS += cmd_chibi_addr.o cmd_chibi_tx.o
+#OBJS += cmd_chibi_addr.o cmd_chibi_tx.o
 OBJS += cmd_i2ceeprom_read.o cmd_i2ceeprom_write.o cmd_lm75b_gettemp.o
 OBJS += cmd_reset.o cmd_sd_dir.o cmd_sysinfo.o cmd_uart.o 
-OBJS += cmd_roundedcorner.o cmd_pwm.o
+#OBJS += cmd_roundedcorner.o 
+OBJS += cmd_pwm.o
 
-VPATH += project/commands/drawing
-OBJS += cmd_backlight.o cmd_bmp.o cmd_button.o cmd_calibrate.o
-OBJS += cmd_circle.o cmd_clear.o cmd_line.o cmd_orientation.o
-OBJS += cmd_pixel.o cmd_progress.o cmd_rectangle.o cmd_text.o
-OBJS += cmd_textw.o cmd_tsthreshhold.o cmd_tswait.o cmd_triangle.o
+# VPATH += project/commands/drawing
+# OBJS += cmd_backlight.o cmd_bmp.o cmd_button.o cmd_calibrate.o
+# OBJS += cmd_circle.o cmd_clear.o cmd_line.o cmd_orientation.o
+# OBJS += cmd_pixel.o cmd_progress.o cmd_rectangle.o cmd_text.o
+# OBJS += cmd_textw.o cmd_tsthreshhold.o cmd_tswait.o cmd_triangle.o
 
 ##########################################################################
 # Optional driver files 
 ##########################################################################
 
 # Chibi Light-Weight Wireless Stack (AT86RF212)
-VPATH += drivers/rf/chibi
-OBJS += chb.o chb_buf.o chb_drvr.o chb_eeprom.o chb_spi.o
+#VPATH += drivers/rf/chibi
+# OBJS += chb.o chb_buf.o chb_drvr.o chb_eeprom.o chb_spi.o
 
 # 4K EEPROM
 VPATH += drivers/storage/eeprom drivers/storage/eeprom/mcp24aa
 OBJS += eeprom.o mcp24aa.o
 
 # LM75B temperature sensor
-VPATH += drivers/sensors/lm75b
-OBJS += lm75b.o
+# VPATH += drivers/sensors/lm75b
+# OBJS += lm75b.o
 
 # ISL12022M RTC
-VPATH += drivers/rtc/isl12022m
-OBJS += isl12022m.o
+# VPATH += drivers/rtc/isl12022m
+# OBJS += isl12022m.o
 
 # TFT LCD support
-VPATH += drivers/displays/tft drivers/displays/tft/hw 
-OBJS += drawing.o touchscreen.o colors.o theme.o bmp.o
+# VPATH += drivers/displays/tft drivers/displays/tft/hw 
+# OBJS += drawing.o touchscreen.o colors.o theme.o bmp.o
 
 # GUI Controls
-VPATH += drivers/displays/tft/controls
-OBJS += button.o hsbchart.o huechart.o label.o
-OBJS += labelcentered.o progressbar.o
+# VPATH += drivers/displays/tft/controls
+# OBJS += button.o hsbchart.o huechart.o label.o
+# OBJS += labelcentered.o progressbar.o
 
 # Bitmap (non-AA) fonts
-VPATH += drivers/displays/tft/fonts
-OBJS += fonts.o 
-OBJS += dejavusans9.o dejavusansbold9.o dejavusanscondensed9.o
-OBJS += dejavusansmono8.o dejavusansmonobold8.o
-OBJS += verdana9.o verdana14.o verdanabold14.o 
+# VPATH += drivers/displays/tft/fonts
+# OBJS += fonts.o 
+# OBJS += dejavusans9.o dejavusansbold9.o dejavusanscondensed9.o
+# OBJS += dejavusansmono8.o dejavusansmonobold8.o
+# OBJS += verdana9.o verdana14.o verdanabold14.o 
 
 # Anti-aliased fonts
-VPATH += drivers/displays/tft/aafonts/aa2 drivers/displays/tft/aafonts/aa4
-OBJS += aafonts.o 
-OBJS += DejaVuSansCondensed14_AA2.o DejaVuSansCondensedBold14_AA2.o
-OBJS += DejaVuSansMono10_AA2.o DejaVuSansMono13_AA2.o DejaVuSansMono14_AA2.o
+# VPATH += drivers/displays/tft/aafonts/aa2 drivers/displays/tft/aafonts/aa4
+# OBJS += aafonts.o 
+# OBJS += DejaVuSansCondensed14_AA2.o DejaVuSansCondensedBold14_AA2.o
+# OBJS += DejaVuSansMono10_AA2.o DejaVuSansMono13_AA2.o DejaVuSansMono14_AA2.o
 
 # LCD Driver (Only one can be included at a time!)
 # OBJS += hx8340b.o
 # OBJS += hx8347d.o
-OBJS += ILI9328.o
+# OBJS += ILI9328.o
 # OBJS += ILI9325.o
 # OBJS += ssd1331.o
 # OBJS += ssd1351.o
@@ -101,60 +102,60 @@ OBJS += ILI9328.o
 # OBJS += st7783.o
 
 # Bitmap/Monochrome LCD support (ST7565, SSD1306, etc.)
-VPATH += drivers/displays
-VPATH += drivers/displays/bitmap/sharpmem
-VPATH += drivers/displays/bitmap/st7565
-VPATH += drivers/displays/bitmap/ssd1306
-OBJS += smallfonts.o sharpmem.o st7565.o ssd1306.o
+# VPATH += drivers/displays
+# VPATH += drivers/displays/bitmap/sharpmem
+# VPATH += drivers/displays/bitmap/st7565
+# VPATH += drivers/displays/bitmap/ssd1306
+# OBJS += smallfonts.o sharpmem.o st7565.o ssd1306.o
 
 #Character Displays (VFD text displays, etc.)
-VPATH += drivers/displays/character/samsung_20T202DA2JA
-OBJS += samsung_20T202DA2JA.o
+# VPATH += drivers/displays/character/samsung_20T202DA2JA
+# OBJS += samsung_20T202DA2JA.o
 
 # ChaN FatFS and SD card support
 VPATH += drivers/fatfs
 OBJS += ff.o mmc.o
 
 # Motors
-VPATH += drivers/motor/stepper
-OBJS += stepper.o
+# VPATH += drivers/motor/stepper
+# OBJS += stepper.o
 
 # RSA Encryption/Descryption
 VPATH += drivers/rsa
 OBJS += rsa.o
 
 # DAC
-VPATH += drivers/dac/mcp4725 drivers/dac/mcp4901
-OBJS += mcp4725.o mcp4901.o
+# VPATH += drivers/dac/mcp4725 drivers/dac/mcp4901
+# OBJS += mcp4725.o mcp4901.o
 
 # RFID/NFC
-VPATH += drivers/rf/pn532 drivers/rf/pn532/helpers
-OBJS += pn532.o pn532_bus_i2c.o pn532_bus_uart.o
-OBJS += pn532_mifare_classic.o pn532_mifare_ultralight.o
+# VPATH += drivers/rf/pn532 drivers/rf/pn532/helpers
+# OBJS += pn532.o pn532_bus_i2c.o pn532_bus_uart.o
+# OBJS += pn532_mifare_classic.o pn532_mifare_ultralight.o
 
 # TAOS Light Sensors
-VPATH += drivers/sensors/tcs3414 drivers/sensors/tsl2561
-OBJS += tcs3414.o tsl2561.o
+# VPATH += drivers/sensors/tcs3414 drivers/sensors/tsl2561
+# OBJS += tcs3414.o tsl2561.o
 
 # SPI Flash
-VPATH += drivers/storage/spiflash/w25q16bv
-OBJS += w25q16bv.o
+# VPATH += drivers/storage/spiflash/w25q16bv
+# OBJS += w25q16bv.o
 
 # FM Radio
-VPATH += drivers/audio/tea5767
-OBJS += tea5767.o
+# VPATH += drivers/audio/tea5767
+# OBJS += tea5767.o
 
 # IN219 Current Sensor
-VPATH += drivers/sensors/ina219
-OBJS += ina219.o
+#VPATH += drivers/sensors/ina219
+#OBJS += ina219.o
 
 # MPL115A2 Barometric Pressure Sensor
-VPATH += drivers/sensors/mpl115a2
-OBJS += mpl115a2.o
+#VPATH += drivers/sensors/mpl115a2
+#OBJS += mpl115a2.o
 
 # ADS1015 12-bit ADC
-VPATH += drivers/adc/ads1015
-OBJS += ads1015.o
+#VPATH += drivers/adc/ads1015
+#OBJS += ads1015.o
 
 ##########################################################################
 # Library files 

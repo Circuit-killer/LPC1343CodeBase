@@ -1,38 +1,3 @@
-/**************************************************************************/
-/*! 
-    @file     main.c
-    @author   K. Townsend (microBuilder.eu)
-
-    @section LICENSE
-
-    Software License Agreement (BSD License)
-
-    Copyright (c) 2011, microBuilder SARL
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
-    1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holders nor the
-    names of its contributors may be used to endorse or promote products
-    derived from this software without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
-    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-/**************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,17 +7,16 @@
 
 #include "core/gpio/gpio.h"
 #include "core/systick/systick.h"
-#include "core/timer32/timer32.h"
-#include "encoder.h"
-
-#include "core/uart/uart.h"
-
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
 #endif
 
-encoder_t *encoder1;
+#include "core/timer32/timer32.h"
+#include "encoder.h"
+#include "motor.h"
+#include "pid.h"
 
+encoder_t *encoder1;
 uint32_t encoder1Timeout = 1000000;
 uint16_t goThreshold = 50;
 
@@ -73,6 +37,9 @@ inline void setupEncoderHardware(encoder_t *encoder) {
   ///######!!!!!!!!!!!!!!!!!!!!!###########
   gpioSetInterrupt(encoder->port, encoder->pinU1, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveLow);
   gpioIntEnable(encoder->port, encoder->pinU1);  
+  
+  NVIC_SetIRQPriority(EINT2_IRQn, 7);
+  NVIC_SetIRQPriority(TIMER_32_0_IRQn, 0);
 }
 
 
@@ -84,22 +51,27 @@ void PIOINT2_IRQHandler(void) {
     asm("nop");
   }		
 }
-uint8_t t=42;
 
-int main(void) {
-  systemInit();
-  gpioInit();
-  encoder_t e;
-  encoder1 = &e;
 
+void encoderInit(encoder_t *encoder) {
   encoder1->port = 2;
   encoder1->pinU1 = 0;
   encoder1->pinU2 = 1;
-  encoder1->debounceDelayUs = 190;
+  encoder1->debounceDelayUs = 190;  
+  encoder1->pulses = 0;
+  encoder1->pulsesTemp = 0;
+  encoder1->status = STATUS_STOPPED;
+  encoder1->direction = DIRECTION_NONE;
+  encoder1->interrupt = 0;
+}
 
-  NVIC_SetIRQPriority(EINT2_IRQn, 7);
-  NVIC_SetIRQPriority(TIMER_32_0_IRQn, 0);
-
+int main(void) {
+  systemInit();
+  
+  encoder_t e;
+  encoder1 = &e;
+  
+  encoderInit(encoder1);
   setupEncoderHardware(encoder1);
     
   timer32Init(0, TIMER32_CCLK_1US);
@@ -107,46 +79,63 @@ int main(void) {
 
   int32_t lastencoder1StepCount = 0;  
 
-  uartInit(4800);
-  UART_U0RS485CTRL |= UART_U0RS485CTRL_DCTRL_Enabled | UART_U0RS485CTRL_OINV_Inverted;
-  IOCON_PIO1_5 |= IOCON_PIO1_5_FUNC_RTS | IOCON_PIO1_5_MODE_PULLDOWN;
-//  UART_U0RS485DLY = 127;
-  uart_pcb_t *pcb = uartGetPCB();
-
-  while(!pcb->initialised) {
-    printf("waiting UART to initialize...%s", CFG_PRINTF_NEWLINE);
-    systickDelay(500);
-  }
+  pidData_t p;
+  pid = &p;
+  //setPid 450 0 49500
+  pid_Init(7200, 0, 0, pid);
+  runSynchro = 0;
   
-  while (1) {
-//    if(isEncoderTimeout(encoder1, encoder1Timeout)) {
-//      encoderReset(encoder1);
-//    }
-//    
-//    if(encoder1->interrupt) {
-//      onEncoderInterrupt(encoder1);
-//    }
-//    
-//    if(encoder1->stepCount > goThreshold) {
-//      encoder1->status = STATUS_RUNNING;
-//    }
-//    
-//    if(lastencoder1StepCount != encoder1->stepCount && STATUS_RUNNING == encoder1->status) {
-//      printf("count: %d dir: %d%s", encoder1->stepCount, encoder1->direction, CFG_PRINTF_NEWLINE);
-//      lastencoder1StepCount = encoder1->stepCount;
-//    }
-// TODO pamėgint paenablint histerize
+  MotorModel_t m;
+  MotorModel_t* motor = &m;
+  motorInit(motor);
+  int16_t motorTargetFrequency = 0;
 
-    uint8_t uartBuffer[8]={'k','l','i','u','r','k','t', 42};
-    uartBuffer[7] = t++;
-    uartSend(uartBuffer, 8);
-    while(uartRxBufferDataPending()) {
-      uint8_t c = uartRxBufferRead();
-      printf("%c", c);
+  uint32_t lastPIDAction = timer32GetCount(0);
+  uint32_t lastPrintTimestamp = timer32GetCount(0);
+  int16_t controlAction;
+
+//  systickDelay(5000);
+  
+
+  while (1) {
+    if(isEncoderTimeout(encoder1, encoder1Timeout)) {
+      encoderReset(encoder1);
     }
-    printf("%s", CFG_PRINTF_NEWLINE);
     
-    systickDelay(500);
+    if(encoder1->interrupt) {
+      onEncoderInterrupt(encoder1);
+    }
+    
+    if(encoder1->pulsesTemp > goThreshold && STATUS_STOPPED == encoder1->status) {
+      encoder1->status = STATUS_RUNNING;
+      encoder1->pulses += encoder1->pulsesTemp;
+      motorStart(motor, timer32GetCount(0));
+    }
+    
+    if(lastencoder1StepCount != encoder1->pulses && STATUS_RUNNING == encoder1->status) {
+      lastencoder1StepCount = encoder1->pulses;
+    }
+// TODO pamėgint paenablint histerizę
+
+    uint32_t timestamp = timer32GetCount(0);
+    if(runSynchro && timestamp - lastPIDAction >  5000) {
+      motorStep(motor, timestamp);
+      controlAction = pid_Controller(encoder1->pulses, motor->pulses, pid);
+      
+      motorTargetFrequency = controlAction;
+      if(motorTargetFrequency > 10000) {
+        motorTargetFrequency = 10000;
+      } else if(motorTargetFrequency < -10000) {
+        motorTargetFrequency = 0;
+      }
+      motorSetTargetFrequency(motor, motorTargetFrequency);
+      lastPIDAction = timestamp;
+
+//      printf("%5d-%5d=%2d, ctrl: %3d, freq: %4d of %4d %s", encoder1->pulses, motor->pulses, (encoder1->pulses - motor->pulses), controlAction, motor->frequency, motor->targetFrequency, CFG_PRINTF_NEWLINE);
+      printf("Freq: %4d of %4d motor: %4d encoder: %4d %s", motor->frequency, motor->targetFrequency, motor->pulses, encoder1->pulses, CFG_PRINTF_NEWLINE);
+    }
+    
+    
     
     // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
     #ifdef CFG_INTERFACE 

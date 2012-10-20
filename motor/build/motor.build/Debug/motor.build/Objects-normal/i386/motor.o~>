@@ -1,0 +1,4 @@
+In file included from /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../motor.c:6:
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/uart/uart.h:42:27: error: projectconfig.h: No such file or directory
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../motor.c: In function 'motorInit':
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../motor.c:30: warning: implicit declaration of function 'systickDelay'

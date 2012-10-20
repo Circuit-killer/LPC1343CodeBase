@@ -17,7 +17,8 @@ typedef struct e {
   uint8_t pinU2;
   uint8_t direction;
   uint8_t tempDirection;
-  uint32_t stepCount;
+  uint32_t pulses;
+  uint32_t pulsesTemp;
   uint8_t status;
   uint8_t interrupt;
   uint32_t lastTimestamp; 

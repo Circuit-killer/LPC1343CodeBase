@@ -1,0 +1,5 @@
+ffffffffffffffffffffffffffffffff 1703e5209f1ac70bc909a74272767043 ffffffffffffffffffffffffffffffff 5556 /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/build/motor.build/Debug/motor.build/Objects-normal/i386/motor.o
+ffffffffffffffffffffffffffffffff 304e08315f827b34aea7f4502149b3ce ffffffffffffffffffffffffffffffff 13304 /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/build/Debug/motor
+00000000000007990000000000000ba4 cb4d7c6abc1567f372174d9d88897901 ffffffffffffffffffffffffffffffff 3876 /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/build/motor.build/Debug/motor.build/Objects-normal/i386/pid.o
+000000005f9052b3000000000003df03 c08077eea75f78ee627b7b4063d6e432 ffffffffffffffffffffffffffffffff 0 /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/build/motor.build/Debug/motor.build/Objects-normal/i386/main.o
+0000000057bf4fb9000000000000046d b3fd31f20756719db6e9affcf5e015b0 ffffffffffffffffffffffffffffffff 0 /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/build/motor.build/Debug/motor.build/Objects-normal/i386/encoder.o

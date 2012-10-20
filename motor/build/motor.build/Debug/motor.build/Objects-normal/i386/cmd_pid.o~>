@@ -1,0 +1,10 @@
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c:3:27: error: projectconfig.h: No such file or directory
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c:4:26: error: core/cmd/cmd.h: No such file or directory
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c:5:64: error: project/commands.h: No such file or directory
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c: In function 'cmd_set_pid':
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c:28: warning: implicit declaration of function 'getNumber'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c:33: error: 'CFG_PRINTF_NEWLINE' undeclared (first use in this function)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c:33: error: (Each undeclared identifier is reported only once
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c:33: error: for each function it appears in.)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c: In function 'cmd_pid_test':
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../project/commands/cmd_pid.c:81: error: 'CFG_PRINTF_NEWLINE' undeclared (first use in this function)

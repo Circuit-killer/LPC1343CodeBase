@@ -11,7 +11,7 @@ inline uint8_t determineEncoderDirection(encoder_t *encoder) {
 }
 
 inline void encoderReset(encoder_t *encoder) {
-  encoder->stepCount = 0;
+  encoder->pulsesTemp = 0;
   encoder->direction = DIRECTION_NONE;
   encoder->status = STATUS_STOPPED;
 }
@@ -35,7 +35,10 @@ inline void onEncoderInterrupt(encoder_t *encoder) {
     encoderReset(encoder);
   } else {
     if(isNotSingleSpike(encoder)) {
-      encoder->stepCount++;
+      encoder->pulsesTemp++;
+      if(STATUS_RUNNING == encoder->status){
+        encoder->pulses++;
+      }
       encoder->direction = encoder->tempDirection;
     }
   }

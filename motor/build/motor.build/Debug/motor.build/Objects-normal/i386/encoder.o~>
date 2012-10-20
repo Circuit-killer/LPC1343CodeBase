@@ -1,0 +1,34 @@
+In file included from /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../encoder.c:2:
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:42:27: error: projectconfig.h: No such file or directory
+In file included from /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../encoder.c:2:
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:93: error: 'IOCON_COMMON_MODE_INACTIVE' undeclared here (not in a function)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:94: error: 'IOCON_COMMON_MODE_PULLDOWN' undeclared here (not in a function)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:95: error: 'IOCON_COMMON_MODE_PULLUP' undeclared here (not in a function)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:97: error: 'IOCON_COMMON_MODE_REPEATER' undeclared here (not in a function)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:110: error: syntax error before 'uint32_t'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:110: error: syntax error before 'INLINE_POST'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:110: warning: type defaults to 'int' in declaration of 'INLINE_POST'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:110: warning: data definition has no type or storage class
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:111: error: syntax error before 'void'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:111: error: syntax error before 'INLINE_POST'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:111: warning: type defaults to 'int' in declaration of 'INLINE_POST'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:111: warning: data definition has no type or storage class
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:125: error: syntax error before 'uint32_t'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h: In function 'gpioGetValue':
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:128: warning: implicit declaration of function 'pREG32'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:128: error: 'GPIO_GPIO0_BASE' undeclared (first use in this function)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:128: error: (Each undeclared identifier is reported only once
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:128: error: for each function it appears in.)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:128: error: invalid type argument of 'unary *'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:129: warning: control reaches end of non-void function
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h: At top level:
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:145: error: syntax error before 'void'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h: In function 'gpioSetValue':
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:148: error: 'GPIO_GPIO0_BASE' undeclared (first use in this function)
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/gpio/gpio.h:148: error: invalid type argument of 'unary *'
+In file included from /Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../encoder.c:3:
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../core/timer32/timer32.h:42:27: error: projectconfig.h: No such file or directory
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../encoder.c: In function 'encoderReset':
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../encoder.c:14: error: 'struct e' has no member named 'pulses'
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../encoder.c: In function 'onEncoderInterrupt':
+/Users/mm/Xaltura/arm/LPC1343CodeBase/motor/../encoder.c:38: error: 'struct e' has no member named 'pulses'
