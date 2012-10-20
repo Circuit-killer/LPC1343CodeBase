@@ -12,7 +12,7 @@
 void motorInit(MotorModel_t *motor) {
   motor->targetFrequency = 0;
   motor->frequency = 0;
-  motor->responseCoeff = 0.002;
+  motor->responseCoeff = 0.02;
   motor->pulses = 0;
   motor->fpulses = 0;
   motor->ffrequency = 0;

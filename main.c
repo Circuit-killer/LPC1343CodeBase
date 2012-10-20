@@ -81,8 +81,7 @@ int main(void) {
 
   pidData_t p;
   pid = &p;
-  //setPid 450 0 49500
-  pid_Init(7200, 0, 0, pid);
+  pid_Init(5000, 500, 0, pid);
   runSynchro = 0;
   
   MotorModel_t m;
@@ -132,7 +131,7 @@ int main(void) {
       lastPIDAction = timestamp;
 
 //      printf("%5d-%5d=%2d, ctrl: %3d, freq: %4d of %4d %s", encoder1->pulses, motor->pulses, (encoder1->pulses - motor->pulses), controlAction, motor->frequency, motor->targetFrequency, CFG_PRINTF_NEWLINE);
-      printf("Freq: %4d of %4d motor: %4d encoder: %4d %s", motor->frequency, motor->targetFrequency, motor->pulses, encoder1->pulses, CFG_PRINTF_NEWLINE);
+      printf("Freq: %6d of %6d motor: %4d encoder: %4d %s", motor->frequency, motor->targetFrequency, motor->pulses, encoder1->pulses, CFG_PRINTF_NEWLINE);
     }
     
     

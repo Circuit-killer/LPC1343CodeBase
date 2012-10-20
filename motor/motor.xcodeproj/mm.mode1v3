@@ -313,7 +313,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>motor.c</string>
+								<string>cmd_pid.c</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -321,22 +321,22 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>motor.c</string>
+										<string>cmd_pid.c</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>8DB86D181632D7A800586E4E</string>
+										<string>8DB86D3D1632E7C900586E4E</string>
 										<key>history</key>
 										<array>
 											<string>8DB86CB71632AC9C00586E4E</string>
 											<string>8DB86CC51632ACCE00586E4E</string>
 											<string>8DB86CE71632BC9400586E4E</string>
 											<string>8DB86CFB1632C11800586E4E</string>
-											<string>8DB86D0A1632C3A100586E4E</string>
+											<string>8DB86D251632E20F00586E4E</string>
+											<string>8DB86D341632E7C900586E4E</string>
+											<string>8DB86D351632E7C900586E4E</string>
+											<string>8DB86D361632E7C900586E4E</string>
 											<string>8DB86D0E1632D0FF00586E4E</string>
-											<string>8DB86D0F1632D0FF00586E4E</string>
-											<string>8DB86D161632D7A800586E4E</string>
-											<string>8DB86CE21632AF4900586E4E</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -448,6 +448,19 @@
 											<string>8DB86D121632D0FF00586E4E</string>
 											<string>8DB86D131632D0FF00586E4E</string>
 											<string>8DB86D171632D7A800586E4E</string>
+											<string>8DB86D1B1632DF1800586E4E</string>
+											<string>8DB86D1F1632DF5D00586E4E</string>
+											<string>8DB86D231632E09F00586E4E</string>
+											<string>8DB86D271632E20F00586E4E</string>
+											<string>8DB86D301632E55400586E4E</string>
+											<string>8DB86D311632E55400586E4E</string>
+											<string>8DB86D321632E55400586E4E</string>
+											<string>8DB86D371632E7C900586E4E</string>
+											<string>8DB86D381632E7C900586E4E</string>
+											<string>8DB86D391632E7C900586E4E</string>
+											<string>8DB86D3A1632E7C900586E4E</string>
+											<string>8DB86D3B1632E7C900586E4E</string>
+											<string>8DB86D3C1632E7C900586E4E</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>

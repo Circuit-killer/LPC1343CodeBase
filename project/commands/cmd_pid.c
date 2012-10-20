@@ -30,7 +30,7 @@ void cmd_set_pid(uint8_t argc, char **argv) {
   getNumber (argv[2], &d);
 
   pid_Init(p, i, d, pid);
-  printf("OK%s", CFG_PRINTF_NEWLINE);
+  printf("%d %d %d OK%s", pid->P_Factor, pid->I_Factor, pid->D_Factor, CFG_PRINTF_NEWLINE);
 }
 
 void cmd_pid_test(uint8_t argc, char **argv) {

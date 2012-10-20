@@ -71,7 +71,7 @@ int32_t pid_Controller(int32_t setPoint, int32_t processValue, struct PID_DATA *
 
   p_term = pid_st->P_Factor * error;
   
-  if(!pid_st->is_saturated) {
+  if(!pid_st->is_saturated || (SATURATION_LIMIT_TOP == pid_st->is_saturated && error < 0) || (SATURATION_LIMIT_BOT == pid_st->is_saturated && error > 0)) {
     pid_st->sumError += error;
   }
   i_term = pid_st->I_Factor * pid_st->sumError/100;
@@ -83,18 +83,18 @@ int32_t pid_Controller(int32_t setPoint, int32_t processValue, struct PID_DATA *
   
   if(ret > SATURATION_LIMIT_TOP){
     ret = SATURATION_LIMIT_TOP;
-    printf(" +SATURATION ");
-    pid_st->is_saturated = 1;
+//    printf(" +SAT ");
+    pid_st->is_saturated = SATURATION_LIMIT_TOP;
   } else if(ret < SATURATION_LIMIT_BOT){
     ret = SATURATION_LIMIT_BOT;
-    printf(" -SATURATION ");
-    pid_st->is_saturated = 1;
+//    printf(" -SAT ");
+    pid_st->is_saturated = SATURATION_LIMIT_BOT;
   } else {
     pid_st->is_saturated = 0;
   }
   
   if(runSynchro || pidDebug){
-    printf("e:%3d P:%5d I:%5d D:%5d||%3d ", error, p_term, i_term, d_term, ret);
+    printf("e:%4d P:%9d I:%9d D:%5d||%6d ", error, p_term, i_term, d_term, ret);
   }
   return((int16_t)ret);
 }
