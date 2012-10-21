@@ -124,6 +124,13 @@ void printPidProgram() {
     }
 }
 
+void clearProgram() {
+  int i;
+  for(i = 0; i < MAX_PID_PROGRAM_LENGHT; i++) {
+    deletePidCommand(i);
+  }
+}
+
 Command nextPidCommand() {
     currentCommand++;
     //prasukam tuscias komandas

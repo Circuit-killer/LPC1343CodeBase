@@ -310,6 +310,7 @@ int main(void)
 }
 
 void setupPrimary() {
+    clearProgram();
     pidProgram[10] = (Command){COMMAND_TYPE_RISE, 60, 0};
     pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 60, 3600};
     pidProgram[30] = (Command){COMMAND_TYPE_RISE, 110, 0};
@@ -347,6 +348,7 @@ void setupPrimary() {
 }
 
 void setupSecondary() {
+    clearProgram();
     pidProgram[10] = (Command){COMMAND_TYPE_RISE, 200, 0};
     pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 200, 900};
     pidProgram[30] = (Command){COMMAND_TYPE_RISE, 400, 0};
