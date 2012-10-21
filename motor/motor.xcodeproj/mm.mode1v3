@@ -313,7 +313,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>cmd_pid.c</string>
+								<string>main.c</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -321,11 +321,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>cmd_pid.c</string>
+										<string>main.c</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>8DB86D3D1632E7C900586E4E</string>
+										<string>8DB86D411633C94A00586E4E</string>
 										<key>history</key>
 										<array>
 											<string>8DB86CB71632AC9C00586E4E</string>
@@ -333,10 +333,10 @@
 											<string>8DB86CE71632BC9400586E4E</string>
 											<string>8DB86CFB1632C11800586E4E</string>
 											<string>8DB86D251632E20F00586E4E</string>
-											<string>8DB86D341632E7C900586E4E</string>
 											<string>8DB86D351632E7C900586E4E</string>
 											<string>8DB86D361632E7C900586E4E</string>
-											<string>8DB86D0E1632D0FF00586E4E</string>
+											<string>8DB86D3E1633C94A00586E4E</string>
+											<string>8DB86D3F1633C94A00586E4E</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -461,6 +461,7 @@
 											<string>8DB86D3A1632E7C900586E4E</string>
 											<string>8DB86D3B1632E7C900586E4E</string>
 											<string>8DB86D3C1632E7C900586E4E</string>
+											<string>8DB86D401633C94A00586E4E</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>

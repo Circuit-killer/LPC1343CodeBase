@@ -448,6 +448,10 @@
 			8DB86D3B1632E7C900586E4E /* PBXTextBookmark */ = 8DB86D3B1632E7C900586E4E /* PBXTextBookmark */;
 			8DB86D3C1632E7C900586E4E /* PBXTextBookmark */ = 8DB86D3C1632E7C900586E4E /* PBXTextBookmark */;
 			8DB86D3D1632E7C900586E4E /* PBXTextBookmark */ = 8DB86D3D1632E7C900586E4E /* PBXTextBookmark */;
+			8DB86D3E1633C94A00586E4E /* PBXTextBookmark */ = 8DB86D3E1633C94A00586E4E /* PBXTextBookmark */;
+			8DB86D3F1633C94A00586E4E /* PBXTextBookmark */ = 8DB86D3F1633C94A00586E4E /* PBXTextBookmark */;
+			8DB86D401633C94A00586E4E /* PBXTextBookmark */ = 8DB86D401633C94A00586E4E /* PBXTextBookmark */;
+			8DB86D411633C94A00586E4E /* PBXTextBookmark */ = 8DB86D411633C94A00586E4E /* PBXTextBookmark */;
 			8DF2AC39163142D100E6531A = 8DF2AC39163142D100E6531A /* PBXTextBookmark */;
 			8DF2AC3A163142D100E6531A = 8DF2AC3A163142D100E6531A /* PBXTextBookmark */;
 			8DF2AC52163147E200E6531A = 8DF2AC52163147E200E6531A /* PBXTextBookmark */;
@@ -4534,6 +4538,46 @@
 		vrLen = 794;
 		vrLoc = 446;
 	};
+	8DB86D3E1633C94A00586E4E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 8DB86C2216327FBB00586E4E /* cmd_pid.c */;
+		name = "cmd_pid.c: 33";
+		rLen = 0;
+		rLoc = 798;
+		rType = 0;
+		vrLen = 794;
+		vrLoc = 446;
+	};
+	8DB86D3F1633C94A00586E4E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 8DFD458216307D7C002A1916 /* main.c */;
+		name = "main.c: 134";
+		rLen = 0;
+		rLoc = 3807;
+		rType = 0;
+		vrLen = 1459;
+		vrLoc = 2624;
+	};
+	8DB86D401633C94A00586E4E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 8DB86C2216327FBB00586E4E /* cmd_pid.c */;
+		name = "cmd_pid.c: 33";
+		rLen = 0;
+		rLoc = 798;
+		rType = 0;
+		vrLen = 794;
+		vrLoc = 446;
+	};
+	8DB86D411633C94A00586E4E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 8DFD458216307D7C002A1916 /* main.c */;
+		name = "main.c: 120";
+		rLen = 0;
+		rLoc = 3136;
+		rType = 0;
+		vrLen = 1483;
+		vrLoc = 2457;
+	};
 	8DC1F5C116306DC900BA9F5E /* motor */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
@@ -4686,8 +4730,8 @@
 	8DFD458216307D7C002A1916 /* main.c */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1260, 2058}}";
-			sepNavSelRange = "{3807, 0}";
-			sepNavVisRange = "{2624, 1459}";
+			sepNavSelRange = "{3136, 0}";
+			sepNavVisRange = "{2457, 1483}";
 			sepNavWindowFrame = "{{15, 11}, {670, 762}}";
 		};
 	};

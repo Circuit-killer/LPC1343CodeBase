@@ -117,7 +117,7 @@ int main(void) {
 // TODO pamėgint paenablint histerizę
 
     uint32_t timestamp = timer32GetCount(0);
-    if(runSynchro && timestamp - lastPIDAction >  5000) {
+    if(runSynchro && timestamp - lastPIDAction >  1000) {
       motorStep(motor, timestamp);
       controlAction = pid_Controller(encoder1->pulses, motor->pulses, pid);
       
