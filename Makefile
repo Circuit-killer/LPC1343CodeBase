@@ -113,8 +113,8 @@ OBJS += eeprom.o mcp24aa.o
 # OBJS += samsung_20T202DA2JA.o
 
 # ChaN FatFS and SD card support
-VPATH += drivers/fatfs
-OBJS += ff.o mmc.o
+#VPATH += drivers/fatfs
+#OBJS += ff.o mmc.o
 
 # Motors
 # VPATH += drivers/motor/stepper
