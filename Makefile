@@ -13,7 +13,7 @@ SRAM = 8K
 SRAM_USB = 384
 
 VPATH = 
-OBJS = main.o encoder.o motor.o pid.o cmd_pid.o
+OBJS = main.o encoder.o motor.o pid.o cmd_pid.o modbus.o cmd_modbus.o
 
 ##########################################################################
 # Debug settings

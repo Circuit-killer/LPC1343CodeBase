@@ -101,6 +101,8 @@ void cmd_pid_test(uint8_t argc, char **argv);
 void cmd_pid_run(uint8_t argc, char **argv);
 void cmd_pid_stop(uint8_t argc, char **argv);
 void cmd_set_pid(uint8_t argc, char **argv);
+void cmd_modbus_set_register(uint8_t argc, char **argv);
+void cmd_modbus_get_register(uint8_t argc, char **argv);
 
 #define CMD_NOPARAMS "This command has no parameters"
 
@@ -169,7 +171,9 @@ cmd_t cmd_tbl[] =
   { "pidTest", 3,  6, 0, cmd_pid_test        , "PID parameters test"            , "pidTest <P> <I> <D> [<setPoint>] [<timeStep>] [<debug>]"},
   { "start", 0, 0, 0, cmd_pid_run     , "Start encoder1 tracking"        , "startSynchro"},
   { "stop", 0, 0, 0, cmd_pid_stop      , "Stop encoder1 tracking"         , "stopSynchro"},
-  { "setPid", 3, 3, 3, cmd_set_pid          , "Set PID parameters"        , "setPID <P> <I> <D>"}
+  { "setPid", 3, 3, 0, cmd_set_pid          , "Set PID parameters"        , "setPID <P> <I> <D>"},
+  { "modbusSet", 2, 2, 0, cmd_modbus_set_register          , "Set modbus register of slave 1"        , "modbusSetReg <register id> <value>"},
+  { "modbusGet", 1, 1, 0, cmd_modbus_get_register          , "Get modbus register of slave 1"        , "modbusGetReg <register id>"},
 };
 
 #endif

@@ -10,18 +10,36 @@ inline uint8_t determineEncoderDirection(encoder_t *encoder) {
   }  
 }
 
+inline void encoderSetupHardware(encoder_t *encoder) {
+  gpioSetDir(encoder->port, encoder->pinU1, gpioDirection_Input);
+  gpioSetDir(encoder->port, encoder->pinU2, gpioDirection_Input);
+  
+  gpioSetDir(encoder->indicatorPort, encoder->indicatorPin, gpioDirection_Output);
+  gpioSetValue(encoder->indicatorPort, encoder->indicatorPin, INDICATOR_LED_OFF);
+  
+  gpioSetInterrupt(encoder->port, encoder->pinU1, gpioInterruptSense_Edge, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveLow);
+  gpioIntEnable(encoder->port, encoder->pinU1);  
+}
+
+inline void encoderStart(encoder_t * encoder) {
+  encoder->status = STATUS_RUNNING;
+  encoder->pulses += encoder->pulsesTemp;
+  gpioSetValue(encoder->indicatorPort, encoder->indicatorPin, INDICATOR_LED_ON);
+}
+
 inline void encoderReset(encoder_t *encoder) {
   encoder->pulsesTemp = 0;
   encoder->direction = DIRECTION_NONE;
   encoder->status = STATUS_STOPPED;
+  gpioSetValue(encoder->indicatorPort, encoder->indicatorPin, INDICATOR_LED_OFF);
 }
 
 inline uint8_t isSuddenDirectionChange(encoder_t *encoder) {
   return encoder->direction != DIRECTION_NONE && encoder->tempDirection != encoder->direction;
 }
 
-inline uint8_t isEncoderTimeout(encoder_t *encoder, uint32_t timeout) {
-  return 0 == encoder->lastTimestamp || encoder->timestamp - encoder->lastTimestamp > timeout;
+inline uint8_t isEncoderTimeout(encoder_t *encoder, uint32_t currTimestamp) {
+  return STATUS_RUNNING == encoder->status && ((currTimestamp - encoder->timestamp) > encoder->timeout);
 }
 
 inline uint8_t isNotSingleSpike(encoder_t *encoder) {
@@ -42,16 +60,19 @@ inline void onEncoderInterrupt(encoder_t *encoder) {
       encoder->direction = encoder->tempDirection;
     }
   }
-  encoder->lastTimestamp = encoder->timestamp;  
+  encoder->timestamp = timer32GetCount(0);  
 }
 
 inline void setEncoderInterrupt(encoder_t *encoder) {
   encoder->tempDirection = determineEncoderDirection(encoder);
   encoder->interrupt = 1;
-  encoder->timestamp = timer32GetCount(0);  
 }
 
 inline uint32_t isEncoderInterrupt(encoder_t *encoder) {
   return gpioIntStatus(encoder->port, encoder->pinU1);
+}
+
+inline uint8_t encoderCanStart(encoder_t *encoder) {
+  return encoder->pulsesTemp > encoder->goThreshold && STATUS_STOPPED == encoder->status;
 }
 
