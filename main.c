@@ -355,13 +355,9 @@ void setupSecondary() {
     pidProgram[40] = (Command){COMMAND_TYPE_HOLD, 400, 900};
     pidProgram[50] = (Command){COMMAND_TYPE_RISE, 600, 0};
     pidProgram[60] = (Command){COMMAND_TYPE_HOLD, 600, 900};
-    pidProgram[70] = (Command){COMMAND_TYPE_RISE, 800, 0};
-    pidProgram[80] = (Command){COMMAND_TYPE_HOLD, 800, 900};
     pidProgram[90] = (Command){COMMAND_TYPE_RISE, 940, 0};
     pidProgram[100] = (Command){COMMAND_TYPE_HOLD, 940, 900};
     pidProgram[110] = (Command){COMMAND_TYPE_RISE, 1015, 0};
     pidProgram[120] = (Command){COMMAND_TYPE_HOLD, 1015, 300};
-    pidProgram[130] = (Command){COMMAND_TYPE_RISE, 600, 0};
-    pidProgram[140] = (Command){COMMAND_TYPE_HOLD, 600, 7200};
     pidProgram[150] = (Command){COMMAND_TYPE_RISE, 0, 0};
 }
