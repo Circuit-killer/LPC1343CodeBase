@@ -58,7 +58,7 @@ void PIOINT2_IRQHandler(void) {
 }
 
 
-void encoder1Init(encoder_t *encoder) {
+inline void encoder1Init(encoder_t *encoder) {
   encoder->port = 2;
   encoder->pinU1 = 8;
   encoder->pinU2 = 6;
@@ -74,7 +74,7 @@ void encoder1Init(encoder_t *encoder) {
   encoder->goThreshold = 50;
 }
 
-void encoder2Init(encoder_t *encoder) {
+inline void encoder2Init(encoder_t *encoder) {
   encoder->port = 2;
   encoder->pinU1 = 7;
   encoder->pinU2 = 9;
@@ -90,7 +90,7 @@ void encoder2Init(encoder_t *encoder) {
   encoder->goThreshold = 50;
 }
 
-void setupLeds() {
+inline void setupLeds() {
   gpioSetDir(3, 3, gpioDirection_Output); // encoder2 indication
   gpioSetValue(3, 3, 1);
   gpioSetDir(3, 0, gpioDirection_Output); // encoder1 indication
@@ -103,7 +103,7 @@ void setupLeds() {
   gpioSetValue(1, 9, 1);
 }
 
-void ledsOn() {
+inline void ledsOn() {
   gpioSetValue(3, 3, 0);
   gpioSetValue(3, 0, 0);
   gpioSetValue(1, 6, 0);
@@ -111,11 +111,19 @@ void ledsOn() {
   gpioSetValue(1, 9, 0);
 }
 
-void ledsOff() {
+inline void ledsOff() {
   gpioSetValue(3, 3, 1);
   gpioSetValue(3, 0, 1);
   gpioSetValue(1, 6, 1);
   gpioSetValue(1, 7, 1);
+  gpioSetValue(1, 9, 1);
+}
+
+inline void commBad() {
+  gpioSetValue(1, 9, 0);
+}
+
+inline void commGood() {
   gpioSetValue(1, 9, 1);
 }
 
@@ -131,8 +139,9 @@ int main(void) {
   ledsOff();
   systickDelay(1000);
   ledsOn();
-  systickDelay(500);
+  systickDelay(100);
   ledsOff();
+  commBad();
 
   modbusInit();
   
@@ -157,6 +166,7 @@ int main(void) {
 
   uint32_t lastPIDAction = timer32GetCount(0);
   uint32_t lastPrintTimestamp = timer32GetCount(0);
+  uint32_t lastCommCheckTimestamp = timer32GetCount(0);
   int16_t controlAction;
 
   while (1) {
@@ -202,8 +212,6 @@ int main(void) {
 //    printf("Setting acceleration%s", CFG_PRINTF_NEWLINE);
 //    modbusPresetSingleRegister(102, 255);
 //    systickDelay(1000);
-    
-// TODO pamėgint paenablint histerizę
 
     uint32_t timestamp = timer32GetCount(0);
     if(runSynchro && timestamp - lastPIDAction >  1000) {
@@ -217,11 +225,24 @@ int main(void) {
         motorTargetFrequency = 0;
       }
       motorSetTargetFrequency(motor, motorTargetFrequency);
+      if(modbusSetSpeed(motorTargetFrequency) < 0) {
+        commBad();
+      } else {
+        commGood();
+      }
       lastPIDAction = timestamp;
 
 //      printf("%5d-%5d=%2d, ctrl: %3d, freq: %4d of %4d %s", encoder1->pulses, motor->pulses, (encoder1->pulses - motor->pulses), controlAction, motor->frequency, motor->targetFrequency, CFG_PRINTF_NEWLINE);
       printf("Freq: %6d of %6d motor: %4d encoder: %4d %s", motor->frequency, motor->targetFrequency, motor->pulses, encoder1->pulses, CFG_PRINTF_NEWLINE);
+    } else if(timestamp - lastCommCheckTimestamp > 1000000) {
+      if(modbusGetHoldingRegister(2001) < 0) {//TODO pakeist i koki nors prasminga registra
+        commBad();
+      } else {
+        commGood();
+      }
+      lastCommCheckTimestamp = timestamp;
     }
+
     
     
     
