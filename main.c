@@ -47,35 +47,30 @@
   #include "core/cmd/cmd.h"
 #endif
 
-/**************************************************************************/
-/*! 
-    Main program entry point.  After reset, normal code execution will
-    begin here.
-*/
-/**************************************************************************/
+#include "core/cpu/cpu.h"
+#include "drivers/sensors/ds18b20/ds18b20.h"
+
 int main(void)
 {
   // Configure cpu and mandatory peripherals
   systemInit();
 
-  uint32_t currentSecond, lastSecond;
-  currentSecond = lastSecond = 0;
-  
-  while (1)
-  {
-    // Toggle LED once per second
-    currentSecond = systickGetSecondsActive();
-    if (currentSecond != lastSecond)
-    {
-      lastSecond = currentSecond;
-      gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, lastSecond % 2);
-    }
+  int32_t temp = 0;
 
-    // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
+  gpioSetDir(2, 9, gpioDirection_Output);
+  gpioSetDir(2, 7, gpioDirection_Output);
+  gpioSetValue(2, 9, 0);
+  gpioSetValue(2, 7, 1);
+  // Initialise the DS18B20
+  ds18b20Init(2, 8, &IOCON_PIO2_8);
+  while (1) {
+    temp = ds18b20GetTemperature();
+    
+    // Use modulus operator to display decimal value
+    printf("%d.%d\n", temp / 10000, temp % 10000);
     #ifdef CFG_INTERFACE 
-      cmdPoll(); 
+        cmdPoll(); 
     #endif
   }
-
   return 0;
 }
