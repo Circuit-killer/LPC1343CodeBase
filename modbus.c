@@ -40,24 +40,11 @@ void modbusInit() {
   }    
 }
 
-void modbusSetSpeed(uint16_t speed) {
+int_8 modbusSetSpeed(uint16_t speed) {
   if(speed > 10000) {
-    printf("Speed must be <= 10000");
-    return;
+    return -125;
   }
-  uint8_t frame[8] = {1, 6, 2002 >> 8, 2002 & 0xFF, speed >> 8, speed & 0xff, 0, 0};
-  uint16_t crc = calculateCRC(frame, 6);
-  frame[6] = crc >> 8;
-  frame[7] = crc & 0xff;
-  
-  printf("sending%s", CFG_PRINTF_NEWLINE);
-  uartSend(frame, 8);
-  printf("receiving...%s", CFG_PRINTF_NEWLINE);
-  while(uartRxBufferDataPending()) {
-    uint8_t c = uartRxBufferRead();
-    printf("0x%x ", c);
-  }
-  printf("%s", CFG_PRINTF_NEWLINE);
+  return modbusPresetSingleRegister(2002, speed);
 }
 
 void modbusControl(uint16_t controlWord) {
