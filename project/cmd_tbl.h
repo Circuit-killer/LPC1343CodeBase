@@ -123,50 +123,50 @@ cmd_t cmd_tbl[] =
   { "Z",    0,  0,  0, cmd_reset             , "Reset"                          , CMD_NOPARAMS },
 
   #ifdef CFG_I2CEEPROM
-  { "e",    1,  1,  0, cmd_i2ceeprom_read    , "EEPROM Read"                    , "'e <addr>'" },
-  { "w",    2,  2,  0, cmd_i2ceeprom_write   , "EEPROM Write"                   , "'w <addr> <val>'" },
-  { "U",    0,  1,  0, cmd_uart              , "UART baud rate"                 , "'U [<val>]'" },
+//  { "e",    1,  1,  0, cmd_i2ceeprom_read    , "EEPROM Read"                    , "'e <addr>'" },
+//  { "w",    2,  2,  0, cmd_i2ceeprom_write   , "EEPROM Write"                   , "'w <addr> <val>'" },
+//  { "U",    0,  1,  0, cmd_uart              , "UART baud rate"                 , "'U [<val>]'" },
   #endif
 
   #ifdef CFG_TFTLCD
-  { "b",    5,  99, 0, cmd_button            , "Button"                         , "'b <x> <y> <w> <h> <fontclr> [<txt>]'" },
+//  { "b",    5,  99, 0, cmd_button            , "Button"                         , "'b <x> <y> <w> <h> <fontclr> [<txt>]'" },
   #ifdef CFG_SDCARD
-  { "B",    3,  3,  0, cmd_bmp               , "Bitmap (SD Card)"               , "'B <x> <y> <file>'" },
+//  { "B",    3,  3,  0, cmd_bmp               , "Bitmap (SD Card)"               , "'B <x> <y> <file>'" },
   #endif
-  { "c",    4,  6,  0, cmd_circle            , "Circle"                         , "'c <x> <y> <radius> <color> [<filled[0|1]> <bcolor>]'" },
-  { "C",    0,  0,  0, cmd_calibrate         , "Calibrate Touch Screen"         , CMD_NOPARAMS },
-  { "F",    0,  1,  0, cmd_clear             , "Fill"                           , "'F [<color>]'" },
-  { "g",    2,  2,  0, cmd_getpixel          , "Get Pixel"                      , "'g <x> <y>'" },
-  { "l",    5,  7,  0, cmd_line              , "Line"                           , "'l <x1> <y1> <x2> <y2> <color> [<empty> <solid>]'" },
-  { "L",    1,  1,  0, cmd_backlight         , "Backlight"                      , "'L <0|1>'" },
-  { "n",    5,  5,  0, cmd_roundedcorner     , "Rounded Corner"                 , "'n <x> <y> <radius> <corner> <color>'" },
-  { "o",    0,  1,  0, cmd_orientation       , "LCD Orientation"                , "'o [<0|1>]'" },
-  { "p",    3,  3,  0, cmd_pixel             , "Draw Pixel"                     , "'p <x> <y> <color>'" },
-  { "P",    6,  6,  0, cmd_progress          , "Progress Bar"                   , "'P <x> <y> <w> <h> <%> <barclr>'" },
-  { "r",    5,  7,  0, cmd_rectangle         , "Rectangle"                      , "'r <x1> <y1> <x2> <y2> <color> [<filled[0|1]> <bcolor>]'" },
-  { "R",    7,  9,  0, cmd_rectangleround    , "Rounded Rectangle"              , "'R <x1> <y1> <x2> <y2> <color> <radius> <corners> [<filled[0|1]> <bcolor>]'" },
-  { "s",    2, 99,  0, cmd_textw             , "Text Width"                     , "'s <font#> <msg>'" },
-  { "t",    6, 99,  0, cmd_text              , "Text"                           , "'t <x> <y> <bgcolor> <fontcolor> <font#> <msg>'" },
-  { "v",    7,  8,  0, cmd_triangle          , "Triangle"                       , "'v <x1> <y1> <x2> <y2> <x3> <y3> <color> [<filled[0|1]>]'" },
-  { "W",    0,  1,  0, cmd_tswait            , "Wait for Touch"                 , "'W [<ms>]'" },
-  { "x",    0,  1,  0, cmd_tsthreshhold      , "Touch Threshold"                , "'x [<0..254>]'" },
+//  { "c",    4,  6,  0, cmd_circle            , "Circle"                         , "'c <x> <y> <radius> <color> [<filled[0|1]> <bcolor>]'" },
+//  { "C",    0,  0,  0, cmd_calibrate         , "Calibrate Touch Screen"         , CMD_NOPARAMS },
+//  { "F",    0,  1,  0, cmd_clear             , "Fill"                           , "'F [<color>]'" },
+//  { "g",    2,  2,  0, cmd_getpixel          , "Get Pixel"                      , "'g <x> <y>'" },
+//  { "l",    5,  7,  0, cmd_line              , "Line"                           , "'l <x1> <y1> <x2> <y2> <color> [<empty> <solid>]'" },
+//  { "L",    1,  1,  0, cmd_backlight         , "Backlight"                      , "'L <0|1>'" },
+//  { "n",    5,  5,  0, cmd_roundedcorner     , "Rounded Corner"                 , "'n <x> <y> <radius> <corner> <color>'" },
+//  { "o",    0,  1,  0, cmd_orientation       , "LCD Orientation"                , "'o [<0|1>]'" },
+//  { "p",    3,  3,  0, cmd_pixel             , "Draw Pixel"                     , "'p <x> <y> <color>'" },
+//  { "P",    6,  6,  0, cmd_progress          , "Progress Bar"                   , "'P <x> <y> <w> <h> <%> <barclr>'" },
+//  { "r",    5,  7,  0, cmd_rectangle         , "Rectangle"                      , "'r <x1> <y1> <x2> <y2> <color> [<filled[0|1]> <bcolor>]'" },
+//  { "R",    7,  9,  0, cmd_rectangleround    , "Rounded Rectangle"              , "'R <x1> <y1> <x2> <y2> <color> <radius> <corners> [<filled[0|1]> <bcolor>]'" },
+//  { "s",    2, 99,  0, cmd_textw             , "Text Width"                     , "'s <font#> <msg>'" },
+//  { "t",    6, 99,  0, cmd_text              , "Text"                           , "'t <x> <y> <bgcolor> <fontcolor> <font#> <msg>'" },
+//  { "v",    7,  8,  0, cmd_triangle          , "Triangle"                       , "'v <x1> <y1> <x2> <y2> <x3> <y3> <color> [<filled[0|1]>]'" },
+//  { "W",    0,  1,  0, cmd_tswait            , "Wait for Touch"                 , "'W [<ms>]'" },
+//  { "x",    0,  1,  0, cmd_tsthreshhold      , "Touch Threshold"                , "'x [<0..254>]'" },
   #endif
 
   #ifdef CFG_CHIBI
-  { "A",    0,  1,  0, cmd_chibi_addr        , "Get/Set Node Address"           , "'A [<0x0..0xFFFE>]'" },
-  { "S",    2, 99,  0, cmd_chibi_tx          , "Send Message"                   , "'S <destaddr> <msg>'" },
+//  { "A",    0,  1,  0, cmd_chibi_addr        , "Get/Set Node Address"           , "'A [<0x0..0xFFFE>]'" },
+//  { "S",    2, 99,  0, cmd_chibi_tx          , "Send Message"                   , "'S <destaddr> <msg>'" },
   #endif
 
   #ifdef CFG_LM75B
-  { "m",    0,  0,  0, cmd_lm75b_gettemp     , "Temp (C)"                       , CMD_NOPARAMS },
+//  { "m",    0,  0,  0, cmd_lm75b_gettemp     , "Temp (C)"                       , CMD_NOPARAMS },
   #endif
 
   #ifdef CFG_SDCARD
-  { "d",    0,  1,  0,  cmd_sd_dir           , "Dir (SD Card)"                  , "'d [<path>]'" },
+//  { "d",    0,  1,  0,  cmd_sd_dir           , "Dir (SD Card)"                  , "'d [<path>]'" },
   #endif
 
   #ifdef CFG_PWM
-  { "M",    2,  2,  0,  cmd_pwm              , "PWM Control"                    , "'M [<dutycycle(%)>] [<frequency(ticks)>]'" },
+//  { "M",    2,  2,  0,  cmd_pwm              , "PWM Control"                    , "'M [<dutycycle(%)>] [<frequency(ticks)>]'" },
   #endif
   { "pidTest", 3,  6, 0, cmd_pid_test        , "PID parameters test"            , "pidTest <P> <I> <D> [<setPoint>] [<timeStep>] [<debug>]"},
   { "start", 0, 0, 0, cmd_pid_run     , "Start encoder1 tracking"        , "startSynchro"},
