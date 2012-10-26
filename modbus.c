@@ -40,7 +40,7 @@ void modbusInit() {
   }    
 }
 
-int_8 modbusSetSpeed(uint16_t speed) {
+int8_t modbusSetSpeed(uint16_t speed) {
   if(speed > 10000) {
     return -125;
   }
