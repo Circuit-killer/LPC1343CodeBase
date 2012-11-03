@@ -33,13 +33,43 @@ void cmd_set_pid(uint8_t argc, char **argv) {
   printf("%d %d %d OK%s", pid->P_Factor, pid->I_Factor, pid->D_Factor, CFG_PRINTF_NEWLINE);
 }
 
+void cmd_step_test(uint8_t argc, char **argv) {
+  int32_t setFreq = 10000;
+  int32_t dt = 3000;
+  int32_t steps = dt*1000;
+  if(argc > 0) {
+    getNumber(argv[0], &setFreq);
+  }
+  if(argc > 1) {
+    getNumber(argv[1], &dt);
+  }
+  if(argc > 2) {
+    getNumber(argv[2], &steps);
+  }
+  
+  MotorModel_t m;
+  MotorModel_t* motor = &m;
+  motorInit(motor);
+
+  motorSetTargetFrequency(motor, setFreq);
+  
+  uint32_t lastPulses = 0;
+  int j;
+  for(j = 0; j < steps; j+=dt) {
+    motorStep(motor, j);
+    printf("%d%s", motor->pulses, CFG_PRINTF_NEWLINE);
+    lastPulses = motor->pulses;
+  }
+}
+
 void cmd_pid_test(uint8_t argc, char **argv) {
   int32_t p = 0;
   int32_t i = 0;
   int32_t d = 0;
   int32_t setPoint = 50;
   int32_t dt = 5000;
-  int32_t debug = 0;
+  int32_t steps = dt * 1000;
+  int32_t output = 0;
     
   getNumber (argv[0], &p);
   getNumber (argv[1], &i);
@@ -51,7 +81,10 @@ void cmd_pid_test(uint8_t argc, char **argv) {
     getNumber (argv[4], &dt);
   }
   if(argc > 5){
-    getNumber (argv[4], &debug);
+    getNumber (argv[5], &steps);
+  }
+  if(argc > 6){
+    getNumber (argv[6], &output);
   }
   
   MotorModel_t m;
@@ -61,14 +94,13 @@ void cmd_pid_test(uint8_t argc, char **argv) {
   pidData_t pd;
   pidData_t* pid = &pd;
   pid_Init(p, i, d, pid);
-//  if(debug) {
-//    pidDebug = 1;
-//  }
   
   int j;
   motorStart(motor, 0);
   int32_t motorTargetFrequency = 0;
-  for(j = 0; j < 5000000; j+=5000) {
+  int32_t riseTime = 0;
+  int32_t overshoot = 0;
+  for(j = 0; j < steps; j+=dt) {
     motorStep(motor, j);
     int32_t controlAction = pid_Controller(setPoint, motor->pulses, pid);
     motorTargetFrequency = controlAction;//motorTargetFrequency + controlAction;
@@ -78,6 +110,18 @@ void cmd_pid_test(uint8_t argc, char **argv) {
       motorTargetFrequency = 0;
     }
     motorSetTargetFrequency(motor, motorTargetFrequency);
-    printf("%d%s", motor->pulses, CFG_PRINTF_NEWLINE);
+    if(1 == output) {
+      printf("%d%s", motorTargetFrequency, CFG_PRINTF_NEWLINE);  
+    } else {
+      printf("%d%s", motor->pulses, CFG_PRINTF_NEWLINE);
+    }
+    if(0 == riseTime && motor->pulses == setPoint) {
+      riseTime = j;
+    }
+    if(motor->pulses > setPoint && motor->pulses - setPoint > overshoot) {
+      overshoot = motor->pulses - setPoint;
+    }
   }
+  printf("Rise time: %d%s", riseTime, CFG_PRINTF_NEWLINE);
+  printf("Overshoot: %d%s", overshoot, CFG_PRINTF_NEWLINE);
 }
