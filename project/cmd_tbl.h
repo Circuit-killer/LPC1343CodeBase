@@ -98,6 +98,7 @@ void cmd_pwm(uint8_t argc, char **argv);
 #endif
 
 void cmd_pid_test(uint8_t argc, char **argv);
+void cmd_step_test(uint8_t argc, char **argv);
 void cmd_pid_run(uint8_t argc, char **argv);
 void cmd_pid_stop(uint8_t argc, char **argv);
 void cmd_set_pid(uint8_t argc, char **argv);
@@ -168,7 +169,8 @@ cmd_t cmd_tbl[] =
   #ifdef CFG_PWM
 //  { "M",    2,  2,  0,  cmd_pwm              , "PWM Control"                    , "'M [<dutycycle(%)>] [<frequency(ticks)>]'" },
   #endif
-  { "pidTest", 3,  6, 0, cmd_pid_test        , "PID parameters test"            , "pidTest <P> <I> <D> [<setPoint>] [<timeStep>] [<debug>]"},
+  { "pidTest", 3,  7, 0, cmd_pid_test        , "PID parameters test"            , "pidTest <P> <I> <D> [<setPoint>] [<timeStep>] [<steps>] [<debug>]"},
+  { "stepTest", 0, 3, 0, cmd_step_test       , "Step response/impulse response test", "stepTest <targetFreq> <dt> <steps>"},
   { "start", 0, 0, 0, cmd_pid_run     , "Start encoder1 tracking"        , "startSynchro"},
   { "stop", 0, 0, 0, cmd_pid_stop      , "Stop encoder1 tracking"         , "stopSynchro"},
   { "setPid", 3, 3, 0, cmd_set_pid          , "Set PID parameters"        , "setPID <P> <I> <D>"},
