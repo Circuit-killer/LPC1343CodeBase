@@ -127,6 +127,40 @@ inline void commGood() {
   gpioSetValue(1, 9, 1);
 }
 
+void debounceSwitch(uint8_t *flag, uint8_t port, uint8_t pin) {
+  if(! *flag && 0 == gpioGetValue(port, pin)) {
+    printf("switch on?\r\n");
+    systickDelay(30);
+    if(0 == gpioGetValue(port, pin)) {
+      *flag = 1;
+      printf("ON!!! \r\n");
+    } else {
+      printf("no...\r\n");
+    }
+  }
+  if(*flag && 1 == gpioGetValue(port, pin)) {
+    printf("switch off?\r\n");
+    systickDelay(30);
+    if(1 == gpioGetValue(port, pin)) {
+      *flag = 0;
+      printf("off\r\n");
+    } else {
+      printf("no...\r\n");
+    }
+  }
+}
+
+inline void setupSwitches() {
+  gpioSetDir(1, 10, gpioDirection_Input); //synchro
+  gpioSetPullup(IOCON_PIO1_10, gpioPullupMode_PullUp);
+
+  gpioSetDir(1, 11, gpioDirection_Input); //start-stop
+  gpioSetPullup(IOCON_PIO1_11, gpioPullupMode_PullUp);
+
+  gpioSetDir(1, 8, gpioDirection_Input); //slow go
+  gpioSetPullup(IOCON_PIO1_10, gpioPullupMode_PullUp);
+}
+
 int main(void) {
   systemInit();
   timer32Init(0, TIMER32_CCLK_1US);
@@ -153,7 +187,8 @@ int main(void) {
   encoder1Init(encoder1);
   encoder2Init(encoder2);
   setupEncoderHardware(encoder1, encoder2);
-
+  setupSwitches();
+  
   pidData_t p;
   pid = &p;
   pid_Init(5000, 500, 0, pid);
@@ -169,6 +204,9 @@ int main(void) {
   uint32_t lastCommCheckTimestamp = timer32GetCount(0);
   int16_t controlAction;
 
+  uint8_t run = 0;
+  uint8_t slowgo = 0;
+  
   while (1) {
     if(encoder1->interrupt) {
       onEncoderInterrupt(encoder1);
@@ -179,15 +217,19 @@ int main(void) {
     }
 
     if(isEncoderTimeout(encoder1, timer32GetCount(0))) {
-      gpioSetValue(1, 9, !gpioGetValue(1,9));
       encoderReset(encoder1);
     }
+    
     if(isEncoderTimeout(encoder2, timer32GetCount(0))) {
       encoderReset(encoder2);
     }
         
     if(encoderCanStart(encoder1)) {
       encoderStart(encoder1);
+      modbusSetSpeed(motorTargetFrequency);
+      
+      modbusPresetSingleRegister(2000, 1);
+      
       motorStart(motor, timer32GetCount(0));
     }
 
@@ -195,24 +237,7 @@ int main(void) {
       encoderStart(encoder2);
     }
     
-    int32_t temp;
     
-//    printf("Reading input register - acceleration time%s", CFG_PRINTF_NEWLINE);
-//    temp = modbusGetHoldingRegister(102);
-//    printf("read: %d%s", temp, CFG_PRINTF_NEWLINE);
-//    systickDelay(500);
-//    printf("Reading input register - deceleration time%s", CFG_PRINTF_NEWLINE);
-//    temp = modbusGetHoldingRegister(103);
-//    printf("read: %d%s", temp, CFG_PRINTF_NEWLINE);
-//    systickDelay(2000);
-//    printf("Reading holding register - DC-link voltage%s", CFG_PRINTF_NEWLINE);
-//    temp = modbusGetHoldingRegister(6);
-//    printf("read: %d%s", temp, CFG_PRINTF_NEWLINE);
-//    systickDelay(2000);
-//    printf("Setting acceleration%s", CFG_PRINTF_NEWLINE);
-//    modbusPresetSingleRegister(102, 255);
-//    systickDelay(1000);
-
     uint32_t timestamp = timer32GetCount(0);
     if(runSynchro && timestamp - lastPIDAction >  1000) {
       motorStep(motor, timestamp);
@@ -243,8 +268,9 @@ int main(void) {
       lastCommCheckTimestamp = timestamp;
     }
 
-    
-    
+    debounceSwitch(&runSynchro, 1, 10);
+    debounceSwitch(&run, 1, 11);
+    debounceSwitch(&slowgo, 1, 8);
     
     // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
     #ifdef CFG_INTERFACE 
