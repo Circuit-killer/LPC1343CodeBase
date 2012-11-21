@@ -13,6 +13,8 @@
 #define INDICATOR_LED_OFF 1
 #define INDICATOR_LED_ON 0
 
+uint16_t encoderRatio;
+
 typedef struct e {
   uint8_t port;
   uint8_t pinU1;
@@ -38,5 +40,6 @@ inline void encoderReset(encoder_t *encoder);
 inline uint8_t isEncoderTimeout(encoder_t *encoder, uint32_t currTimestamp);
 inline void encoderSetupHardware(encoder_t *encoder);
 inline uint8_t encoderCanStart(encoder_t *encoder);
+inline void encoderStart(encoder_t * encoder);
 
 #endif

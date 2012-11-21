@@ -42,23 +42,27 @@ void modbusInit() {
 
 int8_t modbusSetSpeed(uint16_t speed) {
   if(speed > 10000) {
-    return -125;
+    return EXCEPTION_INVALID_SPEED;
   }
   return modbusPresetSingleRegister(2002, speed);
 }
 
-void modbusControl(uint16_t controlWord) {
-  uint8_t frame[8] = {1, 6, 2000 >> 8, 2000 & 0xff, controlWord << 8, controlWord & 0xff, 0, 0 };
-  uint16_t crc = calculateCRC(frame, 6);
-  frame[6] = crc >> 8;
-  frame[7] = crc & 0xff;
-  uartSend(frame, 8);
-  while(uartRxBufferDataPending()) {
-    uint8_t c = uartRxBufferRead();
-    printf("0x%x ", c);
-  }  
-  printf("%s", CFG_PRINTF_NEWLINE);
+inline int8_t modbusControl(uint16_t controlWord) {
+  return modbusPresetSingleRegister(FIELDBUS_CONTROL_REG, controlWord);
 }
+
+//void modbusControl(uint16_t controlWord) {
+//  uint8_t frame[8] = {1, 6, 2000 >> 8, 2000 & 0xff, controlWord << 8, controlWord & 0xff, 0, 0 };
+//  uint16_t crc = calculateCRC(frame, 6);
+//  frame[6] = crc >> 8;
+//  frame[7] = crc & 0xff;
+//  uartSend(frame, 8);
+//  while(uartRxBufferDataPending()) {
+//    uint8_t c = uartRxBufferRead();
+//    printf("0x%x ", c);
+//  }  
+//  printf("%s", CFG_PRINTF_NEWLINE);
+//}
 
 uint8_t waitForChar() {
   uint8_t wait = 255;
@@ -77,7 +81,7 @@ int8_t modbusPresetSingleRegister(uint16_t regAddress, uint16_t value) {
   uint8_t bytesToWait = 8;
   uint8_t error = 0;
   uint8_t exceptionCode = 0;
-  uint8_t frame[8] = {1, 6, regAddress >> 8, regAddress & 0xff, value << 8, value & 0xff, 0, 0 };
+  uint8_t frame[8] = {1, 6, regAddress >> 8, regAddress & 0xff, value >> 8, value & 0xff, 0, 0 };
   uint16_t crc = calculateCRC(frame, 6);
   frame[6] = crc >> 8;
   frame[7] = crc & 0xff;

@@ -4,8 +4,10 @@
 #include "core/cmd/cmd.h"
 #include "project/commands.h"       // Generic helper functions
 
-#include "motor.h"
+#include "motor.h" 
+#include "modbus.h" 
 #include "pid.h"
+#include "encoder.h"
 
 /**************************************************************************/
 /*! 
@@ -18,6 +20,13 @@ void cmd_pid_run(uint8_t argc, char **argv) {
 
 void cmd_pid_stop(uint8_t argc, char **argv) {
   runSynchro = 0;
+}
+
+void cmd_ratio(uint8_t argc, char **argv) {
+  int32_t r = 0;
+  getNumber(argv[0], &r);
+  encoderRatio = r;
+  printf("encoder ratio set to %d%s", encoderRatio, CFG_PRINTF_NEWLINE);
 }
 
 void cmd_set_pid(uint8_t argc, char **argv) {
@@ -52,7 +61,8 @@ void cmd_step_test(uint8_t argc, char **argv) {
   motorInit(motor);
 
   motorSetTargetFrequency(motor, setFreq);
-  
+  modbusSetSpeed(setFreq);
+  modbusControl(1);
   uint32_t lastPulses = 0;
   int j;
   for(j = 0; j < steps; j+=dt) {
@@ -60,6 +70,7 @@ void cmd_step_test(uint8_t argc, char **argv) {
     printf("%d%s", motor->pulses, CFG_PRINTF_NEWLINE);
     lastPulses = motor->pulses;
   }
+  modbusControl(0);
 }
 
 void cmd_pid_test(uint8_t argc, char **argv) {
@@ -100,15 +111,17 @@ void cmd_pid_test(uint8_t argc, char **argv) {
   int32_t motorTargetFrequency = 0;
   int32_t riseTime = 0;
   int32_t overshoot = 0;
+  modbusControl(1);
   for(j = 0; j < steps; j+=dt) {
     motorStep(motor, j);
     int32_t controlAction = pid_Controller(setPoint, motor->pulses, pid);
     motorTargetFrequency = controlAction;//motorTargetFrequency + controlAction;
     if(motorTargetFrequency > 10000) {
       motorTargetFrequency = 10000;
-    } else if(motorTargetFrequency < -10000) {
+    } else if(motorTargetFrequency < 0) {
       motorTargetFrequency = 0;
     }
+    modbusSetSpeed(motorTargetFrequency);
     motorSetTargetFrequency(motor, motorTargetFrequency);
     if(1 == output) {
       printf("%d%s", motorTargetFrequency, CFG_PRINTF_NEWLINE);  
@@ -122,6 +135,7 @@ void cmd_pid_test(uint8_t argc, char **argv) {
       overshoot = motor->pulses - setPoint;
     }
   }
+  modbusControl(0);
   printf("Rise time: %d%s", riseTime, CFG_PRINTF_NEWLINE);
   printf("Overshoot: %d%s", overshoot, CFG_PRINTF_NEWLINE);
 }

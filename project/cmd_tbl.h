@@ -97,6 +97,7 @@ void cmd_sd_dir(uint8_t argc, char **argv);
 void cmd_pwm(uint8_t argc, char **argv);
 #endif
 
+void cmd_ratio(uint8_t argc, char **argv);
 void cmd_pid_test(uint8_t argc, char **argv);
 void cmd_step_test(uint8_t argc, char **argv);
 void cmd_pid_run(uint8_t argc, char **argv);
@@ -104,6 +105,11 @@ void cmd_pid_stop(uint8_t argc, char **argv);
 void cmd_set_pid(uint8_t argc, char **argv);
 void cmd_modbus_set_register(uint8_t argc, char **argv);
 void cmd_modbus_get_register(uint8_t argc, char **argv);
+void cmd_modbus_start(uint8_t argc, char **argv);
+void cmd_modbus_stop(uint8_t argc, char **argv);
+void cmd_modbus_get_status(uint8_t argc, char **argv);
+void cmd_modbus_set_speed(uint8_t argc, char **argv);
+void cmd_modbus_clear_fault(uint8_t argc, char **argv);
 
 #define CMD_NOPARAMS "This command has no parameters"
 
@@ -171,11 +177,15 @@ cmd_t cmd_tbl[] =
   #endif
   { "pidTest", 3,  7, 0, cmd_pid_test        , "PID parameters test"            , "pidTest <P> <I> <D> [<setPoint>] [<timeStep>] [<steps>] [<debug>]"},
   { "stepTest", 0, 3, 0, cmd_step_test       , "Step response/impulse response test", "stepTest <targetFreq> <dt> <steps>"},
-  { "start", 0, 0, 0, cmd_pid_run     , "Start encoder1 tracking"        , "startSynchro"},
-  { "stop", 0, 0, 0, cmd_pid_stop      , "Stop encoder1 tracking"         , "stopSynchro"},
+  { "start", 0, 1, 0, cmd_modbus_start     , "Start motor"        , "start"},
+  { "stop", 0, 0, 0, cmd_modbus_stop      , "Stop motor"         , "stop"},
+  { "status", 0, 0, 0, cmd_modbus_get_status      , "Get status of VFD"         , "status"},
+  { "speed", 1, 1, 0, cmd_modbus_set_speed      , "Set speed 0 to 10000"         , "speed <speed>"},
+  { "clearFault", 0, 0, 0, cmd_modbus_clear_fault      , "Clear active fault"         , "clearFault"},
   { "setPid", 3, 3, 0, cmd_set_pid          , "Set PID parameters"        , "setPID <P> <I> <D>"},
-  { "modbusSet", 2, 2, 0, cmd_modbus_set_register          , "Set modbus register of slave 1"        , "modbusSetReg <register id> <value>"},
-  { "modbusGet", 1, 1, 0, cmd_modbus_get_register          , "Get modbus register of slave 1"        , "modbusGetReg <register id>"},
+  { "set", 2, 2, 0, cmd_modbus_set_register          , "Set modbus register of slave 1"        , "set <register id> <value>"},
+  { "get", 1, 1, 0, cmd_modbus_get_register          , "Get modbus register of slave 1"        , "get <register id>"},
+  { "ratio", 1, 1, 0, cmd_ratio          , "Get modbus register of slave 1"        , "get <register id>"},
 };
 
 #endif

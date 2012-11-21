@@ -28,6 +28,7 @@ inline void encoderStart(encoder_t * encoder) {
 }
 
 inline void encoderReset(encoder_t *encoder) {
+  printf("on reset tempPulses: %d pulses: %d%s", encoder->pulsesTemp, encoder->pulses, CFG_PRINTF_NEWLINE);
   encoder->pulsesTemp = 0;
   encoder->direction = DIRECTION_NONE;
   encoder->status = STATUS_STOPPED;
@@ -50,15 +51,18 @@ inline uint8_t isNotSingleSpike(encoder_t *encoder) {
 inline void onEncoderInterrupt(encoder_t *encoder) {
   encoder->interrupt = 0;
   if(isSuddenDirectionChange(encoder)) {
+    printf("sudden dir change%s", CFG_PRINTF_NEWLINE);
     encoderReset(encoder);
   } else {
-    if(isNotSingleSpike(encoder)) {
+//    if(isNotSingleSpike(encoder)) {
       encoder->pulsesTemp++;
       if(STATUS_RUNNING == encoder->status){
         encoder->pulses++;
       }
       encoder->direction = encoder->tempDirection;
-    }
+//    } else {
+//      printf("single spike%s", CFG_PRINTF_NEWLINE);
+//    }
   }
   encoder->timestamp = timer32GetCount(0);  
 }
