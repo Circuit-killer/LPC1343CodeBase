@@ -27,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 sram_top = ORIGIN(sram) + LENGTH(sram);
 ENTRY(boot_entry)
 
