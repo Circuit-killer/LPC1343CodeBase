@@ -1,0 +1,1701 @@
+	.syntax unified
+	.cpu cortex-m3
+	.fpu softvfp
+	.eabi_attribute 20, 1
+	.eabi_attribute 21, 1
+	.eabi_attribute 23, 3
+	.eabi_attribute 24, 1
+	.eabi_attribute 25, 1
+	.eabi_attribute 26, 1
+	.eabi_attribute 30, 4
+	.eabi_attribute 34, 1
+	.eabi_attribute 18, 4
+	.file	"dejavusansmono8.c"
+@ GNU C (32-bit ARM EABI Toolchain JBS-2012.03-56-v2011.09-69-18-gd53ce5a) version 4.6.3 (arm-none-eabi)
+@	compiled by GNU C version 4.0.1 (Apple Inc. build 5493), GMP version 5.0.5, MPFR version 3.1.1-p2, MPC version 1.0.1
+@ GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+@ options passed:  -fpreprocessed dejavusansmono8.i -mthumb -mcpu=cortex-m3
+@ -mpoke-function-name -auxbase-strip dejavusansmono8.o -Os -Wall
+@ -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin
+@ -fverbose-asm
+@ options enabled:  -fauto-inc-dec -fbranch-count-reg -fcaller-saves
+@ -fcombine-stack-adjustments -fcommon -fcompare-elim -fcprop-registers
+@ -fcrossjumping -fcse-follow-jumps -fdata-sections -fdefer-pop
+@ -fdelete-null-pointer-checks -fdevirtualize -fdwarf2-cfi-asm
+@ -fearly-inlining -feliminate-unused-debug-types -fexpensive-optimizations
+@ -fextension-elimination -fforward-propagate -ffunction-cse
+@ -ffunction-sections -fgcse -fgcse-lm -fguess-branch-probability -fident
+@ -fif-conversion -fif-conversion2 -findirect-inlining -finline
+@ -finline-functions -finline-functions-called-once
+@ -finline-small-functions -fipa-cp -fipa-profile -fipa-pure-const
+@ -fipa-reference -fipa-sra -fira-share-save-slots -fira-share-spill-slots
+@ -fivopts -fkeep-static-consts -fleading-underscore -fmath-errno
+@ -fmerge-constants -fmerge-debug-strings -fomit-frame-pointer
+@ -foptimize-register-move -foptimize-sibling-calls -fpartial-inlining
+@ -fpeephole -fpeephole2 -fprefetch-loop-arrays -freg-struct-return
+@ -fregmove -frename-registers -freorder-blocks -freorder-functions
+@ -frerun-cse-after-loop -fsched-critical-path-heuristic
+@ -fsched-dep-count-heuristic -fsched-group-heuristic -fsched-interblock
+@ -fsched-last-insn-heuristic -fsched-rank-heuristic -fsched-spec
+@ -fsched-spec-insn-heuristic -fsched-stalled-insns-dep -fschedule-insns2
+@ -fsection-anchors -fshow-column -fsigned-zeros -fsplit-ivs-in-unroller
+@ -fsplit-wide-types -fstrict-aliasing -fstrict-overflow
+@ -fstrict-volatile-bitfields -fthread-jumps -ftoplevel-reorder
+@ -ftrapping-math -ftree-bit-ccp -ftree-builtin-call-dce -ftree-ccp
+@ -ftree-ch -ftree-copy-prop -ftree-copyrename -ftree-cselim -ftree-dce
+@ -ftree-dominator-opts -ftree-dse -ftree-forwprop -ftree-fre
+@ -ftree-if-to-switch-conversion -ftree-loop-if-convert -ftree-loop-im
+@ -ftree-loop-ivcanon -ftree-loop-optimize -ftree-parallelize-loops=
+@ -ftree-phiprop -ftree-pre -ftree-pta -ftree-reassoc -ftree-scev-cprop
+@ -ftree-sink -ftree-slp-vectorize -ftree-sra -ftree-switch-conversion
+@ -ftree-ter -ftree-vect-loop-version -ftree-vrp -funit-at-a-time
+@ -funroll-loops -fverbose-asm -fweb -fzero-initialized-in-bss -mapcs-frame
+@ -mfix-cortex-m3-ldrd -mlittle-endian -mpoke-function-name -msched-prolog
+@ -mthumb -munaligned-access
+
+@ Compiler executable checksum: 2014a540ab214d377ae7a67b6a369ce1
+
+	.global	dejaVuSansMono8ptFontInfo
+	.global	dejaVuSansMono8ptDescriptors
+	.global	dejaVuSansMono8ptBitmaps
+	.section	.rodata.dejaVuSansMono8ptBitmaps,"a",%progbits
+	.type	dejaVuSansMono8ptBitmaps, %object
+	.size	dejaVuSansMono8ptBitmaps, 1140
+dejaVuSansMono8ptBitmaps:
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	40
+	.byte	40
+	.byte	40
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	20
+	.byte	36
+	.byte	126
+	.byte	40
+	.byte	40
+	.byte	-4
+	.byte	72
+	.byte	80
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	60
+	.byte	80
+	.byte	80
+	.byte	56
+	.byte	20
+	.byte	20
+	.byte	120
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	-32
+	.byte	-96
+	.byte	-28
+	.byte	24
+	.byte	32
+	.byte	-36
+	.byte	20
+	.byte	28
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	56
+	.byte	32
+	.byte	32
+	.byte	48
+	.byte	90
+	.byte	74
+	.byte	68
+	.byte	62
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	32
+	.byte	32
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	32
+	.byte	32
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	84
+	.byte	56
+	.byte	56
+	.byte	84
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	124
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	32
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	56
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	4
+	.byte	8
+	.byte	8
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	32
+	.byte	32
+	.byte	64
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	102
+	.byte	66
+	.byte	74
+	.byte	66
+	.byte	66
+	.byte	102
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	112
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	124
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	66
+	.byte	2
+	.byte	6
+	.byte	12
+	.byte	24
+	.byte	32
+	.byte	126
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	66
+	.byte	2
+	.byte	60
+	.byte	6
+	.byte	2
+	.byte	66
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	12
+	.byte	12
+	.byte	20
+	.byte	36
+	.byte	100
+	.byte	126
+	.byte	4
+	.byte	4
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	124
+	.byte	64
+	.byte	64
+	.byte	124
+	.byte	6
+	.byte	2
+	.byte	2
+	.byte	124
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	30
+	.byte	32
+	.byte	64
+	.byte	92
+	.byte	98
+	.byte	66
+	.byte	66
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	126
+	.byte	4
+	.byte	4
+	.byte	8
+	.byte	8
+	.byte	16
+	.byte	16
+	.byte	32
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	66
+	.byte	66
+	.byte	60
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	62
+	.byte	2
+	.byte	4
+	.byte	120
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	32
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	2
+	.byte	28
+	.byte	96
+	.byte	24
+	.byte	6
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	-4
+	.byte	0
+	.byte	-4
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	64
+	.byte	56
+	.byte	6
+	.byte	24
+	.byte	96
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	4
+	.byte	12
+	.byte	24
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	28
+	.byte	38
+	.byte	66
+	.byte	78
+	.byte	82
+	.byte	82
+	.byte	78
+	.byte	96
+	.byte	32
+	.byte	28
+	.byte	0
+	.byte	0
+	.byte	24
+	.byte	24
+	.byte	24
+	.byte	36
+	.byte	36
+	.byte	60
+	.byte	66
+	.byte	66
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	124
+	.byte	66
+	.byte	66
+	.byte	124
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	124
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	28
+	.byte	34
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	34
+	.byte	28
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	120
+	.byte	68
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	68
+	.byte	120
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	126
+	.byte	64
+	.byte	64
+	.byte	126
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	126
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	126
+	.byte	64
+	.byte	64
+	.byte	126
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	28
+	.byte	34
+	.byte	64
+	.byte	64
+	.byte	70
+	.byte	66
+	.byte	34
+	.byte	28
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	126
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	124
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	124
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	28
+	.byte	4
+	.byte	4
+	.byte	4
+	.byte	4
+	.byte	4
+	.byte	68
+	.byte	56
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	68
+	.byte	72
+	.byte	80
+	.byte	96
+	.byte	80
+	.byte	72
+	.byte	68
+	.byte	66
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	126
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	66
+	.byte	102
+	.byte	102
+	.byte	90
+	.byte	90
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	66
+	.byte	98
+	.byte	82
+	.byte	82
+	.byte	74
+	.byte	74
+	.byte	70
+	.byte	66
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	102
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	102
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	124
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	124
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	102
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	102
+	.byte	60
+	.byte	6
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	124
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	124
+	.byte	68
+	.byte	66
+	.byte	65
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	66
+	.byte	64
+	.byte	120
+	.byte	6
+	.byte	2
+	.byte	66
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	-2
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	66
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	66
+	.byte	66
+	.byte	36
+	.byte	36
+	.byte	36
+	.byte	24
+	.byte	24
+	.byte	24
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	-126
+	.byte	-110
+	.byte	-110
+	.byte	-86
+	.byte	108
+	.byte	108
+	.byte	68
+	.byte	68
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	66
+	.byte	36
+	.byte	36
+	.byte	24
+	.byte	24
+	.byte	36
+	.byte	36
+	.byte	66
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	-58
+	.byte	68
+	.byte	40
+	.byte	56
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	126
+	.byte	4
+	.byte	4
+	.byte	8
+	.byte	16
+	.byte	48
+	.byte	32
+	.byte	126
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	48
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	48
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	64
+	.byte	32
+	.byte	32
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	8
+	.byte	8
+	.byte	4
+	.byte	0
+	.byte	0
+	.byte	48
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	48
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	48
+	.byte	72
+	.byte	-124
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	-2
+	.byte	16
+	.byte	8
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	120
+	.byte	4
+	.byte	60
+	.byte	68
+	.byte	68
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	120
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	120
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	96
+	.byte	64
+	.byte	64
+	.byte	96
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	4
+	.byte	4
+	.byte	4
+	.byte	60
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	56
+	.byte	68
+	.byte	124
+	.byte	64
+	.byte	64
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	12
+	.byte	16
+	.byte	16
+	.byte	124
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	60
+	.byte	4
+	.byte	56
+	.byte	0
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	88
+	.byte	100
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	112
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	124
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	112
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	96
+	.byte	0
+	.byte	64
+	.byte	64
+	.byte	64
+	.byte	72
+	.byte	80
+	.byte	96
+	.byte	80
+	.byte	72
+	.byte	68
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	-32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	24
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	124
+	.byte	84
+	.byte	84
+	.byte	84
+	.byte	84
+	.byte	84
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	88
+	.byte	100
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	56
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	56
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	120
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	120
+	.byte	64
+	.byte	64
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	60
+	.byte	4
+	.byte	4
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	36
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	60
+	.byte	64
+	.byte	112
+	.byte	12
+	.byte	4
+	.byte	120
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	32
+	.byte	32
+	.byte	-8
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	32
+	.byte	56
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	68
+	.byte	60
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	68
+	.byte	68
+	.byte	40
+	.byte	40
+	.byte	40
+	.byte	16
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	-126
+	.byte	-126
+	.byte	84
+	.byte	84
+	.byte	40
+	.byte	40
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	108
+	.byte	40
+	.byte	16
+	.byte	16
+	.byte	40
+	.byte	108
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	68
+	.byte	72
+	.byte	40
+	.byte	40
+	.byte	48
+	.byte	16
+	.byte	32
+	.byte	96
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	124
+	.byte	8
+	.byte	24
+	.byte	48
+	.byte	32
+	.byte	124
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	28
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	96
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	28
+	.byte	0
+	.byte	0
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	0
+	.byte	112
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	12
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	16
+	.byte	112
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	112
+	.byte	14
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.byte	0
+	.section	.rodata.dejaVuSansMono8ptDescriptors,"a",%progbits
+	.align	1
+	.type	dejaVuSansMono8ptDescriptors, %object
+	.size	dejaVuSansMono8ptDescriptors, 380
+dejaVuSansMono8ptDescriptors:
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	0
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	12
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	24
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	36
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	48
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	60
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	72
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	84
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	96
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	108
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	120
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	132
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	144
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	156
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	168
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	180
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	192
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	204
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	216
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	228
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	240
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	252
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	264
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	276
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	288
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	300
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	312
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	324
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	336
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	348
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	360
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	372
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	384
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	396
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	408
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	420
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	432
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	444
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	456
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	468
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	480
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	492
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	504
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	516
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	528
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	540
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	552
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	564
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	576
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	588
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	600
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	612
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	624
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	636
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	648
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	660
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	672
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	684
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	696
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	708
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	720
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	732
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	744
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	756
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	768
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	780
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	792
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	804
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	816
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	828
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	840
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	852
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	864
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	876
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	888
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	900
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	912
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	924
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	936
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	948
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	960
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	972
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	984
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	996
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1008
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1020
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1032
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1044
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1056
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1068
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1080
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1092
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1104
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1116
+@ widthBits:
+	.byte	8
+@ offset:
+	.space	1
+	.short	1128
+	.section	.rodata.dejaVuSansMono8ptFontInfo,"a",%progbits
+	.align	2
+	.type	dejaVuSansMono8ptFontInfo, %object
+	.size	dejaVuSansMono8ptFontInfo, 12
+dejaVuSansMono8ptFontInfo:
+@ height:
+	.byte	12
+@ startChar:
+	.byte	32
+@ endChar:
+	.byte	126
+@ charInfo:
+	.space	1
+	.word	dejaVuSansMono8ptDescriptors
+@ data:
+	.word	dejaVuSansMono8ptBitmaps
+	.ident	"GCC: (32-bit ARM EABI Toolchain JBS-2012.03-56-v2011.09-69-18-gd53ce5a) 4.6.3"

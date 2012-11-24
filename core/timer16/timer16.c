@@ -274,56 +274,56 @@ void timer16DelayUS(uint8_t timerNum, uint16_t delayInUS)
     @brief Interrupt handler for 16-bit timer 0
 */
 /**************************************************************************/
-void TIMER16_0_IRQHandler(void)
-{  
-  /* Clear the interrupt flag */
-  TMR_TMR16B0IR = TMR_TMR16B0IR_MR0;
-
-  /* Increment timer counter by 1 (it will automatically roll back to 0) */
-  timer16_0_counter++;
-  return;
-}
+//void TIMER16_0_IRQHandler(void)
+//{  
+//  /* Clear the interrupt flag */
+//  TMR_TMR16B0IR = TMR_TMR16B0IR_MR0;
+//
+//  /* Increment timer counter by 1 (it will automatically roll back to 0) */
+//  timer16_0_counter++;
+//  return;
+//}
 
 /**************************************************************************/
 /*! 
     @brief Interrupt handler for 16-bit timer 1
 */
 /**************************************************************************/
-void TIMER16_1_IRQHandler(void)
-{  
-  /* Clear the interrupt flag */
-  TMR_TMR16B1IR = TMR_TMR16B1IR_MR0;
-
-  /* Increment timer counter by 1 (it will automatically roll back to 0) */
-  timer16_1_counter++;
-
-  #ifdef CFG_PWM
-  /* Check if the PWM output should be disabled after pwmMaxPulses pulses */
-  /* See "drivers/pwm/pwm.c" */
-  if (TMR_TMR16B1IR & TMR_TMR16B1IR_MR3)
-  {
-    /* Clear the interrupt flag */
-    TMR_TMR16B1IR = TMR_TMR16B1IR_MR3;
-
-    if (pwmMaxPulses > 0)
-    {
-      pwmCounter++;
-      if (pwmCounter == pwmMaxPulses)
-      {
-        /* Disable interrupt on MR3 */
-        TMR_TMR16B1MCR  &= ~(TMR_TMR16B1MCR_MR3_INT_MASK);
-        /* Disable Timer */
-        TMR_TMR16B1TCR &= ~(TMR_TMR16B1TCR_COUNTERENABLE_MASK);
-        /* Reset the counter variables */
-        pwmCounter = 0;
-        pwmMaxPulses = 0;
-      }
-    }
-  }
-  #endif
-
-  return;
-}
+//void TIMER16_1_IRQHandler(void)
+//{  
+//  /* Clear the interrupt flag */
+//  TMR_TMR16B1IR = TMR_TMR16B1IR_MR0;
+//
+//  /* Increment timer counter by 1 (it will automatically roll back to 0) */
+//  timer16_1_counter++;
+//
+//  #ifdef CFG_PWM
+//  /* Check if the PWM output should be disabled after pwmMaxPulses pulses */
+//  /* See "drivers/pwm/pwm.c" */
+//  if (TMR_TMR16B1IR & TMR_TMR16B1IR_MR3)
+//  {
+//    /* Clear the interrupt flag */
+//    TMR_TMR16B1IR = TMR_TMR16B1IR_MR3;
+//
+//    if (pwmMaxPulses > 0)
+//    {
+//      pwmCounter++;
+//      if (pwmCounter == pwmMaxPulses)
+//      {
+//        /* Disable interrupt on MR3 */
+//        TMR_TMR16B1MCR  &= ~(TMR_TMR16B1MCR_MR3_INT_MASK);
+//        /* Disable Timer */
+//        TMR_TMR16B1TCR &= ~(TMR_TMR16B1TCR_COUNTERENABLE_MASK);
+//        /* Reset the counter variables */
+//        pwmCounter = 0;
+//        pwmMaxPulses = 0;
+//      }
+//    }
+//  }
+//  #endif
+//
+//  return;
+//}
 
 /**************************************************************************/
 /*! 

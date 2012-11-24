@@ -396,8 +396,9 @@
 
     -----------------------------------------------------------------------*/
     #ifdef CFG_BRD_LPC1343_REFDESIGN
-      #define CFG_SSP0_SCKPIN_2_11
+      //#define CFG_SSP0_SCKPIN_2_11
       // #define CFG_SSP0_SCKPIN_0_6
+      #define CFG_SSP0_SCKPIN_0_10
     #endif
 
     #ifdef CFG_BRD_LPC1343_REFDESIGN_MINIMAL
@@ -1304,8 +1305,8 @@
   #error "Only one SCK pin can be defined at a time for SSP0"
 #endif
 
-#if !defined CFG_SSP0_SCKPIN_2_11 && !defined CFG_SSP0_SCKPIN_0_6
-  #error "An SCK pin must be selected for SSP0 (CFG_SSP0_SCKPIN_2_11 or CFG_SSP0_SCKPIN_0_6)"
+#if !defined CFG_SSP0_SCKPIN_2_11 && !defined CFG_SSP0_SCKPIN_0_6 && !defined CFG_SSP0_SCKPIN_0_10
+  #error "An SCK pin must be selected for SSP0 (CFG_SSP0_SCKPIN_2_11 or CFG_SSP0_SCKPIN_0_6 or CFG_SSP0_SCKPIN_0_10)"
 #endif
 
 #ifdef CFG_INTERFACE

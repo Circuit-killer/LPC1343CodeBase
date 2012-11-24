@@ -82,34 +82,34 @@ volatile uint32_t interruptRxTimeoutStat = 0;
     This will maximize the use of both FIFOs and performance.
 */
 /**************************************************************************/
-void SSP_IRQHandler (void)
-{
-  uint32_t regValue;
-
-  regValue = SSP_SSP0MIS;
-
-  /* Check for overrun interrupt */
-  if ( regValue & SSP_SSP0MIS_RORMIS_FRMRCVD )
-  {
-    interruptOverRunStat++;
-    SSP_SSP0ICR = SSP_SSP0ICR_RORIC_CLEAR;      // Clear interrupt
-  }
-
-  /* Check for timeout interrupt */
-  if ( regValue & SSP_SSP0MIS_RTMIS_NOTEMPTY )
-  {
-    interruptRxTimeoutStat++;
-    SSP_SSP0ICR = SSP_SSP0ICR_RTIC_CLEAR;       // Clear interrupt
-  }
-
-  /* Check if Rx buffer is at least half-full */
-  if ( regValue & SSP_SSP0MIS_RXMIS_HALFFULL )
-  {
-    // ToDo: Receive until it's empty
-    interruptRxStat++;
-  }
-  return;
-}
+//void SSP_IRQHandler (void)
+//{
+//  uint32_t regValue;
+//
+//  regValue = SSP_SSP0MIS;
+//
+//  /* Check for overrun interrupt */
+//  if ( regValue & SSP_SSP0MIS_RORMIS_FRMRCVD )
+//  {
+//    interruptOverRunStat++;
+//    SSP_SSP0ICR = SSP_SSP0ICR_RORIC_CLEAR;      // Clear interrupt
+//  }
+//
+//  /* Check for timeout interrupt */
+//  if ( regValue & SSP_SSP0MIS_RTMIS_NOTEMPTY )
+//  {
+//    interruptRxTimeoutStat++;
+//    SSP_SSP0ICR = SSP_SSP0ICR_RTIC_CLEAR;       // Clear interrupt
+//  }
+//
+//  /* Check if Rx buffer is at least half-full */
+//  if ( regValue & SSP_SSP0MIS_RXMIS_HALFFULL )
+//  {
+//    // ToDo: Receive until it's empty
+//    interruptRxStat++;
+//  }
+//  return;
+//}
 
 /**************************************************************************/
 /*! 
@@ -171,7 +171,7 @@ void sspInit (uint8_t portNum, sspClockPolarity_t polarity, sspClockPhase_t phas
     IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO0_6; 
     IOCON_PIO0_6 = IOCON_PIO0_6_FUNC_SCK;
     #endif
-
+    
     /* Set P0.2/SSEL to GPIO output and high */
     IOCON_PIO0_2 &= ~IOCON_PIO0_2_FUNC_MASK;
     IOCON_PIO0_2 |= IOCON_PIO0_2_FUNC_GPIO;

@@ -97,6 +97,8 @@ void cmd_sd_dir(uint8_t argc, char **argv);
 void cmd_pwm(uint8_t argc, char **argv);
 #endif
 
+void cmd_dmx(uint8_t argc, char **argv);
+
 #define CMD_NOPARAMS "This command has no parameters"
 
 /**************************************************************************/
@@ -161,6 +163,7 @@ cmd_t cmd_tbl[] =
   #ifdef CFG_PWM
   { "M",    2,  2,  0,  cmd_pwm              , "PWM Control"                    , "'M [<dutycycle(%)>] [<frequency(ticks)>]'" },
   #endif
+  { "dmx",  2,  2,  0,  cmd_dmx              , "DMX channel control"            , "'dmx <channel> <value>'"},
 };
 
 #endif
