@@ -955,7 +955,7 @@
 
     -----------------------------------------------------------------------*/
     #ifdef CFG_BRD_LPC1343_REFDESIGN
-      #define CFG_I2CEEPROM
+      //#define CFG_I2CEEPROM
       #define CFG_I2CEEPROM_SIZE          (3072)
     #endif
 

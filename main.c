@@ -20,9 +20,11 @@
 
 volatile uint8_t counter = 0;
 volatile uint8_t pwmCounter;
-volatile uint32_t toSend;
-volatile uint32_t sendValues[255];
-uint32_t *p_sendValues;
+volatile register uint32_t toSend asm("r3");
+volatile uint32_t sendValues1[256];
+volatile uint32_t sendValues2[256];
+uint32_t (*p_sendValuesBack)[256];
+uint32_t (*p_sendValuesFront)[256];
 
 void TIMER16_0_IRQHandler(void) {  
   /* Clear the interrupt flag */
@@ -30,26 +32,28 @@ void TIMER16_0_IRQHandler(void) {
   TMR_TMR16B0TC = 0;
   TMR_TMR16B0PC = 0; 
 
-  toSend = sendValues[pwmCounter];
+  toSend = (*p_sendValuesFront)[pwmCounter];
   gpioSetValue(SSP0_CSPORT, SSP0_CSPIN, 1);
   gpioSetValue(SSP0_CSPORT, SSP0_CSPIN, 0);
+  SSP_SSP0DR=~toSend>>24;
   SSP_SSP0DR=~toSend>>16;
   SSP_SSP0DR=~toSend>>8;
   SSP_SSP0DR=~toSend;
   pwmCounter++;
 }
 
-
 void calculateSendValues() {
-  int i, j;
+  uint16_t i, j;
   for(j = 0; j < 256; j++) {
-    sendValues[j] = 0;
+    (*p_sendValuesBack)[j] = 0;
     for(i = 0; i < MAX_DMX_CHANNELS; i++) {
-      //printf("%4d ", dmxChannels[i]);
-      sendValues[j] |= ((logValues[dmxChannels[i]] > j) << i);
+      (*p_sendValuesBack)[j] |= ((logValues[dmxChannels[i]] > j) << i);
     }
-//    printf("\n%d: %u%s", j, sendValues[j], CFG_PRINTF_NEWLINE);
   }
+  uint32_t (*t)[256];
+  t = p_sendValuesFront;
+  p_sendValuesFront = p_sendValuesBack;
+  p_sendValuesBack = t;
 }
 
 void inline timerInit() {
@@ -58,7 +62,7 @@ void inline timerInit() {
   NVIC_EnableIRQ(TIMER_16_0_IRQn);
   
   TMR_TMR16B0PR = 0;
-  TMR_TMR16B0MR0 = 102;//2163;
+  TMR_TMR16B0MR0 = 256;//2163;
   
   TMR_TMR16B0MCR = (TMR_TMR16B0MCR_MR0_INT_ENABLED);
   TMR_TMR16B0TCR = TMR_TMR16B0TCR_COUNTERENABLE_ENABLED;  
@@ -105,7 +109,8 @@ inline void fadeUpDown() {
   recalculateSendValues = 1;  
 }
 
-uint8_t cylonRight = 1, fadeInIndex=1, fadeOutIndex=0;
+uint8_t cylonRight = 1;
+uint16_t fadeInIndex=1, fadeOutIndex=0;
 
 inline void cylon() {
   dmxChannels[fadeInIndex]++;
@@ -135,10 +140,6 @@ inline void cylon() {
     }
   }
   uint8_t i;
-  for(i = 0; i < MAX_DMX_CHANNELS; i++) {
-//    printf("%4d ", dmxChannels[i]);
-  }
-//  printf("\n");
   recalculateSendValues = 1;  
 
 }
@@ -224,10 +225,141 @@ inline void sspInit2(uint8_t portNum, sspClockPolarity_t polarity, sspClockPhase
   SSP_SSP0CR1 = SSP_SSP0CR1_SSE_ENABLED | SSP_SSP0CR1_MS_MASTER | SSP_SSP0CR1_LBM_NORMAL;  
 }
 
+void uartInit(uint32_t baudrate)
+{
+  uint32_t fDiv;
+  uint32_t regVal;
+  
+  NVIC_DisableIRQ(UART_IRQn);
+  
+  // Clear protocol control blocks
+//  memset(&pcb, 0, sizeof(uart_pcb_t));
+//  pcb.pending_tx_data = 0;
+//  uartRxBufferInit();
+  
+  /* Set 1.6 UART RXD */
+  IOCON_PIO1_6 &= ~IOCON_PIO1_6_FUNC_MASK;
+  IOCON_PIO1_6 |= IOCON_PIO1_6_FUNC_UART_RXD;
+  
+  /* Set 1.7 UART TXD */
+  IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;	
+  IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
+  
+  /* Enable UART clock */
+  SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_UART);
+  SCB_UARTCLKDIV = SCB_UARTCLKDIV_DIV1;     /* divided by 1 */
+  
+  /* 8 bits, no Parity, 1 Stop bit */
+  UART_U0LCR = (UART_U0LCR_Word_Length_Select_8Chars |
+                UART_U0LCR_Stop_Bit_Select_1Bits |
+                UART_U0LCR_Parity_Disabled |
+                UART_U0LCR_Parity_Select_OddParity |
+                UART_U0LCR_Break_Control_Disabled |
+                UART_U0LCR_Divisor_Latch_Access_Enabled);
+  
+  /* Baud rate */
+  regVal = SCB_UARTCLKDIV;
+  fDiv = (((CFG_CPU_CCLK * SCB_SYSAHBCLKDIV)/regVal)/16)/baudrate;
+  
+  UART_U0DLM = fDiv / 256;
+  UART_U0DLL = fDiv % 256;
+  
+  /* Set DLAB back to 0 */
+  UART_U0LCR = (UART_U0LCR_Word_Length_Select_8Chars |
+                UART_U0LCR_Stop_Bit_Select_1Bits |
+                UART_U0LCR_Parity_Disabled |
+                UART_U0LCR_Parity_Select_OddParity |
+                UART_U0LCR_Break_Control_Disabled |
+                UART_U0LCR_Divisor_Latch_Access_Disabled);
+  
+  /* Enable and reset TX and RX FIFO. */
+  UART_U0FCR = (UART_U0FCR_FIFO_Enabled | 
+                UART_U0FCR_Rx_FIFO_Reset | 
+                UART_U0FCR_Tx_FIFO_Reset); 
+  
+  /* Read to clear the line status. */
+  regVal = UART_U0LSR;
+  
+  /* Ensure a clean start, no data in either TX or RX FIFO. */
+  while (( UART_U0LSR & (UART_U0LSR_THRE|UART_U0LSR_TEMT)) != (UART_U0LSR_THRE|UART_U0LSR_TEMT) );
+  while ( UART_U0LSR & UART_U0LSR_RDR_DATA )
+  {
+    /* Dump data from RX FIFO */
+    regVal = UART_U0RBR;
+  }
+  
+//  /* Set the initialised flag in the protocol control block */
+//  pcb.initialised = 1;
+//  pcb.baudrate = baudrate;
+  
+  /* Enable the UART Interrupt */
+  NVIC_EnableIRQ(UART_IRQn);
+  UART_U0IER = UART_U0IER_RBR_Interrupt_Enabled | UART_U0IER_RLS_Interrupt_Enabled;
+  
+  return;
+}
+
+int currChannel = 0;
+uint8_t lastRxChar = 0;
+void UART_IRQHandler(void)
+{
+  uint8_t IIRValue, LSRValue;
+  uint8_t Dummy = Dummy;
+  uint8_t rxChar;
+  
+  IIRValue = UART_U0IIR;
+  IIRValue &= ~(UART_U0IIR_IntStatus_MASK); /* skip pending bit in IIR */
+  IIRValue &= UART_U0IIR_IntId_MASK;        /* check bit 1~3, interrupt identification */
+  
+  // 1.) Check receiver line status
+  if (IIRValue == UART_U0IIR_IntId_RLS) {
+    LSRValue = UART_U0LSR;
+    // Check for errors
+    if (LSRValue & (UART_U0LSR_OE | UART_U0LSR_PE | UART_U0LSR_FE | UART_U0LSR_RXFE | UART_U0LSR_BI)) {
+      /* There are errors or break interrupt */
+      /* Read LSR will clear the interrupt */
+      Dummy = UART_U0RBR;	/* Dummy read on RX to clear interrupt, then bail out */
+      return;
+    }
+    // No error and receive data is ready
+    if (LSRValue & UART_U0LSR_RDR_DATA) {
+      rxChar = UART_U0RBR;
+    }
+  }
+  // 2.) Check receive data available
+  else if (IIRValue == UART_U0IIR_IntId_RDA) {
+    rxChar = UART_U0RBR;
+  }
+  // 3.) Check character timeout indicator
+  else if (IIRValue == UART_U0IIR_IntId_CTI) {
+  }
+  // 4.) Check THRE (transmit holding register empty)
+  else if (IIRValue == UART_U0IIR_IntId_THRE) {
+  }
+  
+  if(rxChar != lastRxChar) {
+    currChannel = 0;
+    lastRxChar = rxChar;
+  }
+  
+  if(currChannel < MAX_DMX_CHANNELS) {
+    dmxChannels[currChannel] = rxChar;
+    currChannel++;
+    if(currChannel >= MAX_DMX_CHANNELS) {
+      recalculateSendValues = 1;
+    }
+  }
+}
+
+
 int main(void) {
   systemInit();
+  uartInit(250000);
+  //mockupTimerInit();
+
   pwmCounter = 0;
-  p_sendValues = sendValues;
+  p_sendValuesFront = sendValues1;
+  p_sendValuesBack = sendValues2;
   
   sspInit2(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
   
@@ -254,12 +386,17 @@ int main(void) {
 
       
   timerInit();
-  mockupTimerInit();
-
-  while (1)
-  {
+  uint32_t lastTimestamp = 0;
+  while (1) {
+    
     if(recalculateSendValues){
+      uint8_t recalcBefore = dmxChannels[MAX_DMX_CHANNELS-1];
       calculateSendValues();
+      if(dmxChannels[MAX_DMX_CHANNELS-1] != recalcBefore) {
+        gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON);
+      } else {
+        gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, CFG_LED_OFF);
+      }
       recalculateSendValues = 0;
     }
 

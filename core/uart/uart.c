@@ -113,67 +113,67 @@ static uart_pcb_t pcb;
     IRQ to handle incoming data, etc.
 */
 /**************************************************************************/
-void UART_IRQHandler(void)
-{
-  uint8_t IIRValue, LSRValue;
-  uint8_t Dummy = Dummy;
-
-  IIRValue = UART_U0IIR;
-  IIRValue &= ~(UART_U0IIR_IntStatus_MASK); /* skip pending bit in IIR */
-  IIRValue &= UART_U0IIR_IntId_MASK;        /* check bit 1~3, interrupt identification */
-
-  // 1.) Check receiver line status
-  if (IIRValue == UART_U0IIR_IntId_RLS)
-  {
-    LSRValue = UART_U0LSR;
-    // Check for errors
-    if (LSRValue & (UART_U0LSR_OE | UART_U0LSR_PE | UART_U0LSR_FE | UART_U0LSR_RXFE | UART_U0LSR_BI))
-    {
-      /* There are errors or break interrupt */
-      /* Read LSR will clear the interrupt */
-      pcb.status = LSRValue;
-      Dummy = UART_U0RBR;	/* Dummy read on RX to clear interrupt, then bail out */
-      return;
-    }
-    // No error and receive data is ready
-    if (LSRValue & UART_U0LSR_RDR_DATA)
-    {
-      /* If no error on RLS, normal ready, save into the data buffer. */
-      /* Note: read RBR will clear the interrupt */
-      uartRxBufferWrite(UART_U0RBR);
-    }
-  }
-
-  // 2.) Check receive data available
-  else if (IIRValue == UART_U0IIR_IntId_RDA)
-  {
-    // Add incoming text to UART buffer
-    uartRxBufferWrite(UART_U0RBR);
-  }
-
-  // 3.) Check character timeout indicator
-  else if (IIRValue == UART_U0IIR_IntId_CTI)
-  {
-    /* Bit 9 as the CTI error */
-    pcb.status |= 0x100;
-  }
-
-  // 4.) Check THRE (transmit holding register empty)
-  else if (IIRValue == UART_U0IIR_IntId_THRE)
-  {
-    /* Check status in the LSR to see if valid data in U0THR or not */
-    LSRValue = UART_U0LSR;
-    if (LSRValue & UART_U0LSR_THRE)
-    {
-      pcb.pending_tx_data = 0;
-    }
-    else
-    {
-      pcb.pending_tx_data= 1;
-    }
-  }
-  return;
-}
+//void UART_IRQHandler(void)
+//{
+//  uint8_t IIRValue, LSRValue;
+//  uint8_t Dummy = Dummy;
+//
+//  IIRValue = UART_U0IIR;
+//  IIRValue &= ~(UART_U0IIR_IntStatus_MASK); /* skip pending bit in IIR */
+//  IIRValue &= UART_U0IIR_IntId_MASK;        /* check bit 1~3, interrupt identification */
+//
+//  // 1.) Check receiver line status
+//  if (IIRValue == UART_U0IIR_IntId_RLS)
+//  {
+//    LSRValue = UART_U0LSR;
+//    // Check for errors
+//    if (LSRValue & (UART_U0LSR_OE | UART_U0LSR_PE | UART_U0LSR_FE | UART_U0LSR_RXFE | UART_U0LSR_BI))
+//    {
+//      /* There are errors or break interrupt */
+//      /* Read LSR will clear the interrupt */
+//      pcb.status = LSRValue;
+//      Dummy = UART_U0RBR;	/* Dummy read on RX to clear interrupt, then bail out */
+//      return;
+//    }
+//    // No error and receive data is ready
+//    if (LSRValue & UART_U0LSR_RDR_DATA)
+//    {
+//      /* If no error on RLS, normal ready, save into the data buffer. */
+//      /* Note: read RBR will clear the interrupt */
+//      uartRxBufferWrite(UART_U0RBR);
+//    }
+//  }
+//
+//  // 2.) Check receive data available
+//  else if (IIRValue == UART_U0IIR_IntId_RDA)
+//  {
+//    // Add incoming text to UART buffer
+//    uartRxBufferWrite(UART_U0RBR);
+//  }
+//
+//  // 3.) Check character timeout indicator
+//  else if (IIRValue == UART_U0IIR_IntId_CTI)
+//  {
+//    /* Bit 9 as the CTI error */
+//    pcb.status |= 0x100;
+//  }
+//
+//  // 4.) Check THRE (transmit holding register empty)
+//  else if (IIRValue == UART_U0IIR_IntId_THRE)
+//  {
+//    /* Check status in the LSR to see if valid data in U0THR or not */
+//    LSRValue = UART_U0LSR;
+//    if (LSRValue & UART_U0LSR_THRE)
+//    {
+//      pcb.pending_tx_data = 0;
+//    }
+//    else
+//    {
+//      pcb.pending_tx_data= 1;
+//    }
+//  }
+//  return;
+//}
 
 /**************************************************************************/
 /*!
