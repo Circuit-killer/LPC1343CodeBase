@@ -41,6 +41,7 @@
 
 #include "projectconfig.h"
 
+uint32_t systickConfig(uint32_t ticks);
 void systickInit (uint32_t delayMs);
 void systickDelay (uint32_t delayTicks);
 uint32_t systickGetTicks(void);

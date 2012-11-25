@@ -103,7 +103,7 @@ void SysTick_Handler (void)
                 1 millisecond.  This value must not exceed 0x00FFFFFF.
 */
 /**************************************************************************/
-static uint32_t systickConfig(uint32_t ticks)
+uint32_t systickConfig(uint32_t ticks)
 { 
   // Check if 'ticks' is greater than maximum value
   if (ticks > SYSTICK_STRELOAD_MASK)
