@@ -211,44 +211,44 @@ void uartInit(uint32_t baudrate)
 {
   uint32_t fDiv;
   uint32_t regVal;
-
+  
   NVIC_DisableIRQ(UART_IRQn);
-
+  
   // Clear protocol control blocks
-  memset(&pcb, 0, sizeof(uart_pcb_t));
-  pcb.pending_tx_data = 0;
-  uartRxBufferInit();
-
+  //  memset(&pcb, 0, sizeof(uart_pcb_t));
+  //  pcb.pending_tx_data = 0;
+  //  uartRxBufferInit();
+  
   /* Set 1.6 UART RXD */
   IOCON_PIO1_6 &= ~IOCON_PIO1_6_FUNC_MASK;
   IOCON_PIO1_6 |= IOCON_PIO1_6_FUNC_UART_RXD;
-
+  
   /* Set 1.7 UART TXD */
   IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;	
   IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
-
+  
   /* Enable UART clock */
   SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_UART);
   SCB_UARTCLKDIV = SCB_UARTCLKDIV_DIV1;     /* divided by 1 */
-
+  
   /* 8 bits, no Parity, 1 Stop bit */
   UART_U0LCR = (UART_U0LCR_Word_Length_Select_8Chars |
-                UART_U0LCR_Stop_Bit_Select_1Bits |
+                UART_U0LCR_Stop_Bit_Select_2Bits |
                 UART_U0LCR_Parity_Disabled |
                 UART_U0LCR_Parity_Select_OddParity |
                 UART_U0LCR_Break_Control_Disabled |
                 UART_U0LCR_Divisor_Latch_Access_Enabled);
-
+  
   /* Baud rate */
   regVal = SCB_UARTCLKDIV;
   fDiv = (((CFG_CPU_CCLK * SCB_SYSAHBCLKDIV)/regVal)/16)/baudrate;
-
+  
   UART_U0DLM = fDiv / 256;
   UART_U0DLL = fDiv % 256;
   
   /* Set DLAB back to 0 */
   UART_U0LCR = (UART_U0LCR_Word_Length_Select_8Chars |
-                UART_U0LCR_Stop_Bit_Select_1Bits |
+                UART_U0LCR_Stop_Bit_Select_2Bits |
                 UART_U0LCR_Parity_Disabled |
                 UART_U0LCR_Parity_Select_OddParity |
                 UART_U0LCR_Break_Control_Disabled |
@@ -258,10 +258,10 @@ void uartInit(uint32_t baudrate)
   UART_U0FCR = (UART_U0FCR_FIFO_Enabled | 
                 UART_U0FCR_Rx_FIFO_Reset | 
                 UART_U0FCR_Tx_FIFO_Reset); 
-
+  
   /* Read to clear the line status. */
   regVal = UART_U0LSR;
-
+  
   /* Ensure a clean start, no data in either TX or RX FIFO. */
   while (( UART_U0LSR & (UART_U0LSR_THRE|UART_U0LSR_TEMT)) != (UART_U0LSR_THRE|UART_U0LSR_TEMT) );
   while ( UART_U0LSR & UART_U0LSR_RDR_DATA )
@@ -269,15 +269,15 @@ void uartInit(uint32_t baudrate)
     /* Dump data from RX FIFO */
     regVal = UART_U0RBR;
   }
-
-  /* Set the initialised flag in the protocol control block */
-  pcb.initialised = 1;
-  pcb.baudrate = baudrate;
-
+  
+  //  /* Set the initialised flag in the protocol control block */
+  //  pcb.initialised = 1;
+  //  pcb.baudrate = baudrate;
+  
   /* Enable the UART Interrupt */
   NVIC_EnableIRQ(UART_IRQn);
   UART_U0IER = UART_U0IER_RBR_Interrupt_Enabled | UART_U0IER_RLS_Interrupt_Enabled;
-
+  
   return;
 }
 

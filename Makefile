@@ -41,7 +41,7 @@ VPATH += project/commands
 #OBJS += cmd_chibi_addr.o cmd_chibi_tx.o
 OBJS += cmd_i2ceeprom_read.o cmd_i2ceeprom_write.o cmd_lm75b_gettemp.o
 OBJS += cmd_reset.o cmd_sd_dir.o cmd_sysinfo.o cmd_uart.o 
-OBJS += cmd_roundedcorner.o cmd_pwm.o
+#OBJS += cmd_roundedcorner.o cmd_pwm.o
 
 #VPATH += project/commands/drawing
 #OBJS += cmd_backlight.o cmd_bmp.o cmd_button.o cmd_calibrate.o
@@ -172,9 +172,9 @@ OBJS += stdio.o string.o
 OBJS += cpu.o cmd.o gpio.o i2c.o pmu.o ssp.o systick.o timer16.o 
 OBJS += timer32.o  usbconfig.o usbhid.o
 OBJS +=  cdcuser.o cdc_buf.o usbcore.o usbdesc.o usbhw.o usbuser.o 
-OBJS += sysinit.o iap.o
+OBJS += sysinit.o iap.o uart.o uart_buf.o
 
-#adc.o pwm.o wdt.o uart.o uart_buf.o
+#adc.o pwm.o wdt.o 
 
 ##########################################################################
 # GNU GCC compiler prefix and location

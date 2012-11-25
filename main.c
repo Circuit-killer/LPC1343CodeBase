@@ -15,6 +15,7 @@
 
 #include "logValues.h"
 #include "core/ssp/ssp.h"
+#include "core/uart/uart.h"
 #include "dmx.h"
 
 
@@ -153,154 +154,17 @@ void TIMER16_1_IRQHandler(void)
   cylon();
 }  
 
-inline void sspInit2(uint8_t portNum, sspClockPolarity_t polarity, sspClockPhase_t phase) {
-  /* Reset SSP */
-  SCB_PRESETCTRL &= ~SCB_PRESETCTRL_SSP0_MASK;
-  SCB_PRESETCTRL |= SCB_PRESETCTRL_SSP0_RESETDISABLED;
-  
-  /* Enable AHB clock to the SSP domain. */
-  SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_SSP0);
-  
-  /* Divide by 1 (SSPCLKDIV also enables to SSP CLK) */
-  SCB_SSP0CLKDIV = SCB_SSP0CLKDIV_DIV1;
-  
-  /* Set P0.8 to SSP MISO */
-  IOCON_PIO0_8 &= ~IOCON_PIO0_8_FUNC_MASK;
-  IOCON_PIO0_8 |= IOCON_PIO0_8_FUNC_MISO0;
-  
-  /* Set P0.9 to SSP MOSI */
-  IOCON_PIO0_9 &= ~IOCON_PIO0_9_FUNC_MASK;
-  IOCON_PIO0_9 |= IOCON_PIO0_9_FUNC_MOSI0;
-  
-  IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO0_10; 
-  IOCON_JTAG_TCK_PIO0_10 = IOCON_JTAG_TCK_PIO0_10_FUNC_SCK;  
-  
-  /* Set P0.2/SSEL to GPIO output and high */
-  IOCON_PIO0_2 &= ~IOCON_PIO0_2_FUNC_MASK;
-  IOCON_PIO0_2 |= IOCON_PIO0_2_FUNC_GPIO;
-  gpioSetDir(SSP0_CSPORT, SSP0_CSPIN, 1);
-  gpioSetValue(SSP0_CSPORT, SSP0_CSPIN, 1);
-  gpioSetPullup(&IOCON_PIO0_2, gpioPullupMode_Inactive);  // Board has external pull-up
-  
-  /* If SSP0CLKDIV = DIV1 -- (PCLK / (CPSDVSR * [SCR+1])) = (72,000,000 / (2 x [8 + 1])) = 4.0 MHz */
-  uint32_t configReg = ( SSP_SSP0CR0_DSS_8BIT   // Data size = 8-bit
-                        | SSP_SSP0CR0_FRF_SPI           // Frame format = SPI
-                        | SSP_SSP0CR0_SCR_1);           // Serial clock rate = 8
-  
-  // Set clock polarity
-  if (polarity == sspClockPolarity_High)
-    configReg |= SSP_SSP0CR0_CPOL_HIGH;     // Clock polarity = High between frames
-  else
-    configReg &= ~SSP_SSP0CR0_CPOL_MASK;    // Clock polarity = Low between frames
-  
-  // Set edge transition
-  if (phase == sspClockPhase_FallingEdge)
-    configReg |= SSP_SSP0CR0_CPHA_SECOND;   // Clock out phase = Trailing edge clock transition
-  else
-    configReg &= ~SSP_SSP0CR0_CPHA_MASK;    // Clock out phase = Leading edge clock transition
-  
-  // Assign config values to SSP0CR0
-  SSP_SSP0CR0 = configReg;
-  
-  /* Clock prescale register must be even and at least 2 in master mode */
-  SSP_SSP0CPSR = SSP_SSP0CPSR_CPSDVSR_DIV2;
-  
-  /* Clear the Rx FIFO */
-  uint8_t i, Dummy=Dummy;
-  for ( i = 0; i < SSP_FIFOSIZE; i++ )
-  {
-    Dummy = SSP_SSP0DR;
-  }
-  
-  /* Enable the SSP Interrupt */
-  //NVIC_EnableIRQ(SSP_IRQn);
-  
-  /* Set SSPINMS registers to enable interrupts
-   * enable all error related interrupts        */
-//  SSP_SSP0IMSC = ( SSP_SSP0IMSC_RORIM_ENBL      // Enable overrun interrupt
-//                  | SSP_SSP0IMSC_RTIM_ENBL);     // Enable timeout interrupt
-  //SSP_SSP0IMSC = SSP_SSP0IMSC_TXIM_ENBL;
-  
-  /* Enable device and set it to master mode, no loopback */
-  SSP_SSP0CR1 = SSP_SSP0CR1_SSE_ENABLED | SSP_SSP0CR1_MS_MASTER | SSP_SSP0CR1_LBM_NORMAL;  
-}
 
-void uartInit(uint32_t baudrate)
-{
-  uint32_t fDiv;
-  uint32_t regVal;
-  
-  NVIC_DisableIRQ(UART_IRQn);
-  
-  // Clear protocol control blocks
-//  memset(&pcb, 0, sizeof(uart_pcb_t));
-//  pcb.pending_tx_data = 0;
-//  uartRxBufferInit();
-  
-  /* Set 1.6 UART RXD */
-  IOCON_PIO1_6 &= ~IOCON_PIO1_6_FUNC_MASK;
-  IOCON_PIO1_6 |= IOCON_PIO1_6_FUNC_UART_RXD;
-  
-  /* Set 1.7 UART TXD */
-  IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;	
-  IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
-  
-  /* Enable UART clock */
-  SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_UART);
-  SCB_UARTCLKDIV = SCB_UARTCLKDIV_DIV1;     /* divided by 1 */
-  
-  /* 8 bits, no Parity, 1 Stop bit */
-  UART_U0LCR = (UART_U0LCR_Word_Length_Select_8Chars |
-                UART_U0LCR_Stop_Bit_Select_1Bits |
-                UART_U0LCR_Parity_Disabled |
-                UART_U0LCR_Parity_Select_OddParity |
-                UART_U0LCR_Break_Control_Disabled |
-                UART_U0LCR_Divisor_Latch_Access_Enabled);
-  
-  /* Baud rate */
-  regVal = SCB_UARTCLKDIV;
-  fDiv = (((CFG_CPU_CCLK * SCB_SYSAHBCLKDIV)/regVal)/16)/baudrate;
-  
-  UART_U0DLM = fDiv / 256;
-  UART_U0DLL = fDiv % 256;
-  
-  /* Set DLAB back to 0 */
-  UART_U0LCR = (UART_U0LCR_Word_Length_Select_8Chars |
-                UART_U0LCR_Stop_Bit_Select_1Bits |
-                UART_U0LCR_Parity_Disabled |
-                UART_U0LCR_Parity_Select_OddParity |
-                UART_U0LCR_Break_Control_Disabled |
-                UART_U0LCR_Divisor_Latch_Access_Disabled);
-  
-  /* Enable and reset TX and RX FIFO. */
-  UART_U0FCR = (UART_U0FCR_FIFO_Enabled | 
-                UART_U0FCR_Rx_FIFO_Reset | 
-                UART_U0FCR_Tx_FIFO_Reset); 
-  
-  /* Read to clear the line status. */
-  regVal = UART_U0LSR;
-  
-  /* Ensure a clean start, no data in either TX or RX FIFO. */
-  while (( UART_U0LSR & (UART_U0LSR_THRE|UART_U0LSR_TEMT)) != (UART_U0LSR_THRE|UART_U0LSR_TEMT) );
-  while ( UART_U0LSR & UART_U0LSR_RDR_DATA )
-  {
-    /* Dump data from RX FIFO */
-    regVal = UART_U0RBR;
-  }
-  
-//  /* Set the initialised flag in the protocol control block */
-//  pcb.initialised = 1;
-//  pcb.baudrate = baudrate;
-  
-  /* Enable the UART Interrupt */
-  NVIC_EnableIRQ(UART_IRQn);
-  UART_U0IER = UART_U0IER_RBR_Interrupt_Enabled | UART_U0IER_RLS_Interrupt_Enabled;
-  
-  return;
-}
 
 int currChannel = 0;
 uint8_t lastRxChar = 0;
+
+#define DMX_UART_STATE_IDLE 0
+#define DMX_UART_STATE_BREAK 1
+#define DMX_UART_STATE_DATA 2
+
+uint8_t dmxUartState = DMX_UART_STATE_IDLE;
+
 void UART_IRQHandler(void)
 {
   uint8_t IIRValue, LSRValue;
@@ -310,45 +174,55 @@ void UART_IRQHandler(void)
   IIRValue = UART_U0IIR;
   IIRValue &= ~(UART_U0IIR_IntStatus_MASK); /* skip pending bit in IIR */
   IIRValue &= UART_U0IIR_IntId_MASK;        /* check bit 1~3, interrupt identification */
+
+  //TODO - nepamirsti, kad po BREAK ir MAB eina START CODE, kuri reikia praleisti
   
   // 1.) Check receiver line status
   if (IIRValue == UART_U0IIR_IntId_RLS) {
     LSRValue = UART_U0LSR;
-    // Check for errors
-    if (LSRValue & (UART_U0LSR_OE | UART_U0LSR_PE | UART_U0LSR_FE | UART_U0LSR_RXFE | UART_U0LSR_BI)) {
-      /* There are errors or break interrupt */
-      /* Read LSR will clear the interrupt */
-      Dummy = UART_U0RBR;	/* Dummy read on RX to clear interrupt, then bail out */
+    
+    if(LSRValue & UART_U0LSR_BI) {
+      Dummy = UART_U0RBR;	/* Dummy read the break character */
+      if(DMX_UART_STATE_IDLE == dmxUartState) {
+        dmxUartState = DMX_UART_STATE_BREAK;
+      }
+    }else if (LSRValue & (UART_U0LSR_OE | UART_U0LSR_FE | UART_U0LSR_RXFE)) {
+      /* There are errors */
+      // If there is a 'bad' character in RX FIFO, after an error or BREAK, read it and forget ir
+      if(LSRValue & UART_U0LSR_RXFE) {
+        Dummy = UART_U0RBR;	/* Dummy read on RX to clear interrupt, then bail out */
+      }
       return;
-    }
-    // No error and receive data is ready
-    if (LSRValue & UART_U0LSR_RDR_DATA) {
-      rxChar = UART_U0RBR;
     }
   }
   // 2.) Check receive data available
   else if (IIRValue == UART_U0IIR_IntId_RDA) {
     rxChar = UART_U0RBR;
+    if(DMX_UART_STATE_BREAK == dmxUartState) {
+      dmxUartState = DMX_UART_STATE_DATA;
+    }    
   }
   // 3.) Check character timeout indicator
   else if (IIRValue == UART_U0IIR_IntId_CTI) {
   }
-  // 4.) Check THRE (transmit holding register empty)
-  else if (IIRValue == UART_U0IIR_IntId_THRE) {
-  }
+
+  //  if(rxChar != lastRxChar) {
+  //    currChannel = 0;
+  //    lastRxChar = rxChar;
+  //  }
   
-  if(rxChar != lastRxChar) {
-    currChannel = 0;
-    lastRxChar = rxChar;
-  }
-  
-  if(currChannel < MAX_DMX_CHANNELS) {
-    dmxChannels[currChannel] = rxChar;
-    currChannel++;
-    if(currChannel >= MAX_DMX_CHANNELS) {
-      recalculateSendValues = 1;
+  if(DMX_UART_STATE_DATA == dmxUartState) {
+    if(currChannel < MAX_DMX_CHANNELS) {
+      dmxChannels[currChannel] = rxChar;
+      currChannel++;
+      if(currChannel >= MAX_DMX_CHANNELS) {
+        recalculateSendValues = 1;
+        dmxUartState = DMX_UART_STATE_IDLE;
+        currChannel = 0;
+      }
     }
   }
+  
 }
 
 
@@ -361,7 +235,7 @@ int main(void) {
   p_sendValuesFront = sendValues1;
   p_sendValuesBack = sendValues2;
   
-  sspInit2(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
+  sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
   
   dmxChannels[0] = 32;
   calculateSendValues();
