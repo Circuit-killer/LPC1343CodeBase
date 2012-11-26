@@ -53,6 +53,40 @@ inline void clearBreak() {
   UART_U0LCR &= ~UART_U0LCR_Break_Control_Enabled;
 }
 
+
+uint8_t cylonRight = 1;
+uint16_t fadeInIndex=1, fadeOutIndex=0;
+
+inline void cylon() {
+  dmxChannels[fadeInIndex]++;
+  dmxChannels[fadeOutIndex]--;
+  
+  if(dmxChannels[fadeInIndex] == 255) {
+    if(cylonRight){
+      if(7 == fadeInIndex) {
+        dmxChannels[fadeOutIndex] = 0;
+        fadeInIndex = 6;
+        fadeOutIndex = 7;
+        cylonRight = 0;
+      } else {
+        fadeOutIndex = fadeInIndex;
+        fadeInIndex++;
+      }
+    } else {
+      if(0 == fadeInIndex) {
+        dmxChannels[fadeOutIndex] = 0;
+        fadeInIndex = 1;
+        fadeOutIndex = 0;
+        cylonRight = 1;
+      } else {
+        fadeOutIndex = fadeInIndex;
+        fadeInIndex--;
+      }
+    }
+  }
+}
+
+
 int main(void)
 {
   systemInit();
@@ -68,6 +102,7 @@ int main(void)
   for(i = 0; i < MAX_DMX_CHANNELS; i++) {
     dmxChannels[i] = 0;
   }
+  dmxChannels[0] = 255;
   
   while (1) {
 //    currentSecond = systickGetSecondsActive();
@@ -84,9 +119,10 @@ int main(void)
       //nothing
     }
     currSendChannel = 0;
-    for(i = 0; i < MAX_DMX_CHANNELS; i++) {
-      dmxChannels[i] ++;
-    }
+    cylon();
+//    for(i = 0; i < MAX_DMX_CHANNELS; i++) {
+//      dmxChannels[i] ++;
+//    }
     updateChannelsEnable = 0;
     sendBreak();
     systickDelay(100);
