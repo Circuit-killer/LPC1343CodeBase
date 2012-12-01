@@ -248,17 +248,20 @@ void sspInit (uint8_t portNum, sspClockPolarity_t polarity, sspClockPhase_t phas
         IOCON_PIO0_9 &= ~IOCON_PIO0_9_FUNC_MASK;
         IOCON_PIO0_9 |= IOCON_PIO0_9_FUNC_MOSI0;
         
-        /* Set 2.11 to SSP SCK (0.6 and 0.10 can also be used) */ 
-#ifdef CFG_SSP0_SCKPIN_2_11
-        IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO2_11; 
-        IOCON_PIO2_11 = IOCON_PIO2_11_FUNC_SCK0;  
-#endif
+//        /* Set 2.11 to SSP SCK (0.6 and 0.10 can also be used) */ 
+//#ifdef CFG_SSP0_SCKPIN_2_11
+//        IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO2_11; 
+//        IOCON_PIO2_11 = IOCON_PIO2_11_FUNC_SCK0;  
+//#endif
+//        
+//        /* Set 0.6 to SSP SCK (2.11 and 0.10 can also be used) */ 
+//#ifdef CFG_SSP0_SCKPIN_0_6
+//        IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO0_6; 
+//        IOCON_PIO0_6 = IOCON_PIO0_6_FUNC_SCK;
+//#endif
         
-        /* Set 0.6 to SSP SCK (2.11 and 0.10 can also be used) */ 
-#ifdef CFG_SSP0_SCKPIN_0_6
-        IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO0_6; 
-        IOCON_PIO0_6 = IOCON_PIO0_6_FUNC_SCK;
-#endif
+        IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO0_10;
+        IOCON_JTAG_TCK_PIO0_10 = IOCON_JTAG_TCK_PIO0_10_FUNC_SCK; 
         
         /* Set P0.2/SSEL to GPIO output and high */
         IOCON_PIO0_2 &= ~IOCON_PIO0_2_FUNC_MASK;
@@ -305,7 +308,7 @@ void sspInit (uint8_t portNum, sspClockPolarity_t polarity, sspClockPhase_t phas
         SSP_SSP0IMSC = ( SSP_SSP0IMSC_RORIM_ENBL      // Enable overrun interrupt
                         | SSP_SSP0IMSC_RTIM_ENBL);     // Enable timeout interrupt
         
-        /* Enable device and set it to master mode, no loopback */
+        /* Enable device and set it to slave mode, no loopback */
         SSP_SSP0CR1 =  SSP_SSP0CR1_MS_SLAVE | SSP_SSP0CR1_LBM_NORMAL;
         SSP_SSP0CR1 |= SSP_SSP0CR1_SSE_ENABLED;
     }
