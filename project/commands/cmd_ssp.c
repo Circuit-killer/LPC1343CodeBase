@@ -1,11 +1,10 @@
 /**************************************************************************/
 /*! 
-    @file     cmd_adc.c
+    @file     cmd_ssp.c
     @author   Miceuz
 
-    @brief    Code to execute for cmd_sysinfo in the 'core/cmd'
-              command-line interpretter.
-
+    @brief    SSP CLI command.
+ 
     @section LICENSE
 
     Software License Agreement (BSD License)
@@ -42,37 +41,25 @@
 #include "core/cmd/cmd.h"
 #include "project/commands.h"       // Generic helper functions
 
-#include "core/adc/adc.h"
+#include "core/ssp/ssp.h"
 
 /**************************************************************************/
 /*! 
-    ADC command handler
+    SSP command handler
 */
 /**************************************************************************/
 
-void cmd_adc_read(uint8_t argc, char **argv) {
-    int32_t channel = 0;
-    int32_t numReads = 1;
+void cmd_ssp_write(uint8_t argc, char **argv) {
+    int32_t value = 0;
+    uint8_t request[SSP_FIFOSIZE];
     
-    getNumber (argv[0], &channel);
-    if(channel < 0 || channel > 2) 
-    {
-      printf("Invalid ADC channel, only channels [0..2] are avalable%s", CFG_PRINTF_NEWLINE);
-      return;
-    }
+    getNumber (argv[0], &value);
+  
+    request[0]=(uint8_t) value;
 
-    if(argc > 1) {
-      getNumber (argv[1], &numReads);
-        if(numReads < 1) 
-        {
-            printf("Invalid number of reads [1..65535]%s", CFG_PRINTF_NEWLINE);
-            return;
-        }
-    }
-    adcInit();
-    int i = 0;
-    for(i = 0; i < numReads; i++) {
-        uint32_t result = adcReadSingle(channel);
-        printf("%d%s", (uint16_t)result, CFG_PRINTF_NEWLINE);
-    }
+    
+    sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
+    ssp0Select();
+    sspSend(0, (uint8_t *)&request, 1);
+    ssp0Deselect();
 }
