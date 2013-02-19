@@ -101,6 +101,8 @@ void cmd_adc_read(uint8_t argc, char **argv);
 
 void cmd_ssp_write(uint8_t argc, char **argv);
 
+void cmd_cylon(uint8_t argc, char **argv);
+
 #define CMD_NOPARAMS "This command has no parameters"
 
 /**************************************************************************/
@@ -165,7 +167,8 @@ cmd_t cmd_tbl[] =
   #ifdef CFG_PWM
   { "M",    2,  2,  0,  cmd_pwm              , "PWM Control"                    , "'M [<dutycycle(%)>] [<frequency(ticks)>]'" },
   #endif
-  { "ssp",  1,  1,  0,  cmd_ssp_write        , "Write a byte to SSP"            , "'ssp <byte>'"}
+  { "ssp",  1,  1,  0,  cmd_ssp_write        , "Write a byte to SSP"            , "'ssp <byte>'"},
+  { "cylon",  0,  0,  0,  cmd_cylon          , "SSP demo"                       , "'cylon'"}
 };
 
 #endif

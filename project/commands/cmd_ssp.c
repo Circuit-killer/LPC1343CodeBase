@@ -42,6 +42,8 @@
 #include "project/commands.h"       // Generic helper functions
 
 #include "core/ssp/ssp.h"
+#include "core/systick/systick.h"
+
 
 /**************************************************************************/
 /*! 
@@ -62,4 +64,31 @@ void cmd_ssp_write(uint8_t argc, char **argv) {
     ssp0Select();
     sspSend(0, (uint8_t *)&request, 1);
     ssp0Deselect();
+}
+
+void cmd_cylon(uint8_t argc, char **argv) {
+  uint32_t i = 0;
+  uint8_t b = 1;
+  uint32_t fwd = 1;
+  sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
+  for(i = 0; i < 48; i++) {
+    ssp0Select();
+    uint8_t valToSend = ~b;
+    sspSend(0, (uint8_t *)&valToSend, 1);
+    ssp0Deselect();
+    if(fwd) {
+      b = b << 1;
+      if(0 == b) {
+        fwd = 0;
+        b = 128;
+      }
+    } else {
+      b = b >> 1;
+      if(0 == b) {
+        fwd = 1;
+        b = 1;
+      }
+    }
+    systickDelay(50);
+  }
 }

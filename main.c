@@ -47,6 +47,8 @@
   #include "core/cmd/cmd.h"
 #endif
 
+cmd_cylon(uint8_t argc, char **argv);
+
 /**************************************************************************/
 /*! 
     Main program entry point.  After reset, normal code execution will
@@ -60,7 +62,7 @@ int main(void)
 
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
-  
+  cmd_cylon(0, 0);
   while (1)
   {
     // Toggle LED once per second
