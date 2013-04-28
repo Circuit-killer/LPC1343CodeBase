@@ -243,3 +243,6 @@ firmware: $(OBJS) $(SYS_OBJS)
 
 clean:
 	rm -f $(OBJS) $(LD_TEMP) $(OUTFILE).elf $(OUTFILE).bin $(OUTFILE).hex
+
+program: $(OUTFILE)
+	./tools/flash
