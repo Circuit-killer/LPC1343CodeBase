@@ -74,4 +74,5 @@ void processPidProgramStep(uint16_t temp);
 void startPidProgram(uint16_t index);
 void stopPidProgram();
 BOOL isPidProgramRunning();
+BOOL isPidRunning();
 #endif

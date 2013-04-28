@@ -73,7 +73,7 @@ uint16_t updatePID(Pid *pid, int16_t error, uint16_t position) {
 //    printf("pTerm: %d, iTerm: %d, iState: %d %s", pTerm, iTerm, pid->iState, CFG_PRINTF_NEWLINE);
     int16_t controlValue = pTerm + dTerm + iTerm;
     
-    printf("%d, %d, %d, %d, %d, %d, %d, %s", position, error, controlValue, pTerm, iTerm, dTerm, pid->iState, CFG_PRINTF_NEWLINE);
+    //printf("%d, %d, %d, %d, %d, %d, %d, %s", position, error, controlValue, pTerm, iTerm, dTerm, pid->iState, CFG_PRINTF_NEWLINE);
     
     return controlValue;
 }
@@ -222,4 +222,8 @@ BOOL isPidProgramRunning() {
 
 void stopPidProgram() {
     currentCommand = MAX_PID_PROGRAM_LENGHT;
+}
+
+BOOL isPidRunning() {
+	return currentCommand != MAX_PID_PROGRAM_LENGHT;
 }
