@@ -137,15 +137,15 @@ void cmdRx(uint8_t c)
     
     case '\b':
         #if CFG_INTERFACE_SILENTMODE == 0
-        printf("%c",c);
         #endif
         if (msg_ptr == msg)
         {
             // Send bell alert and space (to maintain position)
-            printf("\a ");
+//            printf("\a ");
         }
         else if (msg_ptr > msg)
         {
+            printf("\b \b");
             msg_ptr--;
         }
         break;
