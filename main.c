@@ -265,7 +265,9 @@ int main(void)
 
             processPidProgramStep(getAverageTemp());
 
-            printf("%d, ", getAverageTemp());
+            if(isPidRunning()) {
+            	printf("%d\r\n", temp);
+            }
             error = setPoint - temp;
             controlValue = updatePID(&pid, error, temp);
             controlLoopDone = FALSE;
@@ -312,21 +314,15 @@ int main(void)
 void setupPrimary() {
     clearProgram();
     pidProgram[10] = (Command){COMMAND_TYPE_RISE, 60, 0};
-    pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 60, 3600};
+    pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 60, 600};
     pidProgram[30] = (Command){COMMAND_TYPE_RISE, 110, 0};
     pidProgram[40] = (Command){COMMAND_TYPE_HOLD, 110, 900};
-    pidProgram[50] = (Command){COMMAND_TYPE_RISE, 160, 0};
-    pidProgram[60] = (Command){COMMAND_TYPE_HOLD, 160, 900};
     pidProgram[70] = (Command){COMMAND_TYPE_RISE, 210, 0};
     pidProgram[80] = (Command){COMMAND_TYPE_HOLD, 210, 900};
     pidProgram[90] = (Command){COMMAND_TYPE_RISE, 260, 0};
     pidProgram[100] = (Command){COMMAND_TYPE_HOLD, 260, 900};
-    pidProgram[110] = (Command){COMMAND_TYPE_RISE, 310, 0};
-    pidProgram[120] = (Command){COMMAND_TYPE_HOLD, 310, 900};
     pidProgram[130] = (Command){COMMAND_TYPE_RISE, 360, 0};
     pidProgram[140] = (Command){COMMAND_TYPE_HOLD, 360, 900};
-    pidProgram[150] = (Command){COMMAND_TYPE_RISE, 400, 0};
-    pidProgram[160] = (Command){COMMAND_TYPE_HOLD, 400, 900};
     pidProgram[180] = (Command){COMMAND_TYPE_RISE, 470, 0};
     pidProgram[190] = (Command){COMMAND_TYPE_HOLD, 470, 900};
     pidProgram[200] = (Command){COMMAND_TYPE_RISE, 540, 0};
@@ -343,18 +339,16 @@ void setupPrimary() {
     pidProgram[310] = (Command){COMMAND_TYPE_HOLD, 900, 900};
     pidProgram[320] = (Command){COMMAND_TYPE_RISE, 940, 0};
     pidProgram[330] = (Command){COMMAND_TYPE_RISE, 600, 0};
-    pidProgram[340] = (Command){COMMAND_TYPE_HOLD, 600, 3600};
+    pidProgram[340] = (Command){COMMAND_TYPE_HOLD, 600, 600};
     pidProgram[350] = (Command){COMMAND_TYPE_RISE, 0, 0};
 }
 
 void setupSecondary() {
     clearProgram();
     pidProgram[10] = (Command){COMMAND_TYPE_RISE, 200, 0};
-    pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 200, 900};
-    pidProgram[30] = (Command){COMMAND_TYPE_RISE, 400, 0};
-    pidProgram[40] = (Command){COMMAND_TYPE_HOLD, 400, 900};
-    pidProgram[50] = (Command){COMMAND_TYPE_RISE, 600, 0};
-    pidProgram[60] = (Command){COMMAND_TYPE_HOLD, 600, 900};
+    pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 200, 600};
+    pidProgram[30] = (Command){COMMAND_TYPE_RISE, 600, 0};
+    pidProgram[40] = (Command){COMMAND_TYPE_HOLD, 600, 900};
     pidProgram[90] = (Command){COMMAND_TYPE_RISE, 940, 0};
     pidProgram[100] = (Command){COMMAND_TYPE_HOLD, 940, 900};
     pidProgram[110] = (Command){COMMAND_TYPE_RISE, 1015, 0};
