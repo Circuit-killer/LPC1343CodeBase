@@ -178,7 +178,7 @@ cmd_t cmd_tbl[] =
   { "addCommand", 3, 4, 0, cmd_addCommand, "Add command to PID program", "addCommand <index> <'rise' | 'hold'> <temp> <time>" },
   { "delCommand", 1, 1, 0, cmd_delCommand, "Delete command from PID program", "delCommand <index>" },
   { "start", 0, 1, 0, cmd_start, "Start executing PID program", "start [<index>]" },
-  { "stop", 0, 0, 0, cmd_stop, "Delete command from PID program", CMD_NOPARAMS },
+  { "stop", 0, 0, 0, cmd_stop, "Stop executing PID program", CMD_NOPARAMS },
 
   #ifdef CFG_PWM
   { "M",    0,  2,  0,  cmd_pwm              , "PWM Control"                    , "'M [<dutycycle(%)>] [<frequency(ticks)>]'" },
