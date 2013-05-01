@@ -302,7 +302,14 @@ int main(void)
                 printf("no...");
             }
         }
-                  
+
+        currentSecond = systickGetSecondsActive();
+        if (currentSecond != lastSecond)
+        {
+          lastSecond = currentSecond;
+          gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, lastSecond % 2);
+        }
+
         #ifdef CFG_INTERFACE 
           cmdPoll(); 
         #endif
