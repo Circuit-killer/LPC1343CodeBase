@@ -105,14 +105,21 @@ void cmd_list(uint8_t argc, char **argv) {
     printPidProgram();
 }
 
+void cmd_purge(uint8_t argc, char **argv) {
+	initPidProgram();
+}
+
 void cmd_addCommand(uint8_t argc, char **argv) {
-    char *rise = "rise";
-    char *hold = "hold";
     Command c;
     int32_t index, temp, time;
     
     getNumber(argv[0], &index);
     
+    if(index >= MAX_PID_PROGRAM_LENGHT) {
+    	printf("Invalid line number. Valid values are 0 .. %d\r\n", index - 1);
+    	return;
+    }
+
     printf("index: %d ", index);
     if(!strcmp(argv[1], "rise")) {
         printf(" rise ");

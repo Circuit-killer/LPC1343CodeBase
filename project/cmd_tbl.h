@@ -109,6 +109,7 @@ void cmd_addCommand(uint8_t argc, char **argv);
 void cmd_delCommand(uint8_t argc, char **argv);       
 void cmd_start(uint8_t argc, char **argv);
 void cmd_stop(uint8_t argc, char **argv);
+void cmd_purge(uint8_t argc, char **argv);
         
 #define CMD_NOPARAMS "This command has no parameters"
 
@@ -175,8 +176,9 @@ cmd_t cmd_tbl[] =
   { "temp", 1, 1, 0, cmd_setTemperature, "Set temperature for PID controller", "temp <temperatureInDegreesC>}"},
   { "pid", 3, 3, 0, cmd_pid, "Set pid gains", "pid <p> <i> <d>" },
   { "list", 0, 0, 0, cmd_list, "List PID program", CMD_NOPARAMS},
-  { "addCommand", 3, 4, 0, cmd_addCommand, "Add command to PID program", "addCommand <index> <'rise' | 'hold'> <temp> <time>" },
-  { "delCommand", 1, 1, 0, cmd_delCommand, "Delete command from PID program", "delCommand <index>" },
+  { "add", 3, 4, 0, cmd_addCommand, "Add command to PID program", "addCommand <index> <'rise' | 'hold'> <temp> <time>" },
+  { "del", 1, 1, 0, cmd_delCommand, "Delete command from PID program", "delCommand <index>" },
+  { "purge", 0, 0, 0, cmd_purge, "Delete whole PID program", "delCommand <index>" },
   { "start", 0, 1, 0, cmd_start, "Start executing PID program", "start [<index>]" },
   { "stop", 0, 0, 0, cmd_stop, "Stop executing PID program", CMD_NOPARAMS },
 
