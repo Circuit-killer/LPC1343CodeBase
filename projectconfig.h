@@ -800,7 +800,7 @@
     #ifdef CFG_BRD_LPC1343_REFDESIGN
       #define CFG_INTERFACE
       #define CFG_INTERFACE_MAXMSGSIZE    (256)
-      #define CFG_INTERFACE_PROMPT        "LPC1343 >> "
+      #define CFG_INTERFACE_PROMPT        "catnip # "
       #define CFG_INTERFACE_SILENTMODE    (0)
       #define CFG_INTERFACE_DROPCR        (0)
       #define CFG_INTERFACE_ENABLEIRQ     (0)
@@ -814,7 +814,7 @@
     #ifdef CFG_BRD_LPC1343_REFDESIGN_MINIMAL
       // #define CFG_INTERFACE
       #define CFG_INTERFACE_MAXMSGSIZE    (256)
-      #define CFG_INTERFACE_PROMPT        "LPC1343 >> "
+      #define CFG_INTERFACE_PROMPT        "catnip # "
       #define CFG_INTERFACE_SILENTMODE    (0)
       #define CFG_INTERFACE_DROPCR        (0)
       #define CFG_INTERFACE_ENABLEIRQ     (0)

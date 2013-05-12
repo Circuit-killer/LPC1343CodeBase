@@ -53,8 +53,8 @@ Pid pid;
 
 uint16_t updatePID(Pid *pid, int16_t error, uint16_t position) ;
 
-#define COMMAND_TYPE_RISE 1
 #define COMMAND_TYPE_HOLD 2
+BOOL verbose;
 
 typedef struct {
     int type;

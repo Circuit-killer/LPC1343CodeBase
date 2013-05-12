@@ -45,6 +45,8 @@
 #include "pid.h"
 //#include "core/timer32/timer32.h"
 
+BOOL verbose = FALSE;
+
 uint16_t updatePID(Pid *pid, int16_t error, uint16_t position) {
     int16_t pTerm, iTerm, dTerm;
     
@@ -89,9 +91,7 @@ void initPidProgram() {
 }
 
 void printPidCommand(Command cmd) {
-    if(cmd.type == COMMAND_TYPE_RISE) {
-        printf("RISE to %d%s", cmd.temperature, CFG_PRINTF_NEWLINE);
-    } else if(cmd.type == COMMAND_TYPE_HOLD) {
+    if(cmd.type == COMMAND_TYPE_HOLD) {
         printf("HOLD on %d for %d seconds%s", cmd.temperature, cmd.time, CFG_PRINTF_NEWLINE);
     }
 }
@@ -153,40 +153,73 @@ Command getCurrentPidCommand() {
     return EMPTY_COMMAND;
 }
 
-uint32_t commandStartedSeconds;
+uint32_t holdStartedSeconds;
+
+
+BOOL commandTempReached=FALSE;
+BOOL shouldHeat = FALSE;
+BOOL shouldCool = FALSE;
+
+BOOL isCommandTempReached(temp) {
+	if(shouldHeat) {
+		return temp >= getCurrentPidCommand().temperature || (temp > 900 && temp > getCurrentPidCommand().temperature - 3);
+	} else if (shouldCool) {
+		return temp <= getCurrentPidCommand().temperature;
+	}
+}
 
 BOOL shouldProgramAdvance(uint16_t temp, uint32_t sysSeconds) {
     if(currentCommand >= MAX_PID_PROGRAM_LENGHT) {
         return FALSE;
     }
-    
-    if(COMMAND_TYPE_HOLD == getCurrentPidCommand().type) {
-        if((sysSeconds - commandStartedSeconds) >= getCurrentPidCommand().time) {
-            return TRUE;
-        }
-    } else if(COMMAND_TYPE_RISE == getCurrentPidCommand().type) {
-        if(temp > 900 && temp > getCurrentPidCommand().temperature - 3) {
-            return TRUE;
-        }
-        if(temp >= getCurrentPidCommand().temperature) {
-            return TRUE;
-        }
-    }    
+
+    if(!commandTempReached) {
+    	if(isCommandTempReached(temp)) {
+    		commandTempReached = TRUE;
+    		holdStartedSeconds = sysSeconds;
+    		if(verbose){
+    			printf("Command temperature %d has been reached, holding for %d seconds\r\n", getCurrentPidCommand().temperature, getCurrentPidCommand().time);
+    		}
+    	} else {
+			return FALSE;
+    	}
+    }
+
+    if((sysSeconds - holdStartedSeconds) >= getCurrentPidCommand().time) {
+        return TRUE;
+    }
+
     return FALSE;
 }
 
 void executeCommand(Command c, uint32_t sysSeconds) {
-    if(COMMAND_TYPE_HOLD == c.type) {
-        printf("Processing command: ");
-        printPidCommand(c);
-        commandStartedSeconds = sysSeconds;
+    if(EMPTY_COMMAND.type != c.type) {
+    	if(verbose){
+            printf("Processing command: ");
+            printPidCommand(c);
+    	}
+        commandTempReached = FALSE;
+        uint16_t lastSetPoint = setPoint;
         setPoint = c.temperature;
-    } else if(COMMAND_TYPE_RISE == c.type) {
-        printf("Processing command: ");
-        printPidCommand(c);
-        setPoint = c.temperature;
+
+        if(lastSetPoint < setPoint) {
+        	shouldHeat = TRUE;
+        	shouldCool = FALSE;
+        	if(verbose){
+        		printf("Heating up to %d \r\n", setPoint);
+        	}
+        } else {
+        	shouldHeat = FALSE;
+        	shouldCool = TRUE;
+        	if(verbose) {
+            	printf("Cooling down to %d \r\n", setPoint);
+        	}
+        }
     } else {
-        printf("Program ENDED.");
+    	setPoint = 0;
+    	if(verbose) {
+			printf("Program END.\r\n");
+    	}
     }
 }
 
@@ -206,12 +239,15 @@ void startPidProgram(uint16_t index) {
         if(0 == c.type) {
             c = nextPidCommand();
             if(0 == c.type) {
-                printf("Could not start program - no command after index %d%s", index, CFG_PRINTF_NEWLINE);
+            	if(verbose){
+					printf("Could not start program - no command after index %d%s", index, CFG_PRINTF_NEWLINE);
+            	}
                 return;
             }
         }
-        printf("STARTING program at line %d%s", currentCommand, CFG_PRINTF_NEWLINE);
-        printPidCommand(c);
+        if(verbose) {
+			printf("STARTING program at line %d%s", currentCommand, CFG_PRINTF_NEWLINE);
+        }
         executeCommand(c, systickGetSecondsActive());
     }
 }

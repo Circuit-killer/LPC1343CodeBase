@@ -109,6 +109,16 @@ void cmd_purge(uint8_t argc, char **argv) {
 	initPidProgram();
 }
 
+void cmd_verbose(uint8_t argc, char **argv) {
+	if(verbose) {
+		printf("Switching to silent mode\r\n");
+		verbose = FALSE;
+	} else {
+		printf("Switching to verbose mode\r\n");
+		verbose = TRUE;
+	}
+}
+
 void cmd_addCommand(uint8_t argc, char **argv) {
     Command c;
     int32_t index, temp, time;
@@ -120,22 +130,13 @@ void cmd_addCommand(uint8_t argc, char **argv) {
     	return;
     }
 
-    printf("index: %d ", index);
-    if(!strcmp(argv[1], "rise")) {
-        printf(" rise ");
-        c.type = COMMAND_TYPE_RISE;
-        getNumber(argv[2], &temp);
-        c.temperature = temp;
-        c.time = 0;
-    } else if(!strcmp(argv[1], "hold")) {
-        printf(" hold ");
+    if(!strcmp(argv[1], "hold")) {
         c.type = COMMAND_TYPE_HOLD;
         getNumber(argv[2], &temp);
         c.temperature = temp;
         getNumber(argv[3], &time);
         c.time = time;
     }
-    printf(" adding PID command...");
     addPidCommand(index, c);
 }
 

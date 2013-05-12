@@ -266,7 +266,9 @@ int main(void)
             processPidProgramStep(getAverageTemp());
 
             if(isPidRunning()) {
-            	printf("%d\r\n", temp);
+            	if(verbose){
+            		printf("%d\r\n", temp);
+            	}
             }
             error = setPoint - temp;
             controlValue = updatePID(&pid, error, temp);
@@ -276,18 +278,22 @@ int main(void)
         }
         
         if(gpioGetValue(2, 9) == 0) {
-            printf("button?");
+            //printf("button?");
             
             systickDelay(100);
             if(gpioGetValue(2, 9) == 0) {
-                printf("click!%s", CFG_PRINTF_NEWLINE);
+                //printf("click!%s", CFG_PRINTF_NEWLINE);
                 if(PROGRAM_SECONDARY == currProgram) {
-                    printf("Starting PRIMARY program%s", CFG_PRINTF_NEWLINE);
+                    if(verbose) {
+                    	printf("Starting PRIMARY program%s", CFG_PRINTF_NEWLINE);
+                    }
                     setupPrimary();
                     currProgram = PROGRAM_PRIMARY;
                     gpioSetValue(2, 8, 0);
                 } else {
-                    printf("Starting SECONDARY program%s", CFG_PRINTF_NEWLINE);
+                    if(verbose) {
+                    	printf("Starting SECONDARY program%s", CFG_PRINTF_NEWLINE);
+                    }
                     currProgram = PROGRAM_SECONDARY;
                     setupSecondary();
                     gpioSetValue(2, 8, 1);
@@ -299,7 +305,7 @@ int main(void)
                     systickDelay(100);
                 }
             } else {
-                printf("no...");
+                //printf("no...");
             }
         }
 
@@ -320,45 +326,26 @@ int main(void)
 
 void setupPrimary() {
     clearProgram();
-    pidProgram[10] = (Command){COMMAND_TYPE_RISE, 60, 0};
     pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 60, 600};
-    pidProgram[30] = (Command){COMMAND_TYPE_RISE, 110, 0};
     pidProgram[40] = (Command){COMMAND_TYPE_HOLD, 110, 900};
-    pidProgram[70] = (Command){COMMAND_TYPE_RISE, 210, 0};
     pidProgram[80] = (Command){COMMAND_TYPE_HOLD, 210, 900};
-    pidProgram[90] = (Command){COMMAND_TYPE_RISE, 260, 0};
     pidProgram[100] = (Command){COMMAND_TYPE_HOLD, 260, 900};
-    pidProgram[130] = (Command){COMMAND_TYPE_RISE, 360, 0};
     pidProgram[140] = (Command){COMMAND_TYPE_HOLD, 360, 900};
-    pidProgram[180] = (Command){COMMAND_TYPE_RISE, 470, 0};
     pidProgram[190] = (Command){COMMAND_TYPE_HOLD, 470, 900};
-    pidProgram[200] = (Command){COMMAND_TYPE_RISE, 540, 0};
     pidProgram[210] = (Command){COMMAND_TYPE_HOLD, 540, 900};
-    pidProgram[220] = (Command){COMMAND_TYPE_RISE, 610, 0};
     pidProgram[230] = (Command){COMMAND_TYPE_HOLD, 610, 900};
-    pidProgram[240] = (Command){COMMAND_TYPE_RISE, 680, 0};
     pidProgram[250] = (Command){COMMAND_TYPE_HOLD, 680, 900};
-    pidProgram[260] = (Command){COMMAND_TYPE_RISE, 750, 0};
     pidProgram[270] = (Command){COMMAND_TYPE_HOLD, 750, 900};
-    pidProgram[280] = (Command){COMMAND_TYPE_RISE, 830, 0};
     pidProgram[290] = (Command){COMMAND_TYPE_HOLD, 830, 900};
-    pidProgram[300] = (Command){COMMAND_TYPE_RISE, 900, 0};
     pidProgram[310] = (Command){COMMAND_TYPE_HOLD, 900, 900};
-    pidProgram[320] = (Command){COMMAND_TYPE_RISE, 940, 0};
-    pidProgram[330] = (Command){COMMAND_TYPE_RISE, 600, 0};
+    pidProgram[320] = (Command){COMMAND_TYPE_HOLD, 940, 10};
     pidProgram[340] = (Command){COMMAND_TYPE_HOLD, 600, 600};
-    pidProgram[350] = (Command){COMMAND_TYPE_RISE, 0, 0};
 }
 
 void setupSecondary() {
     clearProgram();
-    pidProgram[10] = (Command){COMMAND_TYPE_RISE, 200, 0};
     pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 200, 600};
-    pidProgram[30] = (Command){COMMAND_TYPE_RISE, 600, 0};
     pidProgram[40] = (Command){COMMAND_TYPE_HOLD, 600, 900};
-    pidProgram[90] = (Command){COMMAND_TYPE_RISE, 940, 0};
     pidProgram[100] = (Command){COMMAND_TYPE_HOLD, 940, 900};
-    pidProgram[110] = (Command){COMMAND_TYPE_RISE, 1015, 0};
     pidProgram[120] = (Command){COMMAND_TYPE_HOLD, 1015, 300};
-    pidProgram[150] = (Command){COMMAND_TYPE_RISE, 0, 0};
 }
