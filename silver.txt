@@ -1,0 +1,12 @@
+hold 60 1800
+hold 120 900
+hold 180 900
+hold 240 900
+hold 300 900
+hold 420 900
+hold 500 900
+hold 600 900
+hold 670 900
+hold 800 60
+hold 515 900
+hold 320 2700
