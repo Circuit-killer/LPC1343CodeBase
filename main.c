@@ -42,10 +42,26 @@
 
 #include "core/gpio/gpio.h"
 #include "core/systick/systick.h"
+#include "core/ssp/ssp.h"
+#include "core/timer32/timer32.h"
 
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
 #endif
+
+uint32_t screen[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+void sendLine(uint32_t value) {
+  uint8_t request[SSP_FIFOSIZE];
+  request[0]=(uint8_t) (value >> 24);
+  request[1]=(uint8_t) (value >> 16);
+  request[2]=(uint8_t) (value >> 8);
+  request[3]=(uint8_t) value;
+  
+  ssp0Deselect();
+  sspSend(0, (uint8_t *)&request, 4);
+  ssp0Select();
+}
 
 /**************************************************************************/
 /*! 
@@ -57,10 +73,23 @@ int main(void)
 {
   // Configure cpu and mandatory peripherals
   systemInit();
+  sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
+	timer32Init(0, TIMER32_DEFAULTINTERVAL);
+	timer32Enable(0);
+
+	gpioSetDir(3, 0, gpioDirection_Input);
+  gpioSetPullup(&IOCON_PIO3_0, gpioPullupMode_PullUp);
 
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
-  
+
+  int32_t value = 1;
+	uint8_t dir = 1;
+  uint8_t idx = 0;
+	int i;	
+	for(i= 0; i < 32; i++) {
+		screen[i] = 1 << i;	
+	}
   while (1)
   {
     // Toggle LED once per second
@@ -69,7 +98,22 @@ int main(void)
     {
       lastSecond = currentSecond;
       gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, lastSecond % 2);
-    }
+    }    
+	
+		if(0 == gpioGetValue(3, 0)) {
+			if(idx < 32) {
+				sendLine(screen[idx]);
+				timer32Delay(0, TIMER32_DELAY_1MS * 31);
+				idx++;
+			} else {
+				sendLine(0);			
+			}
+
+		}	else {
+			idx = 0;
+			dir = 1;
+			sendLine(0);
+		}
 
     // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
     #ifdef CFG_INTERFACE 
