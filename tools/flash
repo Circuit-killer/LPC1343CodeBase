@@ -1,3 +1,3 @@
-umount /dev/sdb
-mdel -i /dev/sdb ::/firmware.bin
-mcopy -i /dev/sdb firmware.bin ::/
+umount /dev/sdc
+mdel -i /dev/sdc ::/firmware.bin
+mcopy -i /dev/sdc firmware.bin ::/
