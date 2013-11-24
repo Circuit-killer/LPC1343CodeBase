@@ -427,6 +427,7 @@ uint32_t i2cEngine( void )
   }
 
   /* wait until the state is a terminal state */
+	uint16_t i = 1;
   while (I2CMasterState < 0x100);
 
   return ( I2CMasterState );

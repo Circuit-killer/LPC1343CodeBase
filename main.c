@@ -47,6 +47,12 @@
   #include "core/cmd/cmd.h"
 #endif
 
+#include "core/i2c/i2c.h"
+
+extern volatile uint8_t   I2CMasterBuffer[I2C_BUFSIZE];
+extern volatile uint8_t   I2CSlaveBuffer[I2C_BUFSIZE];
+extern volatile uint32_t  I2CReadLength, I2CWriteLength;
+
 /**************************************************************************/
 /*! 
     Main program entry point.  After reset, normal code execution will
@@ -60,6 +66,9 @@ int main(void)
 
   uint32_t currentSecond, lastSecond;
   currentSecond = lastSecond = 0;
+
+	uint32_t address = 0x20 << 1;
+	uint32_t reg = 12;
   
   while (1)
   {
@@ -70,7 +79,6 @@ int main(void)
       lastSecond = currentSecond;
       gpioSetValue(CFG_LED_PORT, CFG_LED_PIN, lastSecond % 2);
     }
-
     // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
     #ifdef CFG_INTERFACE 
       cmdPoll(); 
