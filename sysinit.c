@@ -176,21 +176,6 @@ void systemInit()
     usbHIDInit();
   #endif
 
-  // Initialise USB CDC
-  #ifdef CFG_USBCDC
-    lastTick = systickGetTicks();   // Used to control output/printf timing
-    CDC_Init();                     // Initialise VCOM
-    USB_Init();                     // USB Initialization
-    USB_Connect(TRUE);              // USB Connect
-    // Wait until USB is configured or timeout occurs
-    uint32_t usbTimeout = 0; 
-    while ( usbTimeout < CFG_USBCDC_INITTIMEOUT / 10 )
-    {
-      if (USB_Configuration) break;
-      systickDelay(10);             // Wait 10ms
-      usbTimeout++;
-    }
-  #endif
 
   // Printf can now be used with UART or USBCDC
 

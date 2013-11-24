@@ -70,6 +70,8 @@
 static uint8_t msg[CFG_INTERFACE_MAXMSGSIZE];
 static uint8_t *msg_ptr;
 
+uint8_t usbActive = 0;
+
 /**************************************************************************/
 /*! 
     @brief  Polls the relevant incoming message queue to see if anything
@@ -92,6 +94,7 @@ void cmdPoll()
     CDC_OutBufAvailChar (&numAvailByte);
     if (numAvailByte > 0) 
     {
+			usbActive = 1;
       numBytesToRead = numAvailByte > 32 ? 32 : numAvailByte; 
       numBytesRead = CDC_RdOutBuf (&usbcdcBuf[0], &numBytesToRead);
       int i;
