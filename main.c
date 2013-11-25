@@ -345,7 +345,9 @@ void setupPrimary() {
 void setupSecondary() {
     clearProgram();
     pidProgram[20] = (Command){COMMAND_TYPE_HOLD, 200, 600};
+    pidProgram[30] = (Command){COMMAND_TYPE_HOLD, 400, 900};
     pidProgram[40] = (Command){COMMAND_TYPE_HOLD, 600, 900};
     pidProgram[100] = (Command){COMMAND_TYPE_HOLD, 940, 900};
-    pidProgram[120] = (Command){COMMAND_TYPE_HOLD, 1015, 300};
+    pidProgram[120] = (Command){COMMAND_TYPE_HOLD, 1020, 300};
+    pidProgram[140] = (Command){COMMAND_TYPE_HOLD, 960, 900};
 }
