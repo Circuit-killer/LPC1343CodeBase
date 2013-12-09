@@ -48,10 +48,18 @@ extern volatile uint8_t   I2CSlaveBuffer[I2C_BUFSIZE];
 extern volatile uint32_t  I2CReadLength, I2CWriteLength;
 
 void cmd_i2c_write(uint8_t argc, char **argv) {
+		uint32_t buffer[62];
+
     int32_t address = 0;
     getNumber (argv[0], &address);
     int32_t reg = 0;
     getNumber (argv[1], &reg);
+		uint32_t bufferLength = argc - 2;
+
+		if(bufferLength + 2 > I2C_BUFSIZE) {
+			printf("Too many bytes to send. Max data length: %d", I2C_BUFSIZE - 2);	
+			return;		
+		} 
 
 		if (i2cInit(I2CMASTER) == false) {
 		  printf("i2c init failed.\r\n");    /* Fatal error */
@@ -59,19 +67,22 @@ void cmd_i2c_write(uint8_t argc, char **argv) {
 		}
 		uint32_t i;
 
+		for (i = 0; i < bufferLength; i++) {
+		  getNumber (argv[2+i], &buffer[i]);
+		}
+		
+
 	  for ( i = 0; i < I2C_BUFSIZE; i++ ) {
 		  I2CMasterBuffer[i] = 0x00;
 		}
-		uint32_t bufferLength = 0;
 
 		I2CWriteLength = 2 + bufferLength;
 		I2CReadLength = 0;
 		I2CMasterBuffer[0] = address;			                // I2C device address
 		I2CMasterBuffer[1] = (reg);            // Address (low byte)
 		
-		uint32_t buffer[0];
 		for (i = 0; i < bufferLength; i++) {
-		  I2CMasterBuffer[i+3] = buffer[i];
+		  I2CMasterBuffer[i+2] = buffer[i];
 		}
 		printf("transmitting %d to %d \r\n", reg, address);
 		// Transmit command
