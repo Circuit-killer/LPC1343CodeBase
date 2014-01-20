@@ -1,9 +1,9 @@
 /**************************************************************************/
 /*! 
-    @file     cmd_ssp.c
+    @file     cmd_i2c.c
     @author   Miceuz
 
-    @brief    SSP CLI command.
+    @brief    I2C CLI commands.
  
     @section LICENSE
 
@@ -48,48 +48,84 @@ extern volatile uint8_t   I2CSlaveBuffer[I2C_BUFSIZE];
 extern volatile uint32_t  I2CReadLength, I2CWriteLength;
 
 void cmd_i2c_write(uint8_t argc, char **argv) {
-		uint32_t buffer[62];
+	uint32_t buffer[62];
 
     int32_t address = 0;
     getNumber (argv[0], &address);
     int32_t reg = 0;
     getNumber (argv[1], &reg);
-		uint32_t bufferLength = argc - 2;
+	uint32_t bufferLength = argc - 2;
 
-		if(bufferLength + 2 > I2C_BUFSIZE) {
-			printf("Too many bytes to send. Max data length: %d", I2C_BUFSIZE - 2);	
-			return;		
-		} 
+	if(bufferLength + 2 > I2C_BUFSIZE) {
+		printf("Too many bytes to send. Max data length: %d", I2C_BUFSIZE - 2);	
+		return;		
+	} 
 
-		if (i2cInit(I2CMASTER) == false) {
-		  printf("i2c init failed.\r\n");    /* Fatal error */
-			return;
-		}
-		uint32_t i;
+	if (i2cInit(I2CMASTER) == false) {
+		printf("i2c init failed.\r\n");    /* Fatal error */
+		return;
+	}
+	uint32_t i;
 
-		for (i = 0; i < bufferLength; i++) {
-		  getNumber (argv[2+i], &buffer[i]);
-		}
+	for (i = 0; i < bufferLength; i++) {
+	  getNumber (argv[2+i], &buffer[i]);
+	}
 		
+	for ( i = 0; i < I2C_BUFSIZE; i++ ) {
+	  I2CMasterBuffer[i] = 0x00;
+	}
 
-	  for ( i = 0; i < I2C_BUFSIZE; i++ ) {
-		  I2CMasterBuffer[i] = 0x00;
-		}
+	I2CWriteLength = 2 + bufferLength;
+	I2CReadLength = 0;
+	I2CMasterBuffer[0] = address;			                // I2C device address
+	I2CMasterBuffer[1] = (reg);            // Address (low byte)
+	
+	for (i = 0; i < bufferLength; i++) {
+	  I2CMasterBuffer[i+2] = buffer[i];
+	}
+	printf("transmitting %d to %d \r\n", reg, address);
+	// Transmit command
+	uint32_t result = i2cEngine();
+	printf("transmission result: %d", result);
+}
 
-		I2CWriteLength = 2 + bufferLength;
-		I2CReadLength = 0;
-		I2CMasterBuffer[0] = address;			                // I2C device address
-		I2CMasterBuffer[1] = (reg);            // Address (low byte)
-		
-		for (i = 0; i < bufferLength; i++) {
-		  I2CMasterBuffer[i+2] = buffer[i];
-		}
-		printf("transmitting %d to %d \r\n", reg, address);
-		// Transmit command
-		uint32_t result = i2cEngine();
-		printf("transmission result: %d", result);
+void cmd_i2c_read(uint8_t argc, char **argv) {
+	uint32_t i;
+    int32_t address = 0;
+    getNumber(argv[0], &address);
+    int32_t reg = 0;
+    getNumber(argv[1], &reg);
+	int32_t bytesToRead = 0;
+	getNumber(argv[2], &bytesToRead);
+	
+	if(bytesToRead  > I2C_BUFSIZE) {
+		printf("Too many bytes to read. Max: %d", I2C_BUFSIZE);	
+		return;		
+	}
+	
+	if (i2cInit(I2CMASTER) == false) {
+		printf("i2c init failed.\r\n");    /* Fatal error */
+		return;
+	}
 
-		// Wait at least 10ms
-		systickDelay(10);
-  
+	for ( i = 0; i < I2C_BUFSIZE; i++ ) {
+	  I2CMasterBuffer[i] = 0x00;
+	}
+
+	I2CWriteLength = 0;
+	I2CReadLength = bytesToRead;
+	I2CMasterBuffer[0] = address;	       // I2C device address
+	I2CMasterBuffer[1] = reg;            // Address (low byte)
+	I2CMasterBuffer[2] = address | 0x01;
+
+	printf("reading from %d register %d \r\n", address, reg);
+	// Transmit command
+	uint32_t result = i2cEngine();
+	printf("transmission result: %d\r\n", result);
+
+	for (i = 0; i < bytesToRead; i++) {
+		printf("0x%02X ", I2CSlaveBuffer[i]);
+	}
+	
+	printf("\r\n");
 }

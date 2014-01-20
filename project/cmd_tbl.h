@@ -102,6 +102,7 @@ void cmd_adc_read(uint8_t argc, char **argv);
 void cmd_ssp_write(uint8_t argc, char **argv);
 
 void cmd_i2c_write(uint8_t argc, char **argv);
+void cmd_i2c_read(uint8_t argc, char **argv);
 
 #define CMD_NOPARAMS "This command has no parameters"
 
@@ -168,7 +169,8 @@ cmd_t cmd_tbl[] =
   { "M",    2,  2,  0,  cmd_pwm              , "PWM Control"                    , "'M [<dutycycle(%)>] [<frequency(ticks)>]'" },
   #endif
   { "ssp",  1,  1,  0,  cmd_ssp_write        , "Write a byte to SSP"            , "'ssp <byte>'"},
-  { "i2cw",  2,  62,  0,  cmd_i2c_write        , "Write a byte to I2C"            , "'i2cw <slave_address> <register> [<data>]'"}
+  { "i2cw",  2,  62,  0,  cmd_i2c_write        , "Write a byte to I2C"            , "'i2cw <slave_address> <register> [<data>]'"},
+  { "i2cr",  3,  3,   0,  cmd_i2c_read,			"Read bytes from I2C"			, "'i2cr <slave address> <register> <number of bytes to read'"}
 };
 
 #endif
