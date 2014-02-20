@@ -672,9 +672,9 @@ void disk_timerproc (void)
     /* write protect NOT supported */
       
     /* check card detect */
-    if (!pv)                            /* (Socket empty) */
-      s |= (STA_NODISK | STA_NOINIT);
-    else				/* (Card inserted) */
+    //if (!pv)                            /* (Socket empty) */
+    //  s |= (STA_NODISK | STA_NOINIT);
+    //else				/* (Card inserted) */
       s &= ~STA_NODISK;
     
     Stat = s;
