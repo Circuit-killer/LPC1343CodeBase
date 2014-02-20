@@ -192,7 +192,7 @@ uint16_t getTemperature() {
     double ambientVoltage = (double) ambientValue / 65535.0F * 3300.0F;
     double thermocoupleVoltage = (double)(((double)thermocoupleValue / 65535.0F) * 3300.0F);
     
-    return (uint16_t) (ambientVoltage / 10.0) + (uint16_t)(thermocoupleVoltage / 3.0);
+    return (uint16_t) (ambientVoltage / 10.0) + (uint16_t)(thermocoupleVoltage / 3); //termoporos itampa dalinam is 3, nes viduj opampo gainas taip nustatytas, kad prie 1100 laipsniu duoda 3.3V
 }
 
 void recordTemp(uint16_t t) {
