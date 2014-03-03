@@ -10,6 +10,7 @@
 
 #include "drivers/fatfs/diskio.h"
 #include "drivers/fatfs/ff.h"
+#include "core/adc/adc.h"
 
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
@@ -93,7 +94,6 @@ void sspInit2 ()
 
 void uartInit2()
 {
-  uint32_t fDiv;
   uint32_t regVal;
 
   NVIC_DisableIRQ(UART_IRQn);
@@ -180,7 +180,6 @@ uint16_t bitrefssp[] = {
 };
 void sendPixelSSP(uint32_t pixel) {
 	while ((SSP_SSP0SR & (SSP_SSP0SR_BSY_BUSY )));
-    gpioSetValue(2, 5, 1);
 	SSP_SSP0DR = bitrefssp[pixel >> 21 & 0x00000007];
 	SSP_SSP0DR = bitrefssp[pixel >> 18 & 0x00000007];
 	SSP_SSP0DR = bitrefssp[pixel >> 15 & 0x00000007];
@@ -189,8 +188,8 @@ void sendPixelSSP(uint32_t pixel) {
 	SSP_SSP0DR = bitrefssp[pixel >> 6 & 0x00000007];
 	SSP_SSP0DR = bitrefssp[pixel >> 3 & 0x00000007];
 	SSP_SSP0DR = bitrefssp[pixel&0x00000007];	
-    gpioSetValue(2, 5, 0);
 }
+
 void latchSSP(){
 	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
 	SSP_SSP0DR = 0;
@@ -337,54 +336,93 @@ uint32_t colourWheel ( uint8_t wheelPos, uint8_t brightness )
 	return ( result );
 }
 
-uint32_t decreaseBrightness ( uint32_t pixel, uint8_t brightness )
+uint32_t decreaseBrightness ( uint32_t pixel, uint32_t decreaseBy )
 {
 	uint8_t *outColour;
 	uint8_t i;
 
 	// TODO : if I was doing it properly the frame buffer would use a structure datatype to allow easier access to each member/byte
 	outColour = (uint8_t *)&pixel;
-
-	for (i=0; i<3; i++)
-	{
-		if (outColour[i] > brightness)
-		{
-			outColour[i] -= brightness;
-		}
-		else
-		{
-			outColour[i] = 0;
-		}
+	for (i=0; i<3; i++) {
+			if(decreaseBy > 0) {
+				float multiplier = 1.0 - (float)decreaseBy / 255.0;
+				//outColour[i] = (uint8_t)((float)outColour[i] * multiplier);
+				outColour[i] = ((uint32_t)outColour[i] * (1024 - (decreaseBy << 2)) + 512) >> 10;
+			}
 	}
 
 	return(pixel);
 }
 
-  static FATFS Fatfs[1];
-  static FIL fp;
-  DSTATUS stat;
-  BYTE res;  
+static FILINFO Finfo;
+static FATFS Fatfs[1];
+static FIL fp;
+DSTATUS stat;
+BYTE res;  
 
-int openFile() {
+int initSDCard() {
 	stat = disk_initialize(0);
 	if (stat & STA_NOINIT) {
-		printf("SD init failed%s", CFG_PRINTF_NEWLINE);
+//		printf("SD init failed%s", CFG_PRINTF_NEWLINE);
 		return 1;
 	}
 	if (stat & STA_NODISK) {
-		printf("No SD card%s", CFG_PRINTF_NEWLINE);
+//		printf("No SD card%s", CFG_PRINTF_NEWLINE);
 		return 1;
 	}
 	
 	res = f_mount(0, &Fatfs[0]);
 	if (res != FR_OK) {
-		printf("Failed to mount partition: %d%s" , res, CFG_PRINTF_NEWLINE);
+//		printf("Failed to mount partition: %d%s" , res, CFG_PRINTF_NEWLINE);
 		return res;
 	}
+	return 0;
+}
+
+int isPPMFile(FILINFO Finfo) {
+	return !(Finfo.fattrib & AM_DIR) && !strcmp(strstr(Finfo.fname, "."), ".PPM");
+}
+
+#define MAX_FILES 20
+char fileNames[MAX_FILES][13];
+uint8_t totalFiles = 0;
+uint8_t currFile = 0;
+uint8_t brightness = 255;
+
+int scanDir() {
+    DIR dir;
+	if (res != FR_OK) {
+		printf("Failed to mount partition%s" , CFG_PRINTF_NEWLINE);
+		return res;
+	}
+    if (res == FR_OK) {
+		res = f_opendir(&dir, "/");
+		if (res) {
+			printf("Failed to open '/' %s", CFG_PRINTF_NEWLINE);
+			return 1;
+		}
+		// Read directory contents
+		int i;
+		for(i = 0; i < MAX_FILES; ) {
+			res = f_readdir(&dir, &Finfo);
+			if ((res != FR_OK) || !Finfo.fname[0]){
+				break;
+			}
+			if (isPPMFile(Finfo)) {
+				strcpy(fileNames[i], Finfo.fname);
+				i++;
+			}
+		}
+		totalFiles = i;
+	}
+	return 1;
+}
+
+int openFile(char *fileName) {
 	
-	res = f_open(&fp, "Untitled.ppm", FA_READ);
+	res = f_open(&fp, fileName, FA_READ);
 	if(FR_OK != res) {
-		printf("could not open file for reading: %d%s", res, CFG_PRINTF_NEWLINE);
+//		printf("could not open file for reading: %d%s", res, CFG_PRINTF_NEWLINE);
 		return 1;
 	}
 	f_lseek(&fp, 0x36);
@@ -392,81 +430,197 @@ int openFile() {
 	return 0; 
 }
 
+uint8_t gamma[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
+2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5,
+6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11,
+11, 12, 12, 13, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18,
+19, 19, 20, 21, 21, 22, 22, 23, 23, 24, 25, 25, 26, 27, 27, 28,
+29, 29, 30, 31, 31, 32, 33, 34, 34, 35, 36, 37, 37, 38, 39, 40,
+40, 41, 42, 43, 44, 45, 46, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+71, 72, 73, 74, 76, 77, 78, 79, 80, 81, 83, 84, 85, 86, 88, 89,
+90, 91, 93, 94, 95, 96, 98, 99,100,102,103,104,106,107,109,110,
+111,113,114,116,117,119,120,121,123,124,126,128,129,131,132,134,
+135,137,138,140,142,143,145,146,148,150,151,153,155,157,158,160,
+162,163,165,167,169,170,172,174,176,178,179,181,183,185,187,189,
+191,193,194,196,198,200,202,204,206,208,210,212,214,216,218,220,
+222,224,227,229,231,233,235,237,239,241,244,246,248,250,252,255};
+
+void blank(){
+	uint16_t i = 0;
+	for(i = 0; i < 144; i++) {
+		sendPixel(0x00000000);
+	}
+	latch();
+}
+
+uint32_t pixels[144];
+
+void display(){
+	uint16_t i = 0;
+	uint8_t line[144*3];
+	uint32_t linesSent = 0;
+
+	uint32_t start = systickGetTicks();
+
+	while(1) {
+		UINT br;
+		res = f_read(&fp, line, 144*3, &br);
+
+		if(FR_OK == res) {
+			for(i = 0; i < 144*3; i+=3) {
+				uint32_t pixel = (line[i+1] << 16) | (line[i] << 8) | line[i+2];
+				pixel = decreaseBrightness(pixel, 255 - brightness);
+				pixels[i/3] = gamma[(uint8_t)((pixel >> 16) & 0x000000FF)] << 16 | gamma[(uint8_t)((pixel >> 8) & 0x000000FF)] << 8 | (gamma[(uint8_t)(pixel & 0x000000FF)] );
+			}
+
+			for(i = 0; i < 144; i++) {
+				//printf("(%d %d %d)", line[i], line[i+1], line[i+2]);
+//				pixel = (gamma[line[i+1]] << 16) | (gamma[line[i]] << 8) | gamma[line[i+2]];
+				sendPixel(pixels[i]);
+			}
+			linesSent++;
+			//systickDelay(7);
+		} else {
+//			printf("Could not read from file: %d%s", res, CFG_PRINTF_NEWLINE);
+			fp.fs = NULL;
+			break;
+		}
+		
+		if(fp.fptr >= fp.fsize || 0 == br) {
+			f_lseek(&fp, 0x36);
+//			printf("file end reached, looping");
+			blank();
+			break;
+		}
+	}
+			printf("%d ticks for %d lines \r\n", (systickGetTicks() - start), linesSent);
+}
+
+void batteryLow() {
+	blank();
+	sendPixel(0x00002200);
+	systickDelay(1);
+}
+
+void selectNextFile() {
+	currFile++;
+	if(currFile >= totalFiles) {
+		currFile = 0;
+	}
+	openFile(fileNames[currFile]);
+	uint16_t i = 0;
+	for(i = 0; i < 144; i++) {
+		sendPixel(0x00080000);
+	}
+	latch();
+}
+
+void indicateBrightness() {
+	uint16_t i = 0;
+	uint32_t pixel = decreaseBrightness(0x0022FF88, 255 - brightness);
+	for(i = 0; i < 144; i++) {
+		if(i == (255 - brightness) / 2) {
+			sendPixel(pixel);
+		} else {
+			sendPixel(0x00000000);
+		}
+	}
+	latch();
+}
+
+#define BTN_FIRE 3, 2
+#define BTN_UP 1, 5
+#define BTN_DOWN 3, 3
 
 int main(void)
 {
-  // Configure cpu and mandatory peripherals
-  systemInit();
+	// Configure cpu and mandatory peripherals
+	systemInit();
+	adcInit();
 
-  uint32_t currentSecond, lastSecond;
-  currentSecond = lastSecond = 0;
+	//down button
+	gpioSetDir(BTN_DOWN, gpioDirection_Input);
+	gpioSetPullup(&IOCON_PIO3_3, gpioPullupMode_PullUp);
 
-  gpioSetDir(2, 5, gpioDirection_Output);
-  gpioSetPullup(&IOCON_PIO2_5, gpioPullupMode_Inactive);
-  sspInit2();
-  uartInit2();
-  uint16_t i = 0;
-  for(i = 0; i < 144; i++) {
-	sendPixel(0x00000000);
-  }
-  latch();
-  uint8_t line[144*3];
-  
-  //systickDelay(2000);
+	//up button
+	gpioSetDir(BTN_UP, gpioDirection_Input);
+	gpioSetPullup(&IOCON_PIO1_5, gpioPullupMode_PullUp);
 
-  openFile();
-  while (1) {
+	//fire button
+	gpioSetDir(BTN_FIRE, gpioDirection_Input);
+	gpioSetPullup(&IOCON_PIO3_2, gpioPullupMode_PullUp);
+	//button GND
+	gpioSetDir(3, 1, gpioDirection_Output);
+	gpioSetValue(3,1, 0);
 
-	UINT br;
-	uint32_t start = systickGetTicks();
-	res = f_read(&fp, line, 144*3, &br);
-	uint32_t end = systickGetTicks();
+	uartInit2();
+	blank();
+	blank();
 
-	if(FR_OK == res) {
-		
-		for(i = 0; i < 144*3; i+=3) {
-			//printf("(%d %d %d)", line[i], line[i+1], line[i+2]);
-			sendPixel(decreaseBrightness((line[i+1] << 16) | (line[i] << 8) | line[i+2], 0));
-		}
-		systickDelay(7);
-		printf("\r\nred %d bytes in %d ms %s", br, end-start, CFG_PRINTF_NEWLINE);
-	} else {
-		printf("Could not read from file: %d%s", res, CFG_PRINTF_NEWLINE);
-		fp.fs = NULL;
-		continue;
-	}
-	
-	if(fp.fptr >= fp.fsize || 0 == br) {
-		f_lseek(&fp, 0x36);
-		printf("file end reached, looping");
-		for(i = 0; i < 144; i++) {
-			sendPixel(0x00000000);
-		}
-		systickDelay(1000);
-		sendPixel(0x0000FF00);
-		systickDelay(300);
+	sendPixel(0x00000011);
+	systickDelay(1);
+
+	while(0 != initSDCard()){
+		cmdPoll();
+		sendPixel(0x00000011);
+		systickDelay(500);
 		sendPixel(0x00000000);
-		systickDelay(300);
-		continue;
+		systickDelay(500);
+	};
+	
+	scanDir();
+	openFile(fileNames[currFile]);
+  
+	while (1) {
+		if(0 == gpioGetValue(BTN_FIRE)) {
+			if(adcReadSingle(1) > 544) {
+				display();
+				if(0 == gpioGetValue(BTN_FIRE)) {
+					selectNextFile();
+					systickDelay(1000);
+				}
+			} else {
+				batteryLow();
+			}
+		} else if(0 == gpioGetValue(BTN_UP)) {
+			if(brightness < 255) {
+				brightness++;
+			}
+			indicateBrightness();
+			systickDelay(200);
+			while(0 == gpioGetValue(BTN_UP)) {
+				if(brightness < 255) {
+					brightness++;
+				}
+				indicateBrightness();
+				systickDelay(10);
+			}
+		} else if(0 == gpioGetValue(BTN_DOWN)) {
+			if(brightness > 0) {
+				brightness--;
+			}
+			indicateBrightness();
+			systickDelay(200);
+			while(0 == gpioGetValue(BTN_DOWN)) {
+				if(brightness > 0) {
+					brightness--;
+				}
+				indicateBrightness();
+				systickDelay(10);
+			}
+		}
+		
+
+		if(adcReadSingle(1) <= 544) {
+			batteryLow();
+		} else {
+			blank();
+		}
+
+		cmdPoll();
 	}
-	
 
-	//~ for(p = 0; p < 144; p++) {
-		//~ sendPixel(colourWheel((i+p)%255, 2));
-		//~ //sendPixel(0x00000001);
-	//~ }
-	//~ i++;
-    //~ systickDelay(1);
-
-//~ 
-	//~ latch();
-	//~ delay(100);
-	
-    // Poll for CLI input if CFG_INTERFACE is enabled in projectconfig.h
-    #ifdef CFG_INTERFACE 
-      cmdPoll(); 
-    #endif
-  }
-
-  return 0;
+	return 0;
 }

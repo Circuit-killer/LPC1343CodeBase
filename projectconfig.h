@@ -736,7 +736,7 @@
       // #define CFG_USBHID
       #define CFG_USBCDC
       #define CFG_USBCDC_BAUDRATE         (115200)
-      #define CFG_USBCDC_INITTIMEOUT      (5000)
+      #define CFG_USBCDC_INITTIMEOUT      (200)
       #define CFG_USBCDC_BUFFERSIZE       (256)
     #endif
 
