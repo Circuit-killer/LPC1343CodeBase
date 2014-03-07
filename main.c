@@ -481,7 +481,7 @@ void display(){
 				sendPixel(pixels[i]);
 			}
 			linesSent++;
-			//systickDelay(7);
+			systickDelay(2);
 		} else {
 //			printf("Could not read from file: %d%s", res, CFG_PRINTF_NEWLINE);
 			fp.fs = NULL;
@@ -572,7 +572,7 @@ int main(void)
 	
 	scanDir();
 	openFile(fileNames[currFile]);
-  
+
 	while (1) {
 		if(0 == gpioGetValue(BTN_FIRE)) {
 			if(adcReadSingle(1) > 544) {
