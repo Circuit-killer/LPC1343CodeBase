@@ -114,6 +114,8 @@ OBJS += smallfonts.o sharpmem.o st7565.o ssd1306.o
 #Character Displays (VFD text displays, etc.)
 VPATH += drivers/displays/character/samsung_20T202DA2JA
 OBJS += samsung_20T202DA2JA.o
+VPATH += drivers/displays/character/1602
+OBJS += LiquidCrystal.o
 
 # ChaN FatFS and SD card support
 VPATH += drivers/fatfs
