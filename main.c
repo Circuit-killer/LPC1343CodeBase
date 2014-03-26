@@ -12,6 +12,7 @@
 #include "drivers/fatfs/ff.h"
 #include "core/adc/adc.h"
 //~ #include "core/pmu/pmu.h"
+#include "core/pwm/pwm.h"
 
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
@@ -580,6 +581,11 @@ int main(void)
 	scanDir();
 	openFile(fileNames[currFile]);
 	gpioSetValue(2, 9, 0);
+
+	pwmInit();
+	pwmSetFrequencyInTicks(100);
+	pwmSetDutyCycle(50);
+	pwmStart();
 
 	while (1) {
 		if(0 == gpioGetValue(BTN_FIRE)) {
