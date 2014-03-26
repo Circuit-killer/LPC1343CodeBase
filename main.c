@@ -10,6 +10,7 @@
 
 #include "drivers/fatfs/diskio.h"
 #include "drivers/fatfs/ff.h"
+#include "drivers/displays/character/1602/LiquidCrystal.h"
 #include "core/adc/adc.h"
 //~ #include "core/pmu/pmu.h"
 #include "core/pwm/pwm.h"
@@ -506,17 +507,45 @@ void batteryLow() {
 	systickDelay(1);
 }
 
+void displayFileSelection() {
+	blank();
+	uint16_t i = 0;
+	for(i = 0; i < totalFiles; i++) {
+		if(i == currFile) {
+			sendPixel(0x00080000);
+		} else {
+			sendPixel(0x00010000);
+		}
+	}
+	latch();
+}
+
+
+void selectFile() {
+	openFile(fileNames[currFile]);
+
+	clear();
+	print(fileNames[currFile]);
+
+	displayFileSelection();
+}
+
+
+void selectPreviousFile() {
+	if(currFile > 0) {
+		currFile--;
+	} else {
+		currFile = totalFiles - 1;
+	}
+	selectFile();
+}
+
 void selectNextFile() {
 	currFile++;
 	if(currFile >= totalFiles) {
 		currFile = 0;
 	}
-	openFile(fileNames[currFile]);
-	uint16_t i = 0;
-	for(i = 0; i < 144; i++) {
-		sendPixel(0x00080000);
-	}
-	latch();
+	selectFile();
 }
 
 void indicateBrightness() {
@@ -537,11 +566,22 @@ void indicateBrightness() {
 #define BTN_UP 1, 5
 #define BTN_DOWN 3, 3
 
+#define MODE_DISPLAY 1
+#define MODE_SELECT 2
+
+uint8_t mode = MODE_DISPLAY;
+
 int main(void)
 {
 	// Configure cpu and mandatory peripherals
 	systemInit();
 	adcInit();
+
+	//LCD latch
+    gpioSetDir(2, 8, gpioDirection_Output);
+	gpioSetValue(2, 8, 1);
+
+	sspInit();
 
 	//down button
 	gpioSetDir(BTN_DOWN, gpioDirection_Input);
@@ -587,55 +627,85 @@ int main(void)
 	pwmSetDutyCycle(50);
 	pwmStart();
 
+	systickDelay(100);
+	LiquidCrystal();
+	clear();
+	print(fileNames[currFile]);
+
 	while (1) {
 		if(0 == gpioGetValue(BTN_FIRE)) {
-			gpioSetValue(2, 9, 1);
-			systickDelay(10);
-			if(adcReadSingle(1) > 526) {
-				display();
-				blank();
-				if(0 == gpioGetValue(BTN_FIRE)) {
-					selectNextFile();
-					systickDelay(1000);
+
+			if(MODE_DISPLAY == mode) {
+
+				if(adcReadSingle(1) > 526) {
+
+					gpioSetValue(2, 9, 1);
+					systickDelay(10);
+					display();
+					blank();
+					gpioSetValue(2, 9, 0);
+					if(0 == gpioGetValue(BTN_FIRE)) {
+						gpioSetValue(2, 9, 1);
+						displayFileSelection();
+						mode = MODE_SELECT;
+						systickDelay(1000);
+					}
+				} else {
+					gpioSetValue(2, 9, 1);
+					batteryLow();
+					gpioSetValue(2, 9, 0);
 				}
-			} else {
-				batteryLow();
+
+			} else if(MODE_SELECT == mode) {
+
+				mode = MODE_DISPLAY;
 			}
-			gpioSetValue(2, 9, 0);
 		} else if(0 == gpioGetValue(BTN_UP)) {
-			gpioSetValue(2, 9, 1);
-			systickDelay(10);
-			if(brightness < 255) {
-				brightness++;
-			}
-			indicateBrightness();
-			systickDelay(200);
-			while(0 == gpioGetValue(BTN_UP)) {
+
+			if(MODE_DISPLAY == mode) {
+
+				gpioSetValue(2, 9, 1);
+				systickDelay(10);
 				if(brightness < 255) {
 					brightness++;
 				}
 				indicateBrightness();
-				systickDelay(10);
+				systickDelay(200);
+				while(0 == gpioGetValue(BTN_UP)) {
+					if(brightness < 255) {
+						brightness++;
+					}
+					indicateBrightness();
+					systickDelay(10);
+				}
+				blank();
+				gpioSetValue(2, 9, 0);
+			} else if(MODE_SELECT == mode) {
+				selectNextFile();
+				systickDelay(300);
 			}
-			blank();
-			gpioSetValue(2, 9, 0);
 		} else if(0 == gpioGetValue(BTN_DOWN)) {
-			gpioSetValue(2, 9, 1);
-			systickDelay(10);
-			if(brightness > 0) {
-				brightness--;
-			}
-			indicateBrightness();
-			systickDelay(200);
-			while(0 == gpioGetValue(BTN_DOWN)) {
+			if(MODE_DISPLAY == mode) {
+				gpioSetValue(2, 9, 1);
+				systickDelay(10);
 				if(brightness > 0) {
 					brightness--;
 				}
 				indicateBrightness();
-				systickDelay(10);
+				systickDelay(200);
+				while(0 == gpioGetValue(BTN_DOWN)) {
+					if(brightness > 0) {
+						brightness--;
+					}
+					indicateBrightness();
+					systickDelay(10);
+				}
+				blank();
+				gpioSetValue(2, 9, 0);
+			} else if(MODE_SELECT == mode) {
+				selectPreviousFile();
+				systickDelay(300);
 			}
-			blank();
-			gpioSetValue(2, 9, 0);
 		}
 
 
