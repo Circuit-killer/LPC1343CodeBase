@@ -11,6 +11,7 @@
 #include "drivers/fatfs/diskio.h"
 #include "drivers/fatfs/ff.h"
 #include "core/adc/adc.h"
+//~ #include "core/pmu/pmu.h"
 
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
@@ -23,23 +24,23 @@ void sspInit2 ()
     /* Reset SSP */
     SCB_PRESETCTRL &= ~SCB_PRESETCTRL_SSP0_MASK;
     SCB_PRESETCTRL |= SCB_PRESETCTRL_SSP0_RESETDISABLED;
-  
+
     /* Enable AHB clock to the SSP domain. */
     SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_SSP0);
-  
+
     /* Divide by 1 (SSPCLKDIV also enables to SSP CLK) */
     SCB_SSP0CLKDIV = SCB_SSP0CLKDIV_DIV1;
-  
+
     /* Set P0.8 to SSP MISO */
     //IOCON_PIO0_8 &= ~IOCON_PIO0_8_FUNC_MASK;
     //IOCON_PIO0_8 |= IOCON_PIO0_8_FUNC_MISO0;
-  
+
     /* Set P0.9 to SSP MOSI */
     IOCON_PIO0_9 &= ~IOCON_PIO0_9_FUNC_MASK;
     IOCON_PIO0_9 |= IOCON_PIO0_9_FUNC_MOSI0;
 
-    /* Set 2.11 to SSP SCK (0.6 and 0.10 can also be used) */ 
-    IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO2_11; 
+    /* Set 2.11 to SSP SCK (0.6 and 0.10 can also be used) */
+    IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO2_11;
 
     /* Set P0.2/SSEL to GPIO output and high */
  //   IOCON_PIO0_2 &= ~IOCON_PIO0_2_FUNC_MASK;
@@ -47,45 +48,45 @@ void sspInit2 ()
  //   gpioSetDir(SSP0_CSPORT, SSP0_CSPIN, 1);
  //   gpioSetValue(SSP0_CSPORT, SSP0_CSPIN, 1);
  //   gpioSetPullup(&IOCON_PIO0_2, gpioPullupMode_Inactive);  // Board has external pull-up
-  
+
     /* If SSP0CLKDIV = DIV1 -- (PCLK / (CPSDVSR * [SCR+1])) = (72,000,000 / (2 x [8 + 1])) = 4.0 MHz */
     uint32_t configReg = ( SSP_SSP0CR0_DSS_12BIT   // Data size = 8-bit
                   | SSP_SSP0CR0_FRF_SPI           // Frame format = SPI
                   | SSP_SSP0CR0_SCR_10);           // Serial clock rate = 8
-  
+
     // Set clock polarity
 //    if (polarity == sspClockPolarity_High)
 //      configReg |= SSP_SSP0CR0_CPOL_HIGH;     // Clock polarity = High between frames
 //    else
       configReg &= ~SSP_SSP0CR0_CPOL_MASK;    // Clock polarity = Low between frames
-  
+
     // Set edge transition
 //    if (phase == sspClockPhase_FallingEdge)
       configReg |= SSP_SSP0CR0_CPHA_SECOND;   // Clock out phase = Trailing edge clock transition
 //    else
 //      configReg &= ~SSP_SSP0CR0_CPHA_MASK;    // Clock out phase = Leading edge clock transition
-  
+
     // Assign config values to SSP0CR0
     SSP_SSP0CR0 = configReg;
-  
+
     /* Clock prescale register must be even and at least 2 in master mode */
     SSP_SSP0CPSR = SSP_SSP0CPSR_CPSDVSR_DIV2;
-  
+
     /* Clear the Rx FIFO */
     uint8_t i, Dummy=Dummy;
     for ( i = 0; i < 8; i++ )
     {
       Dummy = SSP_SSP0DR;
     }
-  
+
     /* Enable the SSP Interrupt */
 //    NVIC_EnableIRQ(SSP_IRQn);
-  
+
     /* Set SSPINMS registers to enable interrupts
      * enable all error related interrupts        */
 //    SSP_SSP0IMSC = ( SSP_SSP0IMSC_RORIM_ENBL      // Enable overrun interrupt
 //                   | SSP_SSP0IMSC_RTIM_ENBL);     // Enable timeout interrupt
-  
+
     /* Enable device and set it to master mode, no loopback */
     SSP_SSP0CR1 = SSP_SSP0CR1_SSE_ENABLED | SSP_SSP0CR1_MS_MASTER | SSP_SSP0CR1_LBM_NORMAL;
 
@@ -106,7 +107,7 @@ void uartInit2()
   IOCON_PIO1_6 |= IOCON_PIO1_6_FUNC_UART_RXD;
 
   /* Set 1.7 UART TXD */
-  IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;	
+  IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
   IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
 
   /* Enable UART clock */
@@ -127,7 +128,7 @@ void uartInit2()
 
   UART_U0DLM = 0;//fDiv / 256;
   UART_U0DLL = 2;//fDiv % 256;
-  
+
   /* Set DLAB back to 0 */
   UART_U0LCR = (UART_U0LCR_Word_Length_Select_7Chars |
                 UART_U0LCR_Stop_Bit_Select_1Bits |
@@ -135,11 +136,11 @@ void uartInit2()
                 UART_U0LCR_Parity_Select_OddParity |
                 UART_U0LCR_Break_Control_Disabled |
                 UART_U0LCR_Divisor_Latch_Access_Disabled);
-  
+
   /* Enable and reset TX and RX FIFO. */
-  UART_U0FCR = (UART_U0FCR_FIFO_Enabled | 
-                UART_U0FCR_Rx_FIFO_Reset | 
-                UART_U0FCR_Tx_FIFO_Reset); 
+  UART_U0FCR = (UART_U0FCR_FIFO_Enabled |
+                UART_U0FCR_Rx_FIFO_Reset |
+                UART_U0FCR_Tx_FIFO_Reset);
 
   /* Read to clear the line status. */
   regVal = UART_U0LSR;
@@ -187,7 +188,7 @@ void sendPixelSSP(uint32_t pixel) {
 	SSP_SSP0DR = bitrefssp[pixel >> 9 & 0x00000007];
 	SSP_SSP0DR = bitrefssp[pixel >> 6 & 0x00000007];
 	SSP_SSP0DR = bitrefssp[pixel >> 3 & 0x00000007];
-	SSP_SSP0DR = bitrefssp[pixel&0x00000007];	
+	SSP_SSP0DR = bitrefssp[pixel&0x00000007];
 }
 
 void latchSSP(){
@@ -226,7 +227,7 @@ void latchSSP(){
  */
 
 
-//~ //  1xxxxxxx0	
+//~ //  1xxxxxxx0
   //~ 0b11011011,//000
   //~ 0b11011010,//001
   //~ 0b11010011,//010
@@ -247,7 +248,7 @@ void latchSSP(){
 //111
 
 uint16_t bitref[] = {
-//  1xxxxxxx0	
+//  1xxxxxxx0
   0b11011011,//000
   0b10011011,//100
   0b11010011,//010
@@ -358,7 +359,7 @@ static FILINFO Finfo;
 static FATFS Fatfs[1];
 static FIL fp;
 DSTATUS stat;
-BYTE res;  
+BYTE res;
 
 int initSDCard() {
 	stat = disk_initialize(0);
@@ -370,7 +371,7 @@ int initSDCard() {
 //		printf("No SD card%s", CFG_PRINTF_NEWLINE);
 		return 1;
 	}
-	
+
 	res = f_mount(0, &Fatfs[0]);
 	if (res != FR_OK) {
 //		printf("Failed to mount partition: %d%s" , res, CFG_PRINTF_NEWLINE);
@@ -419,15 +420,15 @@ int scanDir() {
 }
 
 int openFile(char *fileName) {
-	
+
 	res = f_open(&fp, fileName, FA_READ);
 	if(FR_OK != res) {
 //		printf("could not open file for reading: %d%s", res, CFG_PRINTF_NEWLINE);
 		return 1;
 	}
 	f_lseek(&fp, 0x36);
-	
-	return 0; 
+
+	return 0;
 }
 
 uint8_t gamma[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -487,7 +488,7 @@ void display(){
 			fp.fs = NULL;
 			break;
 		}
-		
+
 		if(fp.fptr >= fp.fsize || 0 == br) {
 			f_lseek(&fp, 0x36);
 //			printf("file end reached, looping");
@@ -530,6 +531,7 @@ void indicateBrightness() {
 	latch();
 }
 
+
 #define BTN_FIRE 3, 2
 #define BTN_UP 1, 5
 #define BTN_DOWN 3, 3
@@ -555,6 +557,11 @@ int main(void)
 	gpioSetDir(3, 1, gpioDirection_Output);
 	gpioSetValue(3,1, 0);
 
+	//LED strip power
+	gpioSetDir(2, 9, gpioDirection_Output);
+	gpioSetValue(2, 9, 1);
+	systickDelay(100);
+
 	uartInit2();
 	blank();
 	blank();
@@ -569,14 +576,18 @@ int main(void)
 		sendPixel(0x00000000);
 		systickDelay(500);
 	};
-	
+
 	scanDir();
 	openFile(fileNames[currFile]);
+	gpioSetValue(2, 9, 0);
 
 	while (1) {
 		if(0 == gpioGetValue(BTN_FIRE)) {
-			if(adcReadSingle(1) > 544) {
+			gpioSetValue(2, 9, 1);
+			systickDelay(10);
+			if(adcReadSingle(1) > 526) {
 				display();
+				blank();
 				if(0 == gpioGetValue(BTN_FIRE)) {
 					selectNextFile();
 					systickDelay(1000);
@@ -584,7 +595,10 @@ int main(void)
 			} else {
 				batteryLow();
 			}
+			gpioSetValue(2, 9, 0);
 		} else if(0 == gpioGetValue(BTN_UP)) {
+			gpioSetValue(2, 9, 1);
+			systickDelay(10);
 			if(brightness < 255) {
 				brightness++;
 			}
@@ -597,7 +611,11 @@ int main(void)
 				indicateBrightness();
 				systickDelay(10);
 			}
+			blank();
+			gpioSetValue(2, 9, 0);
 		} else if(0 == gpioGetValue(BTN_DOWN)) {
+			gpioSetValue(2, 9, 1);
+			systickDelay(10);
 			if(brightness > 0) {
 				brightness--;
 			}
@@ -610,14 +628,18 @@ int main(void)
 				indicateBrightness();
 				systickDelay(10);
 			}
-		}
-		
-
-		if(adcReadSingle(1) <= 544) {
-			batteryLow();
-		} else {
 			blank();
+			gpioSetValue(2, 9, 0);
 		}
+
+
+		if(adcReadSingle(1) <= 526) {
+			//batteryLow();
+		} else {
+			//blank();
+		}
+
+		//sleep();
 
 		cmdPoll();
 	}
