@@ -303,10 +303,21 @@ void blank(){
 
 uint32_t pixels[144];
 
+inline static void ledstripPowerOn() {
+	gpioSetValue(2, 9, 1);
+	systickDelay(10);
+}
+
+inline static void ledstripPowerOff() {
+	gpioSetValue(2, 9, 0);
+}
+
 void ledstripPlayBitmap(){
 	uint16_t i = 0;
 	uint8_t line[144*3];
 	uint32_t linesSent = 0;
+
+	ledstripPowerOn();
 
 	//uint32_t start = systickGetTicks();
 
@@ -341,16 +352,22 @@ void ledstripPlayBitmap(){
 			break;
 		}
 	}
+	blank();
+	ledstripPowerOff();
 //			printf("%d ticks for %d lines \r\n", (systickGetTicks() - start), linesSent);
 }
 
-void batteryLow() {
+inline static void indicateBatteryLow() {
+	ledstripPowerOn();
 	blank();
+
 	sendPixel(0x00002200);
-	systickDelay(1);
+	systickDelay(1000);
+
+	ledstripPowerOff();
 }
 
-void displayFileSelection() {
+inline static void displayFileSelection() {
 	blank();
 	uint16_t i = 0;
 	for(i = 0; i < totalFiles; i++) {
@@ -376,7 +393,7 @@ void selectFile() {
 }
 
 
-void selectPreviousFile() {
+inline static void selectPreviousFile() {
 	if(currFile > 0) {
 		currFile--;
 	} else {
@@ -385,7 +402,7 @@ void selectPreviousFile() {
 	selectFile();
 }
 
-void selectNextFile() {
+inline static void selectNextFile() {
 	currFile++;
 	if(currFile >= totalFiles) {
 		currFile = 0;
@@ -449,14 +466,6 @@ void setupGpio() {
 	gpioSetDir(2, 9, gpioDirection_Output);
 }
 
-inline static void ledstripPowerOn() {
-	gpioSetValue(2, 9, 1);
-}
-
-inline static void ledstripPowerOff() {
-	gpioSetValue(2, 9, 0);
-}
-
 inline static void ledstripInit() {
 	uartInit2();
 	blank();
@@ -501,6 +510,15 @@ inline static void lcdPowerOn() {
 	pwmStart();
 }
 
+inline static void selectModeInit() {
+	ledstripPowerOn();
+	displayFileSelection();
+	mode = MODE_SELECT;
+	setCursor(strlen(fileNames[currFile]), 0);
+	blink();
+	systickDelay(1000);
+}
+
 int main(void) {
 	systemInit();
 	adcInit();
@@ -517,31 +535,24 @@ int main(void) {
 	while (1) {
 
 		if(MODE_DISPLAY == mode) {
+
 			if(0 == gpioGetValue(BTN_FIRE)) {
+
 				if(adcReadSingle(1) > 526) {
 
-					ledstripPowerOn();
-					systickDelay(10);
 					ledstripPlayBitmap();
-					blank();
-					ledstripPowerOff();
+
 					if(0 == gpioGetValue(BTN_FIRE)) {
-						ledstripPowerOn();
-						displayFileSelection();
-						mode = MODE_SELECT;
-						setCursor(strlen(fileNames[currFile]), 0);
-						//cursor();
-						blink();
-						systickDelay(1000);
+
+						selectModeInit();
 					}
 				} else {
-					ledstripPowerOn();
-					batteryLow();
-					ledstripPowerOff();
+
+					indicateBatteryLow();
 				}
 			} else if(0 == gpioGetValue(BTN_UP)) {
+
 				ledstripPowerOn();
-				systickDelay(10);
 				if(brightness < 255) {
 					brightness++;
 				}
@@ -563,7 +574,6 @@ int main(void) {
 				ledstripPowerOff();
 			} else if(0 == gpioGetValue(BTN_DOWN)) {
 				ledstripPowerOn();
-				systickDelay(10);
 				if(brightness > 0) {
 					brightness--;
 				}
