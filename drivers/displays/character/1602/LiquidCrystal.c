@@ -289,7 +289,6 @@ void  _digitalWrite(uint8_t p, uint8_t d) {
 	gpioSetValue(2, 8, 0);
 
 //    SPI.transfer(_SPIbuff);
-   	while ((SSP_SSP0SR & (SSP_SSP0SR_BSY_BUSY )));
 	SSP_SSP0DR = _SPIbuff;
    	while ((SSP_SSP0SR & (SSP_SSP0SR_BSY_BUSY )));
 
