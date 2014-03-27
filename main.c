@@ -303,7 +303,7 @@ void blank(){
 
 uint32_t pixels[144];
 
-void display(){
+void ledstripPlayBitmap(){
 	uint16_t i = 0;
 	uint8_t line[144*3];
 	uint32_t linesSent = 0;
@@ -512,7 +512,7 @@ int main(void) {
 
 					ledstripOn();
 					systickDelay(10);
-					display();
+					ledstripPlayBitmap();
 					blank();
 					ledstripOff();
 					if(0 == gpioGetValue(BTN_FIRE)) {
