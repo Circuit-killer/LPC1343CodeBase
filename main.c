@@ -552,11 +552,12 @@ int main(void) {
 				}
 			} else if(0 == gpioGetValue(BTN_UP)) {
 
-				ledstripPowerOn();
 				if(brightness < 255) {
 					brightness++;
+					eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				}
-				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
+
+				ledstripPowerOn();
 				indicateBrightness();
 				brightnessToLcd();
 
@@ -576,8 +577,8 @@ int main(void) {
 				ledstripPowerOn();
 				if(brightness > 0) {
 					brightness--;
+					eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				}
-				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				indicateBrightness();
 				brightnessToLcd();
 				systickDelay(200);
