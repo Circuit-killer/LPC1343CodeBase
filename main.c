@@ -424,17 +424,7 @@ void indicateBrightness() {
 
 uint8_t mode = MODE_DISPLAY;
 
-int main(void)
-{
-	// Configure cpu and mandatory peripherals
-	systemInit();
-	adcInit();
-
-	pwmInit();
-	pwmSetFrequencyInTicks(100);
-	pwmSetDutyCycle(50);
-	pwmStart();
-
+void setupGpio() {
 	//LCD latch
     gpioSetDir(2, 8, gpioDirection_Output);
 	gpioSetValue(2, 8, 1);
@@ -457,8 +447,28 @@ int main(void)
 
 	//LED strip power
 	gpioSetDir(2, 9, gpioDirection_Output);
+}
+
+inline static void ledstripOn() {
 	gpioSetValue(2, 9, 1);
-	systickDelay(100);
+}
+
+inline static void ledstripOff() {
+	gpioSetValue(2, 9, 0);
+}
+
+int main(void) {
+	// Configure cpu and mandatory peripherals
+	systemInit();
+	adcInit();
+
+	pwmInit();
+	pwmSetFrequencyInTicks(100);
+	pwmSetDutyCycle(50);
+	pwmStart();
+
+	setupGpio();
+	ledstripOn();
 
 	uartInit2();
 	blank();
@@ -474,7 +484,7 @@ int main(void)
 		sendPixel(0x00000000);
 		systickDelay(500);
 	};
-	gpioSetValue(2, 9, 0);
+	ledstripOff();
 
 	scanDir();
 
@@ -500,13 +510,13 @@ int main(void)
 
 				if(adcReadSingle(1) > 526) {
 
-					gpioSetValue(2, 9, 1);
+					ledstripOn();
 					systickDelay(10);
 					display();
 					blank();
-					gpioSetValue(2, 9, 0);
+					ledstripOff();
 					if(0 == gpioGetValue(BTN_FIRE)) {
-						gpioSetValue(2, 9, 1);
+						ledstripOn();
 						displayFileSelection();
 						mode = MODE_SELECT;
 						setCursor(strlen(fileNames[currFile]), 0);
@@ -515,9 +525,9 @@ int main(void)
 						systickDelay(1000);
 					}
 				} else {
-					gpioSetValue(2, 9, 1);
+					ledstripOn();
 					batteryLow();
-					gpioSetValue(2, 9, 0);
+					ledstripOff();
 				}
 
 			} else if(MODE_SELECT == mode) {
@@ -530,7 +540,7 @@ int main(void)
 
 			if(MODE_DISPLAY == mode) {
 
-				gpioSetValue(2, 9, 1);
+				ledstripOn();
 				systickDelay(10);
 				if(brightness < 255) {
 					brightness++;
@@ -550,14 +560,14 @@ int main(void)
 				brightnessToLcd();
 				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				blank();
-				gpioSetValue(2, 9, 0);
+				ledstripOff();
 			} else if(MODE_SELECT == mode) {
 				selectNextFile();
 				systickDelay(300);
 			}
 		} else if(0 == gpioGetValue(BTN_DOWN)) {
 			if(MODE_DISPLAY == mode) {
-				gpioSetValue(2, 9, 1);
+				ledstripOn();
 				systickDelay(10);
 				if(brightness > 0) {
 					brightness--;
@@ -576,7 +586,7 @@ int main(void)
 				brightnessToLcd();
 				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				blank();
-				gpioSetValue(2, 9, 0);
+				ledstripOff();
 			} else if(MODE_SELECT == mode) {
 				selectPreviousFile();
 				systickDelay(300);
