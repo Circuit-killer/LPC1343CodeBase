@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include <string.h>
 
 #include "projectconfig.h"
@@ -14,6 +14,7 @@
 #include "core/adc/adc.h"
 //~ #include "core/pmu/pmu.h"
 #include "core/pwm/pwm.h"
+#include "drivers/storage/eeprom/eeprom.h"
 
 #ifdef CFG_INTERFACE
   #include "core/cmd/cmd.h"
@@ -187,7 +188,7 @@ uint32_t decreaseBrightness ( uint32_t pixel, uint32_t decreaseBy )
 	outColour = (uint8_t *)&pixel;
 	for (i=0; i<3; i++) {
 			if(decreaseBy > 0) {
-				float multiplier = 1.0 - (float)decreaseBy / 255.0;
+				//float multiplier = 1.0 - (float)decreaseBy / 255.0;
 				//outColour[i] = (uint8_t)((float)outColour[i] * multiplier);
 				outColour[i] = ((uint32_t)outColour[i] * (1024 - (decreaseBy << 2)) + 512) >> 10;
 			}
@@ -224,6 +225,9 @@ int initSDCard() {
 int isPPMFile(FILINFO Finfo) {
 	return !(Finfo.fattrib & AM_DIR) && !strcmp(strstr(Finfo.fname, "."), ".PPM");
 }
+
+#define EEPROM_FILE_INDEX_ADDR 0x00
+#define EEPROM_BRIGHTNESS_ADDR 0x01
 
 #define MAX_FILES 20
 char fileNames[MAX_FILES][13];
@@ -304,7 +308,7 @@ void display(){
 	uint8_t line[144*3];
 	uint32_t linesSent = 0;
 
-	uint32_t start = systickGetTicks();
+	//uint32_t start = systickGetTicks();
 
 	while(1) {
 		UINT br;
@@ -337,7 +341,7 @@ void display(){
 			break;
 		}
 	}
-			printf("%d ticks for %d lines \r\n", (systickGetTicks() - start), linesSent);
+//			printf("%d ticks for %d lines \r\n", (systickGetTicks() - start), linesSent);
 }
 
 void batteryLow() {
@@ -364,9 +368,11 @@ void selectFile() {
 	openFile(fileNames[currFile]);
 
 	clear();
+	setCursor(0, 0);
 	print(fileNames[currFile]);
 
 	displayFileSelection();
+	eepromWriteU8(EEPROM_FILE_INDEX_ADDR, currFile);
 }
 
 
@@ -385,6 +391,14 @@ void selectNextFile() {
 		currFile = 0;
 	}
 	selectFile();
+}
+
+char brightnessBuffer[16];
+
+void brightnessToLcd() {
+	setCursor(0, 1);
+	sprintf(brightnessBuffer, "Bright: %d/255", brightness);
+	print(brightnessBuffer);
 }
 
 void indicateBrightness() {
@@ -436,6 +450,7 @@ int main(void)
 	//fire button
 	gpioSetDir(BTN_FIRE, gpioDirection_Input);
 	gpioSetPullup(&IOCON_PIO3_2, gpioPullupMode_PullUp);
+
 	//button GND
 	gpioSetDir(3, 1, gpioDirection_Output);
 	gpioSetValue(3,1, 0);
@@ -459,14 +474,24 @@ int main(void)
 		sendPixel(0x00000000);
 		systickDelay(500);
 	};
+	gpioSetValue(2, 9, 0);
 
 	scanDir();
+
+	currFile = eepromReadU8(EEPROM_FILE_INDEX_ADDR);
+	if(currFile > totalFiles-1) {
+		currFile = 0;
+	}
+
 	openFile(fileNames[currFile]);
-	gpioSetValue(2, 9, 0);
+
+	brightness = eepromReadU8(EEPROM_BRIGHTNESS_ADDR);
 
 	LiquidCrystal();
 	clear();
+
 	print(fileNames[currFile]);
+	brightnessToLcd();
 
 	while (1) {
 		if(0 == gpioGetValue(BTN_FIRE)) {
@@ -484,6 +509,9 @@ int main(void)
 						gpioSetValue(2, 9, 1);
 						displayFileSelection();
 						mode = MODE_SELECT;
+						setCursor(strlen(fileNames[currFile]), 0);
+						//cursor();
+						blink();
 						systickDelay(1000);
 					}
 				} else {
@@ -493,7 +521,9 @@ int main(void)
 				}
 
 			} else if(MODE_SELECT == mode) {
-
+				//noCursor();
+				noBlink();
+				brightnessToLcd();
 				mode = MODE_DISPLAY;
 			}
 		} else if(0 == gpioGetValue(BTN_UP)) {
@@ -505,7 +535,10 @@ int main(void)
 				if(brightness < 255) {
 					brightness++;
 				}
+				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				indicateBrightness();
+				brightnessToLcd();
+
 				systickDelay(200);
 				while(0 == gpioGetValue(BTN_UP)) {
 					if(brightness < 255) {
@@ -514,6 +547,8 @@ int main(void)
 					indicateBrightness();
 					systickDelay(10);
 				}
+				brightnessToLcd();
+				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				blank();
 				gpioSetValue(2, 9, 0);
 			} else if(MODE_SELECT == mode) {
@@ -527,7 +562,9 @@ int main(void)
 				if(brightness > 0) {
 					brightness--;
 				}
+				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				indicateBrightness();
+				brightnessToLcd();
 				systickDelay(200);
 				while(0 == gpioGetValue(BTN_DOWN)) {
 					if(brightness > 0) {
@@ -536,6 +573,8 @@ int main(void)
 					indicateBrightness();
 					systickDelay(10);
 				}
+				brightnessToLcd();
+				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				blank();
 				gpioSetValue(2, 9, 0);
 			} else if(MODE_SELECT == mode) {
