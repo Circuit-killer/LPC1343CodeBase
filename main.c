@@ -449,16 +449,21 @@ void setupGpio() {
 	gpioSetDir(2, 9, gpioDirection_Output);
 }
 
-inline static void ledstripOn() {
+inline static void ledstripPowerOn() {
 	gpioSetValue(2, 9, 1);
 }
 
-inline static void ledstripOff() {
+inline static void ledstripPowerOff() {
 	gpioSetValue(2, 9, 0);
 }
 
+inline static void ledstripInit() {
+	uartInit2();
+	blank();
+	blank();
+}
+
 int main(void) {
-	// Configure cpu and mandatory peripherals
 	systemInit();
 	adcInit();
 
@@ -468,11 +473,9 @@ int main(void) {
 	pwmStart();
 
 	setupGpio();
-	ledstripOn();
 
-	uartInit2();
-	blank();
-	blank();
+	ledstripPowerOn();
+	ledstripInit();
 
 	sendPixel(0x00000011);
 	systickDelay(1);
@@ -484,7 +487,7 @@ int main(void) {
 		sendPixel(0x00000000);
 		systickDelay(500);
 	};
-	ledstripOff();
+	ledstripPowerOff();
 
 	scanDir();
 
@@ -510,13 +513,13 @@ int main(void) {
 
 				if(adcReadSingle(1) > 526) {
 
-					ledstripOn();
+					ledstripPowerOn();
 					systickDelay(10);
 					ledstripPlayBitmap();
 					blank();
-					ledstripOff();
+					ledstripPowerOff();
 					if(0 == gpioGetValue(BTN_FIRE)) {
-						ledstripOn();
+						ledstripPowerOn();
 						displayFileSelection();
 						mode = MODE_SELECT;
 						setCursor(strlen(fileNames[currFile]), 0);
@@ -525,9 +528,9 @@ int main(void) {
 						systickDelay(1000);
 					}
 				} else {
-					ledstripOn();
+					ledstripPowerOn();
 					batteryLow();
-					ledstripOff();
+					ledstripPowerOff();
 				}
 
 			} else if(MODE_SELECT == mode) {
@@ -540,7 +543,7 @@ int main(void) {
 
 			if(MODE_DISPLAY == mode) {
 
-				ledstripOn();
+				ledstripPowerOn();
 				systickDelay(10);
 				if(brightness < 255) {
 					brightness++;
@@ -560,14 +563,14 @@ int main(void) {
 				brightnessToLcd();
 				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				blank();
-				ledstripOff();
+				ledstripPowerOff();
 			} else if(MODE_SELECT == mode) {
 				selectNextFile();
 				systickDelay(300);
 			}
 		} else if(0 == gpioGetValue(BTN_DOWN)) {
 			if(MODE_DISPLAY == mode) {
-				ledstripOn();
+				ledstripPowerOn();
 				systickDelay(10);
 				if(brightness > 0) {
 					brightness--;
@@ -586,7 +589,7 @@ int main(void) {
 				brightnessToLcd();
 				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				blank();
-				ledstripOff();
+				ledstripPowerOff();
 			} else if(MODE_SELECT == mode) {
 				selectPreviousFile();
 				systickDelay(300);
