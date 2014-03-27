@@ -19,82 +19,6 @@
   #include "core/cmd/cmd.h"
 #endif
 
-void sspInit2 ()
-{
-  gpioInit();
-
-    /* Reset SSP */
-    SCB_PRESETCTRL &= ~SCB_PRESETCTRL_SSP0_MASK;
-    SCB_PRESETCTRL |= SCB_PRESETCTRL_SSP0_RESETDISABLED;
-
-    /* Enable AHB clock to the SSP domain. */
-    SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_SSP0);
-
-    /* Divide by 1 (SSPCLKDIV also enables to SSP CLK) */
-    SCB_SSP0CLKDIV = SCB_SSP0CLKDIV_DIV1;
-
-    /* Set P0.8 to SSP MISO */
-    //IOCON_PIO0_8 &= ~IOCON_PIO0_8_FUNC_MASK;
-    //IOCON_PIO0_8 |= IOCON_PIO0_8_FUNC_MISO0;
-
-    /* Set P0.9 to SSP MOSI */
-    IOCON_PIO0_9 &= ~IOCON_PIO0_9_FUNC_MASK;
-    IOCON_PIO0_9 |= IOCON_PIO0_9_FUNC_MOSI0;
-
-    /* Set 2.11 to SSP SCK (0.6 and 0.10 can also be used) */
-    IOCON_SCKLOC = IOCON_SCKLOC_SCKPIN_PIO2_11;
-
-    /* Set P0.2/SSEL to GPIO output and high */
- //   IOCON_PIO0_2 &= ~IOCON_PIO0_2_FUNC_MASK;
- //   IOCON_PIO0_2 |= IOCON_PIO0_2_FUNC_GPIO;
- //   gpioSetDir(SSP0_CSPORT, SSP0_CSPIN, 1);
- //   gpioSetValue(SSP0_CSPORT, SSP0_CSPIN, 1);
- //   gpioSetPullup(&IOCON_PIO0_2, gpioPullupMode_Inactive);  // Board has external pull-up
-
-    /* If SSP0CLKDIV = DIV1 -- (PCLK / (CPSDVSR * [SCR+1])) = (72,000,000 / (2 x [8 + 1])) = 4.0 MHz */
-    uint32_t configReg = ( SSP_SSP0CR0_DSS_12BIT   // Data size = 8-bit
-                  | SSP_SSP0CR0_FRF_SPI           // Frame format = SPI
-                  | SSP_SSP0CR0_SCR_10);           // Serial clock rate = 8
-
-    // Set clock polarity
-//    if (polarity == sspClockPolarity_High)
-//      configReg |= SSP_SSP0CR0_CPOL_HIGH;     // Clock polarity = High between frames
-//    else
-      configReg &= ~SSP_SSP0CR0_CPOL_MASK;    // Clock polarity = Low between frames
-
-    // Set edge transition
-//    if (phase == sspClockPhase_FallingEdge)
-      configReg |= SSP_SSP0CR0_CPHA_SECOND;   // Clock out phase = Trailing edge clock transition
-//    else
-//      configReg &= ~SSP_SSP0CR0_CPHA_MASK;    // Clock out phase = Leading edge clock transition
-
-    // Assign config values to SSP0CR0
-    SSP_SSP0CR0 = configReg;
-
-    /* Clock prescale register must be even and at least 2 in master mode */
-    SSP_SSP0CPSR = SSP_SSP0CPSR_CPSDVSR_DIV2;
-
-    /* Clear the Rx FIFO */
-    uint8_t i, Dummy=Dummy;
-    for ( i = 0; i < 8; i++ )
-    {
-      Dummy = SSP_SSP0DR;
-    }
-
-    /* Enable the SSP Interrupt */
-//    NVIC_EnableIRQ(SSP_IRQn);
-
-    /* Set SSPINMS registers to enable interrupts
-     * enable all error related interrupts        */
-//    SSP_SSP0IMSC = ( SSP_SSP0IMSC_RORIM_ENBL      // Enable overrun interrupt
-//                   | SSP_SSP0IMSC_RTIM_ENBL);     // Enable timeout interrupt
-
-    /* Enable device and set it to master mode, no loopback */
-    SSP_SSP0CR1 = SSP_SSP0CR1_SSE_ENABLED | SSP_SSP0CR1_MS_MASTER | SSP_SSP0CR1_LBM_NORMAL;
-
-  return;
-}
-
 void uartInit2()
 {
   uint32_t regVal;
@@ -162,92 +86,7 @@ void uartInit2()
   return;
 }
 
-void uartSendByte2 (uint8_t byte)
-{
-  /* THRE status, contain valid data */
-  while ( !(UART_U0LSR & UART_U0LSR_THRE) );
-  UART_U0THR = byte;
 
-  return;
-}
-
-uint16_t bitrefssp[] = {
-	0b0000100010001000,//000
-	0b0000100010001110,//001
-	0b0000100011101000,//010
-	0b0000100011101110,//011
-	0b0000111010001000,//100
-	0b0000111010001110,//101
-	0b0000111011101000,//110
-	0b0000111011101110,//111
-};
-void sendPixelSSP(uint32_t pixel) {
-	while ((SSP_SSP0SR & (SSP_SSP0SR_BSY_BUSY )));
-	SSP_SSP0DR = bitrefssp[pixel >> 21 & 0x00000007];
-	SSP_SSP0DR = bitrefssp[pixel >> 18 & 0x00000007];
-	SSP_SSP0DR = bitrefssp[pixel >> 15 & 0x00000007];
-	SSP_SSP0DR = bitrefssp[pixel >> 12 & 0x00000007];
-	SSP_SSP0DR = bitrefssp[pixel >> 9 & 0x00000007];
-	SSP_SSP0DR = bitrefssp[pixel >> 6 & 0x00000007];
-	SSP_SSP0DR = bitrefssp[pixel >> 3 & 0x00000007];
-	SSP_SSP0DR = bitrefssp[pixel&0x00000007];
-}
-
-void latchSSP(){
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-	while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL )) != SSP_SSP0SR_TNF_NOTFULL);
-	SSP_SSP0DR = 0;
-}
-/*
-   0b11101111,//00
-  0b10001111,//01
-  0b11101100,//10
-  0b10001100,//11
-
-  0b11001110,//00
-  0b10001110,//01
-  0b11001100,//10
-  0b10001100,//11
-
- */
-
-
-//~ //  1xxxxxxx0
-  //~ 0b11011011,//000
-  //~ 0b11011010,//001
-  //~ 0b11010011,//010
-  //~ 0b11010010,//011
-  //~ 0b10011011,//100
-  //~ 0b10011010,//101
-  //~ 0b10010011,//110
-  //~ 0b10010010,//111
-
-
-//000
-//100
-//010
-//110
-//001
-//101
-//011
-//111
 
 uint16_t bitref[] = {
 //  1xxxxxxx0
@@ -577,11 +416,14 @@ int main(void)
 	systemInit();
 	adcInit();
 
+	pwmInit();
+	pwmSetFrequencyInTicks(100);
+	pwmSetDutyCycle(50);
+	pwmStart();
+
 	//LCD latch
     gpioSetDir(2, 8, gpioDirection_Output);
 	gpioSetValue(2, 8, 1);
-
-	sspInit();
 
 	//down button
 	gpioSetDir(BTN_DOWN, gpioDirection_Input);
@@ -622,12 +464,6 @@ int main(void)
 	openFile(fileNames[currFile]);
 	gpioSetValue(2, 9, 0);
 
-	pwmInit();
-	pwmSetFrequencyInTicks(100);
-	pwmSetDutyCycle(50);
-	pwmStart();
-
-	systickDelay(100);
 	LiquidCrystal();
 	clear();
 	print(fileNames[currFile]);
@@ -707,7 +543,6 @@ int main(void)
 				systickDelay(300);
 			}
 		}
-
 
 		if(adcReadSingle(1) <= 526) {
 			//batteryLow();
