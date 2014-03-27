@@ -463,20 +463,7 @@ inline static void ledstripInit() {
 	blank();
 }
 
-int main(void) {
-	systemInit();
-	adcInit();
-
-	pwmInit();
-	pwmSetFrequencyInTicks(100);
-	pwmSetDutyCycle(50);
-	pwmStart();
-
-	setupGpio();
-
-	ledstripPowerOn();
-	ledstripInit();
-
+inline static void sdcardInit() {
 	sendPixel(0x00000011);
 	systickDelay(1);
 
@@ -497,14 +484,35 @@ int main(void) {
 	}
 
 	openFile(fileNames[currFile]);
+}
 
-	brightness = eepromReadU8(EEPROM_BRIGHTNESS_ADDR);
-
+inline static void lcdInit() {
 	LiquidCrystal();
 	clear();
 
 	print(fileNames[currFile]);
 	brightnessToLcd();
+}
+
+inline static void lcdPowerOn() {
+	pwmInit();
+	pwmSetFrequencyInTicks(100);
+	pwmSetDutyCycle(50);
+	pwmStart();
+}
+
+int main(void) {
+	systemInit();
+	adcInit();
+	lcdPowerOn();
+	setupGpio();
+	ledstripPowerOn();
+	ledstripInit();
+	sdcardInit();
+
+	brightness = eepromReadU8(EEPROM_BRIGHTNESS_ADDR);
+
+	lcdInit();
 
 	while (1) {
 		if(0 == gpioGetValue(BTN_FIRE)) {
