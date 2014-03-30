@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*! 
+/*!
     @file     sysinit.c
     @author   K. Townsend (microBuilder.eu)
     @date     22 March 2010
@@ -84,7 +84,7 @@
 #ifdef CFG_TFTLCD
   #include "drivers/displays/tft/lcd.h"
   #include "drivers/displays/tft/touchscreen.h"
-  #include "drivers/displays/tft/drawing.h"  
+  #include "drivers/displays/tft/drawing.h"
 #endif
 
 #ifdef CFG_I2CEEPROM
@@ -117,7 +117,7 @@
 #endif
 
 /**************************************************************************/
-/*! 
+/*!
     Configures the core system clock and sets up any mandatory
     peripherals like the systick timer, UART for printf, etc.
 
@@ -141,7 +141,7 @@ void systemInit()
   #ifdef CFG_ALTRESET
     gpioSetDir (CFG_ALTRESET_PORT, CFG_ALTRESET_PIN, gpioDirection_Input);
     gpioSetInterrupt (CFG_ALTRESET_PORT, CFG_ALTRESET_PIN, gpioInterruptSense_Level, gpioInterruptEdge_Single, gpioInterruptEvent_ActiveHigh);
-    gpioIntEnable (CFG_ALTRESET_PORT, CFG_ALTRESET_PIN); 
+    gpioIntEnable (CFG_ALTRESET_PORT, CFG_ALTRESET_PIN);
   #endif
 
   // Initialise EEPROM
@@ -178,18 +178,18 @@ void systemInit()
 
   // Initialise USB CDC
   #ifdef CFG_USBCDC
-    lastTick = systickGetTicks();   // Used to control output/printf timing
-    CDC_Init();                     // Initialise VCOM
-    USB_Init();                     // USB Initialization
-    USB_Connect(TRUE);              // USB Connect
-    // Wait until USB is configured or timeout occurs
-    uint32_t usbTimeout = 0; 
-    while ( usbTimeout < CFG_USBCDC_INITTIMEOUT / 10 )
-    {
-      if (USB_Configuration) break;
-      systickDelay(10);             // Wait 10ms
-      usbTimeout++;
-    }
+    //~ lastTick = systickGetTicks();   // Used to control output/printf timing
+    //~ CDC_Init();                     // Initialise VCOM
+    //~ USB_Init();                     // USB Initialization
+    //~ USB_Connect(TRUE);              // USB Connect
+    //~ // Wait until USB is configured or timeout occurs
+    //~ uint32_t usbTimeout = 0;
+    //~ while ( usbTimeout < CFG_USBCDC_INITTIMEOUT / 10 )
+    //~ {
+      //~ if (USB_Configuration) break;
+      //~ systickDelay(10);             // Wait 10ms
+      //~ usbTimeout++;
+    //~ }
   #endif
 
   // Printf can now be used with UART or USBCDC
@@ -197,22 +197,22 @@ void systemInit()
   // Initialise the ST7565 128x64 pixel display
   #ifdef CFG_ST7565
     st7565Init();
-    st7565ClearScreen();    // Clear the screen  
+    st7565ClearScreen();    // Clear the screen
     st7565Backlight(1);     // Enable the backlight
   #endif
 
   // Initialise the SSD1306 OLED display
   #ifdef CFG_SSD1306
     ssd1306Init(SSD1306_INTERNALVCC);
-    ssd1306ClearScreen();   // Clear the screen  
+    ssd1306ClearScreen();   // Clear the screen
   #endif
 
   // Initialise TFT LCD Display
   #ifdef CFG_TFTLCD
     lcdInit();
-    // You may need to call the tsCalibrate() function to calibrate 
+    // You may need to call the tsCalibrate() function to calibrate
     // the touch screen is this has never been done.  This only needs
-    // to be done once and the values are saved to EEPROM.  This 
+    // to be done once and the values are saved to EEPROM.  This
     // function can also be called from tsInit if it's more
     // convenient
     /*
@@ -246,14 +246,14 @@ void systemInit()
 }
 
 /**************************************************************************/
-/*! 
+/*!
     @brief Sends a single byte to a pre-determined peripheral (UART, etc.).
 
     @param[in]  byte
                 Byte value to send
 */
 /**************************************************************************/
-void __putchar(const char c) 
+void __putchar(const char c)
 {
   #ifdef CFG_PRINTF_UART
     // Send output to UART
@@ -262,7 +262,7 @@ void __putchar(const char c)
 }
 
 /**************************************************************************/
-/*! 
+/*!
     @brief Sends a string to a pre-determined end point (UART, etc.).
 
     @param[in]  str
@@ -280,7 +280,7 @@ int puts(const char * str)
   // This buffers all data and writes it out from the buffer one frame
   // and one millisecond at a time
   #ifdef CFG_PRINTF_USBCDC
-    if (USB_Configuration) 
+    if (USB_Configuration)
     {
       while(*str)
         cdcBufferWrite(*str++);
@@ -316,7 +316,7 @@ int puts(const char * str)
 #ifdef __CROSSWORKS_ARM
 
 /**************************************************************************/
-/*! 
+/*!
     @brief  Outputs a formatted string on the DBGU stream. Format arguments
             are given in a va_list instance.
 
@@ -330,21 +330,21 @@ signed int vprintf(const char *pFormat, va_list ap)
 {
   char pStr[CFG_PRINTF_MAXSTRINGSIZE];
   char pError[] = "stdio.c: increase CFG_PRINTF_MAXSTRINGSIZE\r\n";
-  
+
   // Write formatted string in buffer
   if (vsprintf(pStr, pFormat, ap) >= CFG_PRINTF_MAXSTRINGSIZE) {
-    
+
     puts(pError);
     while (1); // Increase CFG_PRINTF_MAXSTRINGSIZE
   }
-  
+
   // Display string
   return puts(pStr);
 }
 
 /**************************************************************************/
-/*! 
-    @brief  Outputs a formatted string on the DBGU stream, using a 
+/*!
+    @brief  Outputs a formatted string on the DBGU stream, using a
             variable number of arguments
 
     @param[in]  pFormat
