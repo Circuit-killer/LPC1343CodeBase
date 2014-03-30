@@ -306,10 +306,19 @@ uint32_t pixels[144];
 inline static void ledstripPowerOn() {
 	gpioSetValue(2, 9, 1);
 	systickDelay(10);
+
+    IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
+    IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
 }
 
 inline static void ledstripPowerOff() {
 	gpioSetValue(2, 9, 0);
+
+    IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
+    IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_GPIO;
+
+	gpioSetDir(1, 7, gpioDirection_Output);
+	gpioSetValue(1, 7, 0);
 }
 
 void ledstripPlayBitmap(){
@@ -468,6 +477,7 @@ void setupGpio() {
 
 inline static void ledstripInit() {
 	uartInit2();
+
 	blank();
 	blank();
 }
