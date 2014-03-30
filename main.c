@@ -304,20 +304,20 @@ void blank(){
 uint32_t pixels[144];
 
 inline static void ledstripPowerOn() {
-    IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
-    IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
+    //~ IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
+    //~ IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
 	gpioSetValue(2, 9, 1);
-	systickDelay(1);
+	systickDelay(10);
 }
 
 inline static void ledstripPowerOff() {
 	gpioSetValue(2, 9, 0);
 
-    IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
-    IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_GPIO;
-
-	gpioSetDir(1, 7, gpioDirection_Output);
-	gpioSetValue(1, 7, 0);
+    //~ IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
+    //~ IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_GPIO;
+//~
+	//~ gpioSetDir(1, 7, gpioDirection_Output);
+	//~ gpioSetValue(1, 7, 0);
 }
 
 void ledstripPlayBitmap(){
@@ -576,6 +576,12 @@ void WAKEUP_IRQHandler(void) {
 }
 
 inline static void sleep() {
+    IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
+    IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_GPIO;
+
+	gpioSetDir(1, 7, gpioDirection_Output);
+	gpioSetValue(1, 7, 0);
+
 	PMU_PMUCTRL &= ~PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
 	PMU_PMUCTRL |= PMU_PMUCTRL_DPDFLAG;
 
@@ -610,7 +616,12 @@ inline static void sleep() {
 
 	SCB_SCR |= SCB_SCR_SLEEPDEEP;
 	__asm volatile ("WFI");
+
+    IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
+    IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
 }
+
+#define TICKS_BEFORE_SLEEP 5000
 
 int main(void) {
 	systemInit();
@@ -625,6 +636,8 @@ int main(void) {
 	brightness = eepromReadU8(EEPROM_BRIGHTNESS_ADDR);
 
 	lcdInit();
+
+	uint32_t wakeupTimestamp = systickGetTicks();
 
 	while (1) {
 
@@ -643,7 +656,9 @@ int main(void) {
 				} else {
 
 					indicateBatteryLow();
+					sleep();
 				}
+				wakeupTimestamp = systickGetTicks();
 			} else if(0 == gpioGetValue(BTN_UP)) {
 
 				if(brightness < 255) {
@@ -667,6 +682,7 @@ int main(void) {
 				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				blank();
 				ledstripPowerOff();
+				wakeupTimestamp = systickGetTicks();
 			} else if(0 == gpioGetValue(BTN_DOWN)) {
 				if(brightness > 0) {
 					brightness--;
@@ -688,9 +704,10 @@ int main(void) {
 				eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				blank();
 				ledstripPowerOff();
+				wakeupTimestamp = systickGetTicks();
 			}
 
-			if(MODE_DISPLAY == mode) {
+			if(MODE_DISPLAY == mode && systickGetTicks() - wakeupTimestamp > TICKS_BEFORE_SLEEP) {
 				sleep();
 			}
 		} else if(MODE_SELECT == mode) {
@@ -699,6 +716,7 @@ int main(void) {
 				noBlink();
 				brightnessToLcd();
 				mode = MODE_DISPLAY;
+				wakeupTimestamp = systickGetTicks();
 			} else if(0 == gpioGetValue(BTN_UP)) {
 				selectNextFile();
 				systickDelay(300);
