@@ -63,45 +63,46 @@ void pmuRestoreHW(void);
     Wakeup interrupt handler
 */
 /**************************************************************************/
-void WAKEUP_IRQHandler(void)
-{
-  uint32_t regVal;
 
-  // Reconfigure system clock/PLL
-  cpuPllSetup(CPU_MULTIPLIER_6);
-
-  // Clear match bit on timer
-  TMR_TMR32B0EMR = 0;
-
-  // Clear pending bits
-  SCB_STARTRSRP0CLR = SCB_STARTRSRP0CLR_MASK;
-
-  // Clear SLEEPDEEP bit
-  SCB_SCR &= ~SCB_SCR_SLEEPDEEP;
-
-  // Disable the deep sleep timer
-  TMR_TMR32B0TCR = TMR_TMR32B0TCR_COUNTERENABLE_DISABLED;
-
-  /* This handler takes care of all the port pins if they
-  are configured as wakeup source. */
-  regVal = SCB_STARTSRP0;
-  if (regVal != 0)
-  {
-    SCB_STARTRSRP0CLR = regVal;
-  }
-
-  // Reconfigure CT32B0
-  timer32Init(0, TIMER32_DEFAULTINTERVAL);
-  timer32Enable(0);
-
-  // Perform peripheral specific and custom wakeup tasks
-  pmuRestoreHW();
-
-  /* See tracker for bug report. */
-  __asm volatile ("NOP");
-
-  return;
-}
+//~ void WAKEUP_IRQHandler(void)
+//~ {
+  //~ uint32_t regVal;
+//~
+  //~ // Reconfigure system clock/PLL
+  //~ cpuPllSetup(CPU_MULTIPLIER_6);
+//~
+  //~ // Clear match bit on timer
+  //~ TMR_TMR32B0EMR = 0;
+//~
+  //~ // Clear pending bits
+  //~ SCB_STARTRSRP0CLR = SCB_STARTRSRP0CLR_MASK;
+//~
+  //~ // Clear SLEEPDEEP bit
+  //~ SCB_SCR &= ~SCB_SCR_SLEEPDEEP;
+//~
+  //~ // Disable the deep sleep timer
+  //~ TMR_TMR32B0TCR = TMR_TMR32B0TCR_COUNTERENABLE_DISABLED;
+//~
+  //~ /* This handler takes care of all the port pins if they
+  //~ are configured as wakeup source. */
+  //~ regVal = SCB_STARTSRP0;
+  //~ if (regVal != 0)
+  //~ {
+    //~ SCB_STARTRSRP0CLR = regVal;
+  //~ }
+//~
+  //~ // Reconfigure CT32B0
+  //~ timer32Init(0, TIMER32_DEFAULTINTERVAL);
+  //~ timer32Enable(0);
+//~
+  //~ // Perform peripheral specific and custom wakeup tasks
+  //~ pmuRestoreHW();
+//~
+  //~ /* See tracker for bug report. */
+  //~ __asm volatile ("NOP");
+//~
+  //~ return;
+//~ }
 
 /**************************************************************************/
 /*!

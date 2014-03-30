@@ -12,8 +12,8 @@
 #include "drivers/fatfs/ff.h"
 #include "drivers/displays/character/1602/LiquidCrystal.h"
 #include "core/adc/adc.h"
-//~ #include "core/pmu/pmu.h"
 #include "core/pwm/pwm.h"
+#include "core/cpu/cpu.h"
 #include "drivers/storage/eeprom/eeprom.h"
 
 #ifdef CFG_INTERFACE
@@ -304,11 +304,10 @@ void blank(){
 uint32_t pixels[144];
 
 inline static void ledstripPowerOn() {
-	gpioSetValue(2, 9, 1);
-	systickDelay(10);
-
     IOCON_PIO1_7 &= ~IOCON_PIO1_7_FUNC_MASK;
     IOCON_PIO1_7 |= IOCON_PIO1_7_FUNC_UART_TXD;
+	gpioSetValue(2, 9, 1);
+	systickDelay(1);
 }
 
 inline static void ledstripPowerOff() {
@@ -529,8 +528,93 @@ inline static void selectModeInit() {
 	systickDelay(1000);
 }
 
+inline static void pmuInit() {
+	SCB_PDRUNCFG &= ~(SCB_PDRUNCFG_SYSOSC_MASK |
+					  SCB_PDRUNCFG_IRCOUT |
+	                  SCB_PDRUNCFG_IRC |
+	                  SCB_PDRUNCFG_ADC_MASK |
+					  SCB_PDRUNCFG_FLASH |
+					  SCB_PDRUNCFG_SYSPLL |
+					  SCB_PDRUNCFG_USBPLL |
+					  SCB_PDRUNCFG_USBPAD |
+					  SCB_PDRUNCFG_BOD
+					  );
+
+	SCB_PDRUNCFG |= SCB_PDRUNCFG_WDTOSC;
+}
+
+void WAKEUP_IRQHandler(void) {
+    NVIC_DisableIRQ(WAKEUP38_IRQn);   // P3.2
+    NVIC_DisableIRQ(WAKEUP39_IRQn);   // P3.3
+    NVIC_DisableIRQ(WAKEUP17_IRQn);   // P1.5
+
+
+  // Reconfigure system clock/PLL
+  cpuPllSetup(CPU_MULTIPLIER_6);
+  // Clear pending bits
+  SCB_STARTRSRP1CLR = SCB_STARTRSRP1CLR_MASK;
+  SCB_STARTRSRP0CLR = SCB_STARTRSRP0CLR_MASK;
+
+    // Clear SLEEPDEEP bit
+  SCB_SCR &= ~SCB_SCR_SLEEPDEEP;
+
+  /* This handler takes care of all the port pins if they
+  are configured as wakeup source. */
+  uint32_t regVal = SCB_STARTSRP1;
+  if (regVal != 0) {
+    SCB_STARTRSRP1CLR = regVal;
+  }
+
+  regVal = SCB_STARTSRP0;
+  if (regVal != 0) {
+    SCB_STARTRSRP0CLR = regVal;
+  }
+
+  /* See tracker for bug report. */
+  __asm volatile ("NOP");
+  return;
+}
+
+inline static void sleep() {
+	PMU_PMUCTRL &= ~PMU_PMUCTRL_DPDEN_DEEPPOWERDOWN;
+	PMU_PMUCTRL |= PMU_PMUCTRL_DPDFLAG;
+
+	SCB_PDSLEEPCFG = 0x00000FFF; //WDT off, BOD off
+
+	// Setup main clock (use PLL output)
+	SCB_MAINCLKSEL = SCB_MAINCLKSEL_SOURCE_INTERNALOSC;
+	SCB_MAINCLKUEN = SCB_MAINCLKUEN_DISABLE;    // Toggle update register once
+	SCB_MAINCLKUEN = SCB_MAINCLKUEN_UPDATE;
+	// Wait until the clock is updated
+	while (!(SCB_MAINCLKUEN & SCB_MAINCLKUEN_UPDATE));
+
+	SCB_PDAWAKECFG = SCB_PDRUNCFG;
+
+    /* Clear all wakeup sources */
+    SCB_STARTRSRP1CLR = SCB_STARTRSRP1CLR_MASK;
+    SCB_STARTRSRP0CLR = SCB_STARTRSRP0CLR_MASK;
+
+    /* Use FALLING EDGE for wakeup detection. */
+    SCB_STARTAPRP1 &= ~(SCB_STARTAPRP1_APRPIO3_2 |
+						SCB_STARTAPRP1_APRPIO3_3
+						);
+    SCB_STARTAPRP0 &= ~SCB_STARTAPRP0_APRPIO1_5;
+
+
+    SCB_STARTERP1 |= SCB_STARTERP1_ERPIO3_2 | SCB_STARTERP1_ERPIO3_3;
+	SCB_STARTERP0 |= SCB_STARTERP0_ERPIO1_5;
+
+    NVIC_EnableIRQ(WAKEUP38_IRQn);   // P3.2
+    NVIC_EnableIRQ(WAKEUP39_IRQn);   // P3.3
+    NVIC_EnableIRQ(WAKEUP17_IRQn);   // P1.5
+
+	SCB_SCR |= SCB_SCR_SLEEPDEEP;
+	__asm volatile ("WFI");
+}
+
 int main(void) {
 	systemInit();
+	pmuInit();
 	adcInit();
 	lcdPowerOn();
 	setupGpio();
@@ -584,13 +668,14 @@ int main(void) {
 				blank();
 				ledstripPowerOff();
 			} else if(0 == gpioGetValue(BTN_DOWN)) {
-				ledstripPowerOn();
 				if(brightness > 0) {
 					brightness--;
 					eepromWriteU8(EEPROM_BRIGHTNESS_ADDR, brightness);
 				}
+				ledstripPowerOn();
 				indicateBrightness();
 				brightnessToLcd();
+
 				systickDelay(200);
 				while(0 == gpioGetValue(BTN_DOWN)) {
 					if(brightness > 0) {
@@ -605,6 +690,9 @@ int main(void) {
 				ledstripPowerOff();
 			}
 
+			if(MODE_DISPLAY == mode) {
+				sleep();
+			}
 		} else if(MODE_SELECT == mode) {
 			if(0 == gpioGetValue(BTN_FIRE)) {
 				//noCursor();
@@ -620,9 +708,7 @@ int main(void) {
 			}
 		}
 
-		//sleep();
-
-		cmdPoll();
+		//cmdPoll();
 	}
 
 	return 0;
